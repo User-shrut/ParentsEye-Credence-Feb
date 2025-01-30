@@ -120,7 +120,8 @@ import StatusButtons from './StatusButtons.js'
 
 const Dashboard = () => {
   const dispatch = useDispatch()
-  const credentials = Cookies.get('crdntl')
+  // const credentials = Cookies.get('crdntl')
+  const credentials = Cookies.get('authToken') //For devices show has per users
   const { vehicles, filteredVehicles, loading } = useSelector((state) => state.liveFeatures)
   const { devices: deviceList } = useSelector((state) => state.devices)
 
@@ -151,7 +152,7 @@ const Dashboard = () => {
     }
 
     try {
-      JSON.parse(credentials) // Quick validation to ensure credentials are valid JSON
+      // JSON.parse(credentials) // Quick validation to ensure credentials are valid JSON
       dispatch(initializeSocket(credentials))
     } catch (error) {
       console.error('Invalid credentials format:', error.message)

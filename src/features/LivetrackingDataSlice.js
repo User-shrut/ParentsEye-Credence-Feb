@@ -229,7 +229,9 @@ export const initializeSocket = (credentials) => (dispatch) => {
 
   let convertedCredentialsIntoObject
   try {
-    convertedCredentialsIntoObject = JSON.parse(credentials)
+    // convertedCredentialsIntoObject = JSON.parse(credentials)
+    // Device show has per user
+    convertedCredentialsIntoObject = credentials;
     console.log('Converted credentials:', convertedCredentialsIntoObject)
   } catch (error) {
     console.error('Failed to parse credentials:', error.message)
