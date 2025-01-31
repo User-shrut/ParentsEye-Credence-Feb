@@ -333,9 +333,9 @@ const ShowSummary = ({
     return isNaN(date)
       ? '--'
       : date.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        hour: '2-digit',
+        minute: '2-digit',
+      })
   }
 
   // Transform apiData to match reportData structure
@@ -624,10 +624,9 @@ const ShowSummary = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${
-            selectedFromDate && selectedToDate
-              ? `${selectedFromDate} - ${selectedToDate}`
-              : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${selectedFromDate && selectedToDate
+            ? `${selectedFromDate} - ${selectedToDate}`
+            : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -723,7 +722,7 @@ const ShowSummary = ({
     try {
       // Validate data before proceeding
       if (!Array.isArray(sortedData) || sortedData.length === 0) {
-        throw new Error('No data available for PDF export')
+        throw new Error('No data available for PDF export');
       }
 
       // Constants and configuration
@@ -748,43 +747,30 @@ const ShowSummary = ({
           primary: 'helvetica',
           secondary: 'courier',
         },
-      }
+      };
 
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
-      })
+      });
 
       // Helper functions
-      const applyPrimaryColor = () => {
-        doc.setFillColor(...CONFIG.colors.primary)
-        doc.setTextColor(...CONFIG.colors.primary)
-      }
-
       const applySecondaryColor = () => {
-        doc.setTextColor(...CONFIG.colors.secondary)
-      }
+        doc.setTextColor(...CONFIG.colors.secondary);
+      };
 
       const addHeader = () => {
-        // Company logo and name
-        doc.setFillColor(...CONFIG.colors.primary)
-        doc.rect(
-          CONFIG.company.logo.x,
-          CONFIG.company.logo.y,
-          CONFIG.company.logo.size,
-          CONFIG.company.logo.size,
-          'F',
-        )
-        doc.setFont(CONFIG.fonts.primary, 'bold')
-        doc.setFontSize(16)
-        doc.text(CONFIG.company.name, 28, 21)
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.rect(CONFIG.company.logo.x, CONFIG.company.logo.y, CONFIG.company.logo.size, CONFIG.company.logo.size, 'F');
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(16);
+        doc.text(CONFIG.company.name, 28, 21);
 
-        // Header line
-        doc.setDrawColor(...CONFIG.colors.primary)
-        doc.setLineWidth(0.5)
-        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
-      }
+        doc.setDrawColor(...CONFIG.colors.primary);
+        doc.setLineWidth(0.5);
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
+      };
 
       const addMetadata = () => {
         const metadata = [
@@ -808,186 +794,168 @@ const ShowSummary = ({
             value: selectedDeviceName || 'N/A',
             x: 80,
           },
-        ]
+        ];
 
-        doc.setFontSize(10)
-        let yPosition = 45
+        doc.setFontSize(10);
+        let yPosition = 45;
 
         metadata.forEach((item, index) => {
-          doc.setFont(CONFIG.fonts.primary, 'bold')
-          doc.text(item.label, item.x, yPosition + (index % 2) * 6)
-
-          doc.setFont(CONFIG.fonts.primary, 'normal')
-          doc.text(item.value.toString(), item.x + 25, yPosition + (index % 2) * 6)
-        })
-      }
+          doc.setFont(CONFIG.fonts.primary, 'bold');
+          doc.text(item.label, item.x, yPosition + (index % 2) * 6);
+          doc.setFont(CONFIG.fonts.primary, 'normal');
+          doc.text(item.value.toString(), item.x + 25, yPosition + (index % 2) * 6);
+        });
+      };
 
       const addFooter = () => {
-        const pageCount = doc.getNumberOfPages()
+        const pageCount = doc.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i)
+          doc.setPage(i);
+          doc.setDrawColor(...CONFIG.colors.border);
+          doc.setLineWidth(0.5);
+          doc.line(CONFIG.layout.margin, doc.internal.pageSize.height - 15, doc.internal.pageSize.width - CONFIG.layout.margin, doc.internal.pageSize.height - 15);
+          doc.setFontSize(9);
+          applySecondaryColor();
+          doc.text(`© ${CONFIG.company.name}`, CONFIG.layout.margin, doc.internal.pageSize.height - 10);
 
-          // Footer line
-          doc.setDrawColor(...CONFIG.colors.border)
-          doc.setLineWidth(0.5)
-          doc.line(
-            CONFIG.layout.margin,
-            doc.internal.pageSize.height - 15,
-            doc.internal.pageSize.width - CONFIG.layout.margin,
-            doc.internal.pageSize.height - 15,
-          )
-
-          // Copyright text
-          doc.setFontSize(9)
-          applySecondaryColor()
-          doc.text(
-            `© ${CONFIG.company.name}`,
-            CONFIG.layout.margin,
-            doc.internal.pageSize.height - 10,
-          )
-
-          // Page number
-          const pageNumber = `Page ${i} of ${pageCount}`
-          const pageNumberWidth = doc.getTextWidth(pageNumber)
-          doc.text(
-            pageNumber,
-            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
-            doc.internal.pageSize.height - 10,
-          )
+          const pageNumber = `Page ${i} of ${pageCount}`;
+          const pageNumberWidth = doc.getTextWidth(pageNumber);
+          doc.text(pageNumber, doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth, doc.internal.pageSize.height - 10);
         }
-      }
+      };
 
       const formatDate = (dateString) => {
-        if (!dateString) return '--'
-        const date = new Date(dateString)
+        if (!dateString) return '--';
+        const date = new Date(dateString);
         return isNaN(date)
           ? '--'
-          : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
-      }
+          : date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }).replace(',', '');
+      };
 
       const formatCoordinates = (coords) => {
-        if (!coords) return '--'
-        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()))
-        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`
-      }
+        if (!coords) return '--';
+        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()));
+        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`;
+      };
 
       // Main document creation
-      addHeader()
+      addHeader();
+      doc.setFontSize(24);
+      doc.setFont(CONFIG.fonts.primary, 'bold');
+      doc.text('Travel Summary', CONFIG.layout.margin, 35);
 
-      // Title and date
-      doc.setFontSize(24)
-      doc.setFont(CONFIG.fonts.primary, 'bold')
-      doc.text('Status Report', CONFIG.layout.margin, 35)
+      addMetadata();
 
-      const currentDate = new Date().toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
-      const dateText = `Generated: ${currentDate}`
-      applySecondaryColor()
-      doc.setFontSize(10)
-      doc.text(
-        dateText,
-        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
-        21,
-      )
-
-      addMetadata()
-
-      // Table data preparation
+      // Separate Column Definitions
       const tableColumns = [
         'SN',
-        'Vehicle Name',
-        'Vehicle Status',
-        'Start Date Time',
+        'Vehicle',
         'Start Address',
-        'Start Coordinates',
-        'End Date Time',
-        'End Address',
-        'End Coordinates',
         'Total Distance',
-        'Duration',
-        'Maximum Speed',
-      ]
+        'Running',
+        'Idle',
+        'Stop',
+        'End Address',
+        'Max. Speed (km/h)',
+        'Avg. Speed (km/h)',
+        // 'Total Working Hours',
+      ];
 
+      const daywiseSummaryColumn = [
+        'SN',
+        'Report Date',
+        'Ignition Start',
+        'Start Location',
+        'Distance',
+        'Running',
+        'Idle',
+        'Stop',
+        'Total Working Hours',
+        'Max. Speed (km/h)',
+        'Avg. Speed (km/h)',
+        'End Location',
+        'Ignition Stop',
+      ];
+
+      // Table Rows for Vehicle Summary
       const tableRows = sortedData.map((item, index) => [
         index + 1,
-        selectedDeviceName || '--',
-        item.vehicleStatus?.toString() || '--',
-        formatDate(item.startDateTime),
+        item.name || '--',
         newAddressData?.startAddress || '--',
-        formatCoordinates(item.startLocation),
-        formatDate(item.endDateTime),
+        typeof item.distance === 'string' ? `${item.distance} km` : '--',
+        item.running || '--',
+        item.idle || '--',
+        item.stop || '--',
         newAddressData?.endAddress || '--',
-        formatCoordinates(item.endLocation),
-        typeof item.distance === 'number' ? `${(item.distance / 1000).toFixed(2)} km` : '--',
-        item.time?.toString() || '--',
-        typeof item.maxSpeed === 'number' ? `${item.maxSpeed} km/h` : '--',
-      ])
+        typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--',
+        typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--',
+        item.dayWiseTrips?.reduce((acc, trip) => acc + ` ${trip.workingHours}`, '') || '--',
+      ]);
 
-      // Generate table
+      // Add Vehicle Summary Table
       doc.autoTable({
         startY: 65,
         head: [tableColumns],
         body: tableRows,
         theme: 'grid',
-        styles: {
-          fontSize: 8,
-          cellPadding: 2,
-          halign: 'center',
-          lineColor: CONFIG.colors.border,
-          lineWidth: 0.1,
-        },
-        headStyles: {
-          fillColor: CONFIG.colors.primary,
-          textColor: 255,
-          fontStyle: 'bold',
-        },
-        alternateRowStyles: {
-          fillColor: CONFIG.colors.background,
-        },
-        columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 22 },
-          2: { cellWidth: 22 },
-          4: { cellWidth: 35 },
-          5: { cellWidth: 25 },
-          7: { cellWidth: 35 },
-          9: { cellWidth: 20 },
-          10: { cellWidth: 20 },
-          11: { cellWidth: 20 },
-        },
-        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
-        didDrawPage: (data) => {
-          // Add header on subsequent pages
-          if (doc.getCurrentPageInfo().pageNumber > 1) {
-            doc.setFontSize(15)
-            doc.setFont(CONFIG.fonts.primary, 'bold')
-            doc.text('Status Report', CONFIG.layout.margin, 10)
-          }
-        },
-      })
+      });
 
-      addFooter()
+      // Add Daywise Summary Table
+      const addDaywiseSummaryTable = () => {
+        if (!sortedData || sortedData.length === 0) return;
+        let yPosition = doc.lastAutoTable.finalY + 10;
 
-      // Save PDF
-      const filename = `Status_Report_${new Date().toISOString().split('T')[0]}.pdf`
-      doc.save(filename)
-      toast.success('PDF downloaded successfully')
+        sortedData.forEach((item, vehicleIndex) => {
+          if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return;
+          doc.setFontSize(12);
+          doc.setFont(CONFIG.fonts.primary, 'bold');
+          doc.text(`Day-wise Summary - ${item.name}`, CONFIG.layout.margin, yPosition);
+          yPosition += 8;
+
+          const daywiseRows = item.dayWiseTrips.map((trip, index) => [
+            index + 1,
+            trip.date || '--',
+            formatDate(trip.startTime) || '--',
+            formatCoordinates(`${trip.startLatitude}, ${trip.startLongitude}`),
+            trip.distance || '--',
+            trip.runningTime || '--',
+            trip.idleTime || '--',
+            trip.stopTime || '--',
+            trip.workingHours || '--',
+            `${trip.maxSpeed?.toFixed(2) ?? '--'} km/h`,
+            `${trip.avgSpeed?.toFixed(2) ?? '--'} km/h`,
+            formatCoordinates(`${trip.endLatitude}, ${trip.endLongitude}`),
+            formatDate(trip.endTime) || '--',
+          ]);
+
+          doc.autoTable({
+            startY: yPosition,
+            head: [daywiseSummaryColumn],
+            body: daywiseRows,
+            theme: 'grid',
+          });
+
+          yPosition = doc.lastAutoTable.finalY + 10;
+        });
+      };
+
+      addDaywiseSummaryTable();
+      addFooter();
+
+      doc.save(`Travel_Summary_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('PDF downloaded successfully');
     } catch (error) {
-      console.error('PDF Export Error:', error)
-      toast.error(error.message || 'Failed to export PDF')
+      console.error('PDF Export Error:', error);
+      toast.error(error.message || 'Failed to export PDF');
     }
-  }
+  };
+
 
   const handleItemsPerPageChange = (newItemsPerPage) => {
     setItemsPerPage(newItemsPerPage) // Update rows per page
@@ -1708,6 +1676,7 @@ const TravelReport = () => {
                 showMap={showMap}
                 setShowMap={setShowMap}
                 columns={columns}
+                daywiseSummaryColumn={daywiseSummaryColumn}
                 handlePutName={handlePutName}
               />
             </CCardBody>
@@ -1732,6 +1701,7 @@ const TravelReport = () => {
                     selectedDeviceName={selectedDeviceName}
                     selectedColumns={selectedColumns}
                     selectedGroupName={selectedGroupName}
+                    daywiseSummaryColumn={daywiseSummaryColumn}
                     selectedUserName={putName}
                     selectedFromDate={selectedFromDate}
                     selectedToDate={selectedToDate}
