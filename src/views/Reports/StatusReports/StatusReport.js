@@ -1177,6 +1177,19 @@ const ShowStatus = ({
                               {/* <span>Ignition On</span> */}
                             </CTooltip>
                           </>
+                        ) : row.vehicleStatus === 'Overspeed' ? (
+                          <>
+                            <CTooltip content="Ignition On">
+                              <img
+                                src={ignitionOn}
+                                alt="on"
+                                width="40"
+                                height="40"
+                                style={{ marginRight: '10px' }}
+                              />
+                              {/* <span>Ignition On</span> */}
+                            </CTooltip>
+                          </>
                         ) : null
                       ) : column === 'Start Date Time' ? (
                         `${row.startDateTime.slice(0, 10)} , ${row.startDateTime.slice(11, 16)}`
