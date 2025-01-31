@@ -101,6 +101,7 @@ const Devices = () => {
 
   const [selectedUsername, setSelectedUsername] = useState('') // State for username
   const [selectedGroupName, setSelectedGroupName] = useState('') // State for group name
+  const [devices, setDevices] = useState([]); // Initialize devices as an empty array
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -1010,6 +1011,7 @@ const Devices = () => {
     try {
       const data = await fetchFunction(params)
       setData(data)
+
     } catch (error) {
       console.error(`Error fetching data:`, error)
     } finally {
@@ -1033,10 +1035,14 @@ const Devices = () => {
         try {
           const devicesData = await getDevices(selectedGroup)
           setFillDevices(devicesData)
+
+
+          setDevices(devicesData);
+          setFilteredData(devicesData);
           // const finalData = filteredData.filter((vehicle) =>
           //   devicesData.some((device) => device.deviceId === vehicle.deviceId),
           // )
-          setFilteredData(devicesData)
+          console.log("Fetched Devices:", devicesData);
         } catch (error) {
           console.error('Error fetching devices:', error)
         }
@@ -1045,94 +1051,41 @@ const Devices = () => {
     }
   }, [selectedGroup])
 
+  useEffect(() => {
+    const fetchDevices = async () => {
+      if (!selectedGroup) {
+        setFillDevices([]); // Reset if no group is selected
+        return;
+      }
+
+      try {
+        const devicesData = await getDevices(selectedGroup);
+        setFillDevices(devicesData); // Set only relevant devices
+        console.log("Filtered Devices for Group:", devicesData);
+      } catch (error) {
+        console.error("Error fetching devices:", error);
+      }
+    };
+
+    fetchDevices();
+  }, [selectedGroup]); // Runs when selectedGroup changes
+
+
+  // Get selected device name safely
+  const selectedDevice = devices.find((device) => device.deviceId === formData.Devices);
+  const selectedDeviceName = selectedDevice ? selectedDevice.name : "";
+
+  useEffect(() => {
+    console.log("Selected Device Name:", selectedDeviceName);
+  }, [selectedDeviceName]); // Log when the selected device changes
+
+
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="d-flex gap- justify-content-end gap-3  mb-2">
-        {/* <div>
-          <h2>Devices</h2>
-        </div> */}
-        {/* HERE WE WILL ADD FILTER */}
-        <div className="fiterDevices d-flex gap-3">
-          <Sselect
-            id="user-select"
-            options={fillUsers.map((user) => ({
-              value: user._id,
-              label: user.username,
-            }))}
-            placeholder="Select a User"
-            value={
-              selectedUser
-                ? {
-                    value: selectedUser,
-                    label: users?.find((user) => user._id === selectedUser)?.username || '',
-                  }
-                : null
-            }
-            onChange={(selectedOption) => {
-              const selectedUserId = selectedOption?.value || null
-              const selectedUsernameValue =
-                selectedOption?.label || // Use label if available
-                users?.find((user) => user._id === selectedUserId)?.username ||
-                '' // Fallback to finding in users array
-
-              setSelectedUser(selectedUserId) // Update selected user ID
-              setSelectedUsername(selectedUsernameValue) // Update selected username state
-
-              console.log('Selected User ID:', selectedUserId)
-              console.log('Selected Username:', selectedUsernameValue)
-            }}
-            isLoading={fillLoading}
-          />
-
-          <Sselect
-            style={{
-              zIndex: '1000',
-              minWidth: '10rem',
-            }}
-            id="group-select"
-            placeholder="Select a Group"
-            options={fillGroups?.map((group) => ({
-              value: group._id,
-              label: group.name,
-            }))}
-            value={
-              selectedGroup
-                ? {
-                    value: selectedGroup,
-                    label: groups.find((group) => group._id === selectedGroup)?.name,
-                  }
-                : null
-            }
-            onChange={(selectedOption) => {
-              const selectedGroupId = selectedOption?.value || null // Extract selected group ID
-              const selectedGroupNameValue =
-                selectedOption?.label || // Use label if available
-                groups.find((group) => group._id === selectedGroupId)?.name ||
-                '' // Fallback to finding in groups array
-
-              setSelectedGroup(selectedGroupId) // Update selected group ID
-              setSelectedGroupName(selectedGroupNameValue) // Update selected group name state
-
-              console.log('Selected Group ID:', selectedGroupId)
-              console.log('Selected Group Name:', selectedGroupNameValue)
-            }}
-            isLoading={fillLoading}
-          />
-        </div>
-        <Selector
-          className="particularFilter"
-          setFilteredData={setFilteredData}
-          filteredData={filteredData}
-          fillDevices={data}
-        />
 
         <div className="d-flex">
-          {/* <div className="me-3 d-none d-md-block">
-            <button onClick={handleSearch} variant="contained" className="btn btn-secondary">
-              Search
-            </button>
-          </div> */}
 
           <div
             className="ms-2 p-0 me-1 refresh"
@@ -1149,40 +1102,137 @@ const Devices = () => {
           <CCard className="mb-4">
             <CCardHeader className="grand d-flex justify-content-between align-items-center">
               <strong>Device</strong>
-              <div className="d-flex">
-                <div className="me-3 d-none d-md-block">
-                  <div className="input-group">
-                    <InputBase
-                      type="search"
-                      className="form-control border"
-                      style={{ height: '40px' }}
-                      placeholder="Search for Device"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                    />
-                    <IconButton
-                      className="bg-white rounded-end border disable"
-                      style={{ height: '40px' }}
-                      onClick={handleSearch}
-                    >
-                      <SearchIcon />
-                    </IconButton>
-                  </div>
+              <div className="d-flex flex-wrap align-items-center gap-3">
+                <div className="d-flex flex-wrap gap-3">
+                  <Sselect
+                    id="user-select"
+                    options={fillUsers.map((user) => ({
+                      value: user._id,
+                      label: user.username,
+                    }))}
+                    placeholder="Select a User"
+                    value={
+                      selectedUser
+                        ? {
+                          value: selectedUser,
+                          label:
+                            users?.find((user) => user._id === selectedUser)?.username || "",
+                        }
+                        : null
+                    }
+                    onChange={(selectedOption) => {
+                      const selectedUserId = selectedOption?.value || null;
+                      const selectedUsernameValue =
+                        selectedOption?.label ||
+                        users?.find((user) => user._id === selectedUserId)?.username ||
+                        "";
+
+                      setSelectedUser(selectedUserId);
+                      setSelectedUsername(selectedUsernameValue);
+
+                      console.log("Selected User ID:", selectedUserId);
+                      console.log("Selected Username:", selectedUsernameValue);
+                    }}
+                    isLoading={fillLoading}
+                  />
+
+                  <Sselect
+                    style={{
+                      zIndex: "1000",
+                      minWidth: "10rem",
+                    }}
+                    id="group-select"
+                    placeholder="Select a Group"
+                    options={fillGroups?.map((group) => ({
+                      value: group._id,
+                      label: group.name,
+                    }))}
+                    value={
+                      selectedGroup
+                        ? {
+                          value: selectedGroup,
+                          label: groups.find((group) => group._id === selectedGroup)?.name,
+                        }
+                        : null
+                    }
+                    onChange={(selectedOption) => {
+                      const selectedGroupId = selectedOption?.value || null;
+                      const selectedGroupNameValue =
+                        selectedOption?.label ||
+                        groups.find((group) => group._id === selectedGroupId)?.name ||
+                        "";
+
+                      setSelectedGroup(selectedGroupId);
+                      setSelectedGroupName(selectedGroupNameValue);
+
+                      console.log("Selected Group ID:", selectedGroupId);
+                      console.log("Selected Group Name:", selectedGroupNameValue);
+                    }}
+                    isLoading={fillLoading}
+                  />
+
+                  <Selector
+                    className="particularFilter"
+                    setFilteredData={setFilteredData}
+                    filteredData={filteredData}
+                    fillDevices={devices || []} // Ensure devices is always an array
+                    onChange={(selectedDeviceId) => {
+                      if (!devices || devices.length === 0) {
+                        console.warn("Devices list is empty or undefined");
+                        return;
+                      }
+
+                      setFormData((prev) => ({ ...prev, Devices: selectedDeviceId }));
+
+                      const selectedDevice = devices.find(
+                        (device) => device.deviceId === selectedDeviceId
+                      );
+
+                      if (selectedDevice) {
+                        console.log("Selected Device ID:", selectedDeviceId);
+                        console.log("Selected Device Name:", selectedDevice.name);
+                      } else {
+                        console.warn("Selected device not found in the list");
+                      }
+                    }}
+                  />
+
                 </div>
-                {decodedToken.superadmin && (
-                  <div>
+
+                <div className="d-flex align-items-center gap-3">
+                  <div className="me-3 d-none d-md-block">
+                    <div className="input-group">
+                      <InputBase
+                        type="search"
+                        className="form-control border"
+                        style={{ height: "40px" }}
+                        placeholder="Search for Device"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                      />
+                      <IconButton
+                        className="bg-white rounded-end border disable"
+                        style={{ height: "40px" }}
+                        onClick={handleSearch}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    </div>
+                  </div>
+
+                  {decodedToken.superadmin && (
                     <button
                       onClick={handleOpen}
-                      variant="contained"
                       className="btn text-white"
-                      style={{ backgroundColor: '#0a2d63' }}
+                      style={{ backgroundColor: "#0a2d63" }}
                     >
                       Add Device
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
+
             </CCardHeader>
             <TableContainer
               component={Paper}
@@ -1239,7 +1289,7 @@ const Devices = () => {
                   <CTableBody style={{ fontSize: '14px' }}>
                     {loading ? (
                       <CTableRow key="loading" style={{ border: '1px soild black' }}>
-                        <CTableDataCell colSpan="16" className="text-center">
+                        <CTableDataCell colSpan="18" className="text-center">
                           <div className="text-nowrap mb-2 text-center">
                             <p className="card-text placeholder-glow">
                               <span className="placeholder col-12" />
