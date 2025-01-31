@@ -771,37 +771,23 @@ const ShowStatus = ({
 
       const addMetadata = () => {
         const metadata = [
-          { label: 'User:', value: decodedToken.username || 'N/A', x: 15 },
-          { label: 'Selected User:', value: selectedUserName || 'N/A', x: 15 },
-          {
-            label: 'Group:',
-            value: selectedGroupName || 'N/A',
-            x: doc.internal.pageSize.width / 2,
-          },
-          {
-            label: 'Date Range:',
-            value:
-              selectedFromDate && selectedToDate
-                ? `${selectedFromDate} To ${selectedToDate}`
-                : getDateRangeFromPeriod(selectedPeriod),
-            x: doc.internal.pageSize.width / 2,
-          },
-          {
-            label: 'Vehicle:',
-            value: selectedDeviceName || 'N/A',
-            x: 80,
-          },
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+          { label: 'Selected User:', value: selectedUserName || 'N/A' },
+          { label: 'Group:', value: selectedGroupName || 'N/A' },
+          { label: 'Date Range:', value: `${selectedFromDate} To ${selectedToDate}` },
+          { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
         ]
 
         doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+
         let yPosition = 45
+        const xPosition = 15
+        const lineHeight = 6
 
-        metadata.forEach((item, index) => {
-          doc.setFont(CONFIG.fonts.primary, 'bold')
-          doc.text(item.label, item.x, yPosition + (index % 2) * 6)
-
-          doc.setFont(CONFIG.fonts.primary, 'normal')
-          doc.text(item.value.toString(), item.x + 25, yPosition + (index % 2) * 6)
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
         })
       }
 
