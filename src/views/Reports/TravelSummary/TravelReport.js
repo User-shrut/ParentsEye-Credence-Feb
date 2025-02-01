@@ -82,6 +82,7 @@ const SearchTravel = ({
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const [selectedU, setSelectedU] = useState()
   const [selectedG, setSelectedG] = useState()
+
   // For username show in pdf
   const [putName, setPutName] = useState('')
 
@@ -260,7 +261,7 @@ const SearchTravel = ({
           <CCol md={4}>
             <CFormLabel htmlFor="fromDate">From Date</CFormLabel>
             <CFormInput
-              type="date"
+              type="datetime-local"
               id="fromDate"
               value={formData.FromDate}
               onChange={(e) => handleInputChange('FromDate', e.target.value)}
@@ -271,7 +272,7 @@ const SearchTravel = ({
           <CCol md={4}>
             <CFormLabel htmlFor="toDate">To Date</CFormLabel>
             <CFormInput
-              type="date"
+              type="datetime-local"
               id="toDate"
               value={formData.ToDate}
               onChange={(e) => handleInputChange('ToDate', e.target.value)}
@@ -471,53 +472,150 @@ const ShowSummary = ({
 
   // Function to get date range based on selectedPeriod
   const getDateRangeFromPeriod = (selectedPeriod) => {
-    const today = new Date()
-    let fromDate, toDate
+    const today = new Date();
+    let fromDate, toDate;
+
+    // Helper function to convert UTC to IST
+    const convertToIST = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      return utcDate;
+    };
 
     switch (selectedPeriod) {
       case 'Today':
-        fromDate = new Date()
-        toDate = new Date()
-        break
+        fromDate = new Date();
+        fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date();
+        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       case 'Yesterday':
-        fromDate = new Date()
-        fromDate.setDate(today.getDate() - 1)
-        toDate = new Date(fromDate)
-        break
+        fromDate = new Date();
+        fromDate.setDate(today.getDate() - 1); // Move to yesterday
+        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(fromDate);
+        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       case 'This Week':
-        fromDate = new Date(today)
-        const dayOfWeek = today.getDay() // 0 (Sunday) to 6 (Saturday)
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Convert Sunday to previous Monday
-        fromDate.setDate(today.getDate() - daysSinceMonday) // Start from Monday of this week
-        toDate = new Date() // Ends at today's date
-        break
+        fromDate = new Date(today);
+        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
+        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(); // Ends at today's date
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       case 'Previous Week':
-        fromDate = new Date(today)
-        const prevWeekDayOfWeek = today.getDay()
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek // Ensure previous Monday calculation
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6) // Start of previous week (Monday)
-        toDate = new Date(fromDate)
-        toDate.setDate(fromDate.getDate() + 6) // End of previous week (Sunday)
-        break
+        fromDate = new Date(today);
+        const prevWeekDayOfWeek = today.getDay();
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(fromDate);
+        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       case 'This Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth(), 1)
-        toDate = new Date()
-        break
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date();
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       case 'Previous Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-        toDate = new Date(today.getFullYear(), today.getMonth(), 0)
-        break
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
       default:
-        return 'N/A'
+        return 'N/A';
     }
 
-    // Format dates as DD-MM-YYYY
-    const formattedFromDate = `${fromDate.getDate().toString().padStart(2, '0')}-${(fromDate.getMonth() + 1).toString().padStart(2, '0')}-${fromDate.getFullYear()}`
-    const formattedToDate = `${toDate.getDate().toString().padStart(2, '0')}-${(toDate.getMonth() + 1).toString().padStart(2, '0')}-${toDate.getFullYear()}`
+    // Convert dates to ISO string format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    const formattedFromDate = fromDate.toISOString();
+    const formattedToDate = toDate.toISOString();
 
-    return ` ${formattedFromDate} To ${formattedToDate}`
+    return `from: ${formattedFromDate} to: ${formattedToDate}`;
   }
 
+
+  const getDateRangeFromPeriods = (selectedPeriod) => {
+    const today = new Date();
+    let fromDate, toDate;
+
+    // Helper function to convert UTC to IST
+    const convertToIST = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      return utcDate;
+    };
+
+    switch (selectedPeriod) {
+      case 'Today':
+        fromDate = new Date();
+        fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date();
+        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      case 'Yesterday':
+        fromDate = new Date();
+        fromDate.setDate(today.getDate() - 1); // Move to yesterday
+        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(fromDate);
+        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      case 'This Week':
+        fromDate = new Date(today);
+        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
+        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(); // Ends at today's date
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      case 'Previous Week':
+        fromDate = new Date(today);
+        const prevWeekDayOfWeek = today.getDay();
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(fromDate);
+        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      case 'This Month':
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date();
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      case 'Previous Month':
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        fromDate = convertToIST(fromDate); // Convert to IST
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        toDate = convertToIST(toDate); // Convert to IST
+        break;
+      default:
+        return 'N/A';
+    }
+
+    // Convert dates to ISO string format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    const formattedFromDate = fromDate.toISOString().split('T')[0];
+    const formattedToDate = toDate.toISOString().split('T')[0];
+
+    return `from: ${formattedFromDate} to: ${formattedToDate}`;
+  }
+  console.log('Sorted DATA', sortedData)
   // Function to export table data to Excel
   const exportToExcel = async () => {
     try {
@@ -542,14 +640,12 @@ const ShowSummary = ({
           { header: 'Vehicle Number', width: 25 },
           { header: 'Start Address', width: 20 },
           { header: 'Total Distance', width: 25 },
-          { header: 'Running Time', width: 35 },
+          { header: 'Running Time', width: 25 },
           { header: 'Idle Time', width: 25 },
           { header: 'Stop Time', width: 25 },
           { header: 'End Address', width: 35 },
-          { header: 'End Coordinates', width: 25 },
-          { header: 'Total Distance', width: 20 },
-          { header: 'Duration', width: 20 },
           { header: 'Maximum Speed', width: 20 },
+          { header: 'Average Speed', width: 20 },
         ],
         daywiseSummaryColumn: [
           { header: 'SN', width: 8 },
@@ -626,7 +722,7 @@ const ShowSummary = ({
         worksheet.addRow([
           `Date Range: ${selectedFromDate && selectedToDate
             ? `${selectedFromDate} - ${selectedToDate}`
-            : getDateRangeFromPeriod(selectedPeriod)
+            : getDateRangeFromPeriods(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -637,7 +733,7 @@ const ShowSummary = ({
       // Add data table
       const addDataTable = () => {
         // Add column headers
-        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header))
+        const headerRow = worksheet.addRow(CONFIG.travelSummaryColumns.map((c) => c.header))
         headerRow.eachCell((cell) => {
           cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
           cell.fill = {
@@ -658,18 +754,17 @@ const ShowSummary = ({
         sortedData.forEach((item, index) => {
           const rowData = [
             index + 1,
-            selectedDeviceName || '--',
-            item.vehicleStatus?.toString() ?? '--',
-            formatExcelDate(item.startDateTime),
-            newAddressData?.startAddress || '--',
-            formatCoordinates(item.startLocation),
-            formatExcelDate(item.endDateTime),
-            newAddressData?.endAddress || '--',
-            formatCoordinates(item.endLocation),
-            typeof item.distance === 'number' ? `${(item.distance / 1000).toFixed(2)} km` : '--',
-            item.time?.toString() ?? '--',
-            typeof item.maxSpeed === 'number' ? `${item.maxSpeed} km/h` : '--',
-          ]
+            item.name || '--', // Replacing selectedDeviceName with item.name for consistency
+            newAddressData?.startAddress || '--', // Same as PDF
+            typeof item.distance === 'string' ? `${item.distance} km` : '--', // Adjusted to string check like PDF
+            item.running || '--', // Added to match PDF
+            item.idle || '--',    // Added to match PDF
+            item.stop || '--',    // Added to match PDF
+            newAddressData?.endAddress || '--', // Same as PDF
+            typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--', // Consistent formatting
+            typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--', // Added to match PDF
+
+          ];
 
           const dataRow = worksheet.addRow(rowData)
           dataRow.eachCell((cell) => {
@@ -684,11 +779,80 @@ const ShowSummary = ({
         })
 
         // Set column widths
-        worksheet.columns = CONFIG.columns.map((col) => ({
+        worksheet.columns = CONFIG.travelSummaryColumns.map((col) => ({
           width: col.width,
           style: { alignment: { horizontal: 'left' } },
         }))
       }
+
+      // Add day-wise summary
+      // Add day-wise summary
+      const addDaywiseSummary = () => {
+        sortedData.forEach((item, vehicleIndex) => {
+          if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return
+
+          // Title row for the day-wise summary for the current vehicle
+          const titleRow = worksheet.addRow([`Day-wise Summary - ${item.name}`])
+          titleRow.font = { ...CONFIG.styles.titleFont, size: 14, color: { argb: CONFIG.styles.textColor } }
+          titleRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.secondaryColor },
+          }
+          titleRow.alignment = { horizontal: 'center' }
+          worksheet.mergeCells(`A${titleRow.number}:L${titleRow.number}`)
+
+          // Add header row for the day-wise summary table with the Credence Tracker background
+          const headerRow = worksheet.addRow(CONFIG.daywiseSummaryColumn.map((col) => col.header))
+          headerRow.eachCell((cell) => {
+            cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: CONFIG.styles.primaryColor }, // same background as Credence Tracker headers
+            }
+            cell.alignment = { vertical: 'middle', horizontal: 'center' }
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            }
+          })
+
+          // Build day-wise data rows
+          const daywiseRows = item.dayWiseTrips.map((trip, index) => [
+            index + 1,
+            trip.date || '--',
+            formatExcelDate(trip.startTime),
+            formatCoordinates(`${trip.startLatitude}, ${trip.startLongitude}`),
+            trip.distance || '--',
+            trip.runningTime || '--',
+            trip.idleTime || '--',
+            trip.stopTime || '--',
+            trip.workingHours || '--',
+            typeof trip.maxSpeed === 'number' ? `${trip.maxSpeed.toFixed(2)} km/h` : '--',
+            typeof trip.avgSpeed === 'number' ? `${trip.avgSpeed.toFixed(2)} km/h` : '--',
+            formatCoordinates(`${trip.endLatitude}, ${trip.endLongitude}`),
+            formatExcelDate(trip.endTime),
+          ])
+
+          // Add each day-wise data row with default data styling
+          daywiseRows.forEach((row) => {
+            const dataRow = worksheet.addRow(row)
+            dataRow.eachCell((cell) => {
+              cell.font = CONFIG.styles.dataFont
+              cell.border = {
+                top: { style: CONFIG.styles.borderStyle },
+                bottom: { style: CONFIG.styles.borderStyle },
+                left: { style: CONFIG.styles.borderStyle },
+                right: { style: CONFIG.styles.borderStyle },
+              }
+            })
+          })
+        })
+      }
+
 
       // Add footer
       const addFooter = () => {
@@ -701,6 +865,7 @@ const ShowSummary = ({
       // Build the document
       addHeaderSection()
       addDataTable()
+      addDaywiseSummary()
       addFooter()
 
       // Generate and save file
@@ -716,6 +881,7 @@ const ShowSummary = ({
       toast.error(error.message || 'Failed to export Excel file')
     }
   }
+
 
   // Function to export table data to PDF
   const exportToPDF = () => {
@@ -786,7 +952,7 @@ const ShowSummary = ({
             value:
               selectedFromDate && selectedToDate
                 ? `${selectedFromDate} To ${selectedToDate}`
-                : getDateRangeFromPeriod(selectedPeriod),
+                : getDateRangeFromPeriods(selectedPeriod),
             x: doc.internal.pageSize.width / 2,
           },
           {
@@ -864,7 +1030,6 @@ const ShowSummary = ({
         'End Address',
         'Max. Speed (km/h)',
         'Avg. Speed (km/h)',
-        // 'Total Working Hours',
       ];
 
       const daywiseSummaryColumn = [
@@ -1165,10 +1330,10 @@ const ShowSummary = ({
                         {vehicle.endLong}
                       </CTableDataCell>
                       <CTableDataCell className="text-center">
-                        {vehicle.maxSpeed.toFixed(2)} km/h
+                        {(vehicle.maxSpeed !== null && vehicle.maxSpeed !== undefined) ? vehicle.maxSpeed.toFixed(2) : 'N/A'} km/h
                       </CTableDataCell>
                       <CTableDataCell className="text-center">
-                        {vehicle.avgSpeed.toFixed(2)} km/h
+                        {(vehicle.avgSpeed !== null && vehicle.avgSpeed !== undefined) ? vehicle.avgSpeed.toFixed(2) : 'N/A'} km/h
                       </CTableDataCell>
                     </CTableRow>
                     <CTableRow>
@@ -1324,8 +1489,8 @@ const ShowSummary = ({
                                       </CTableDataCell>
                                       {/**Start Locations */}
                                       <CTableDataCell className="text-center">
-                                        {trip.startLatitude.toFixed(2)}
-                                        {trip.startLongitude.toFixed(2)}
+                                        {(trip.startLatitude !== null && trip.startLatitude !== undefined) ? trip.startLatitude.toFixed(2) : 'N/A'}
+                                        {(trip.startLongitude !== null && trip.startLongitude !== undefined) ? trip.startLongitude.toFixed(2) : 'N/A'}
                                       </CTableDataCell>
                                       {/**Distance */}
                                       <CTableDataCell className="text-center">
@@ -1349,11 +1514,11 @@ const ShowSummary = ({
                                       </CTableDataCell>
                                       {/**Max Speed */}
                                       <CTableDataCell className="text-center">
-                                        {trip.maxSpeed.toFixed(2)}
+                                        {(trip.maxSpeed !== null && trip.maxSpeed !== undefined) ? trip.maxSpeed.toFixed(2) : 'N/A'}
                                       </CTableDataCell>
                                       {/**Avg KM */}
                                       <CTableDataCell className="text-center">
-                                        {trip.avgSpeed.toFixed(2)}
+                                        {(trip.avgSpeed !== null && trip.avgSpeed !== undefined) ? trip.avgSpeed.toFixed(2) : 'N/A'}
                                       </CTableDataCell>
                                       {/**End Location */}
                                       <CTableDataCell className="text-center">
@@ -1501,51 +1666,76 @@ const TravelReport = () => {
 
   // Function to get date range based on selectedPeriod
   const getDateRangeFromPeriod = (selectedPeriod) => {
-    const today = new Date()
-    let fromDate, toDate
+    const today = new Date();
+    let fromDate, toDate;
+
+    // Helper function to convert UTC to IST
+    const convertToIST = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      return utcDate;
+    };
 
     switch (selectedPeriod) {
       case 'Today':
-        fromDate = new Date(today)
-        toDate = new Date(today)
-        break
+        fromDate = new Date(today);
+        fromDate.setHours(0, 0, 0, 0); // Start of today (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date(today);
+        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       case 'Yesterday':
-        fromDate = new Date(today)
-        fromDate.setDate(today.getDate() - 1)
-        toDate = new Date(fromDate)
-        break
+        fromDate = new Date(today);
+        fromDate.setDate(today.getDate() - 1); // Move to yesterday
+        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date(fromDate);
+        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       case 'This Week':
-        fromDate = new Date(today)
-        const dayOfWeek = today.getDay() // 0 (Sunday) to 6 (Saturday)
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Convert Sunday to previous Monday
-        fromDate.setDate(today.getDate() - daysSinceMonday) // Start from Monday of this week
-        toDate = new Date(today) // Ends at today's date
-        break
+        fromDate = new Date(today);
+        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
+        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date(); // Ends at today's date
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       case 'Previous Week':
-        fromDate = new Date(today)
-        const prevWeekDayOfWeek = today.getDay()
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek // Ensure previous Monday calculation
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6) // Start of previous week (Monday)
-        toDate = new Date(fromDate)
-        toDate.setDate(fromDate.getDate() + 6) // End of previous week (Sunday)
-        break
+        fromDate = new Date(today);
+        const prevWeekDayOfWeek = today.getDay();
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date(fromDate);
+        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       case 'This Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth(), 1)
-        toDate = new Date(today)
-        break
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date();
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       case 'Previous Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-        toDate = new Date(today.getFullYear(), today.getMonth(), 0)
-        break
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        toDate = convertToIST(toDate); // Convert UTC to IST
+        break;
       default:
-        return 'N/A'
+        return 'N/A';
     }
 
-    // Convert to UTC format (YYYY-MM-DDTHH:mm:ss.sssZ)
-    const toUTCString = (date) => date.toISOString()
+    // Convert dates to UTC format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    // const toUTCString = (date) => date.toISOString();
 
-    return `${toUTCString(fromDate)}&to=${toUTCString(toDate)}`
+    return `${fromDate}&to=${toDate}`;
   }
+
 
   const getGroups = async (selectedUser = ' ') => {
     setLoading(true)
@@ -1598,18 +1788,34 @@ const TravelReport = () => {
     getGroups()
   }, [])
 
+  // Function to convert to IST and format as datetime-local value
+  const convertToIST = (date) => {
+    const dateObj = new Date(date);
+    const istOffset = 5.5 * 60; // IST is UTC + 5:30
+    dateObj.setMinutes(dateObj.getMinutes() + istOffset);
+
+    // Format the date to datetime-local string (yyyy-MM-ddTHH:mm)
+    return dateObj.toISOString().slice(0, 16);
+  };
+
   const handleInputChange = (name, value) => {
+    // Convert value to IST before updating state
+    if (name === 'FromDate' || name === 'ToDate') {
+      value = convertToIST(value);
+    }
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }))
+    }));
+
     if (name === 'Columns') {
-      setSelectedColumns(value)
+      setSelectedColumns(value);
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    setStatusLoading(true)
+    setStatusLoading(true);
     try {
       console.log(
         'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK',
@@ -1617,25 +1823,42 @@ const TravelReport = () => {
         formData.FromDate,
         formData.ToDate,
         formData.Periods,
-      )
-      const date =
-        formData.FromDate && formData.ToDate
-          ? `${toUTCString(formData.FromDate)}&to=${toUTCString(formData.ToDate)}`
-          : getDateRangeFromPeriod(formData.Periods)
-      console.log(date, 'DATE HAI YE')
+      );
+
+      // Ensure 'date' is defined correctly
+      let date = '';
+      if (formData.FromDate && formData.ToDate) {
+        date = `${formData.FromDate}&to=${formData.ToDate}`;
+      } else {
+        date = getDateRangeFromPeriod(formData.Periods);
+        // Ensure that if the period function returns 'N/A', it doesn't break the API call
+        if (date === 'N/A') {
+          throw new Error('Invalid date range');
+        }
+      }
+
+      console.log(date, 'DATE HAI YE');
+
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/reports/travel-summary-report?deviceIds=${formData.Devices}&from=${date}`,
         { headers: { Authorization: `Bearer ${token}` } },
-      )
+      );
+
       if (response.data) {
-        setApiData(response.data) // Store API response
-        setStatusLoading(false)
+        setApiData(response.data); // Store API response
+        setStatusLoading(false);
       }
     } catch (error) {
-      setStatusLoading(false)
-      toast.error('Failed to fetch data')
+      setStatusLoading(false);
+      toast.error('Failed to fetch data');
+      console.log(
+        'get data of search in get api check',
+        `${import.meta.env.VITE_API_URL}/reports/travel-summary-report?deviceIds=${formData.Devices}&from=${date}`
+      );
     }
-  }
+  };
+
+
 
   // Example of extracting values similar to `selectedGroup`
   const selectedFromDate = formData.FromDate ? new Date(formData.FromDate).toLocaleDateString() : ''
