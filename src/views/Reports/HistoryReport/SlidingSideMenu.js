@@ -319,7 +319,7 @@ const SlidingSideMenu = ({
           position: 'absolute',
           top: '20px',
           right: isOpen ? '0' : '-350px', // Smooth sliding effect
-          height: '70%',
+          height: '80%',
           width: '300px',
           backgroundColor: '#f8f9fa',
           boxShadow: '2px 0 5px rgba(0,0,0,0.2)',
