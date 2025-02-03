@@ -547,7 +547,7 @@ const SlidingSideMenu = ({
                         </div>
                         <div className="metric-box">
                           <div className="label">Max. Speed (km/h)</div>
-                          <div className="value">{trip?.maxSpeed || 'N/A'}</div>
+                          <div className="value">{(trip?.maxSpeed || 'N/A').toFixed(2)}</div>
                         </div>
                       </div>
                     </div>
