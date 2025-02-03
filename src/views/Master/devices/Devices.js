@@ -68,6 +68,9 @@ import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
 import { PiMicrosoftExcelLogo } from 'react-icons/pi'
 import { HiOutlineLogout } from 'react-icons/hi'
 import { FaArrowUp } from 'react-icons/fa'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
+
 
 const accessToken = Cookies.get('authToken')
 
@@ -1009,52 +1012,157 @@ const Devices = () => {
 
   // Export to Excel
 
-  const exportToExcel = () => {
-    // Map filtered data into the format required for export
-    const dataToExport = filteredData.map((item, rowIndex) => {
-      const rowData = columns.slice(1).reduce((acc, column) => {
-        const accessor = column.accessor
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for Excel export');
+      }
 
-        // Handle specific columns based on the column's accessor
-        if (accessor === 'groups') {
-          acc[column.Header] =
-            item.groups && item.groups.length > 0
-              ? item.groups.map((group) => group.name).join(', ') // Join group names if there are multiple
-              : 'N/A'
-        } else if (accessor === 'geofences') {
-          acc[column.Header] =
-            item.geofences && item.geofences.length > 0
-              ? item.geofences.map((geofence) => geofence.name).join(', ') // Join geofence names if there are multiple
-              : 'N/A'
-        } else if (accessor === 'users') {
-          acc[column.Header] =
-            item.users && item.users.length > 0
-              ? item.users.map((user) => user.username).join(', ') // Join usernames if there are multiple
-              : 'N/A'
-        } else if (accessor === 'Driver') {
-          acc[column.Header] = item.Driver?.name || 'N/A'
-        } else if (accessor === 'device') {
-          acc[column.Header] = item.device?.name || 'N/A'
-        } else {
-          acc[column.Header] = item[accessor] || 'N/A' // Fallback for other columns
-        }
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      };
 
-        return acc
-      }, {})
+      // Create table columns (header row) based on your columns data
+      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)];
 
-      return { SN: rowIndex + 1, ...rowData } // Include row index as SN
-    })
+      // Create table rows from filteredData
+      const tableRows = filteredData.map((item, rowIndex) => {
+        const rowData = columns.slice(1).map((column) => {
+          const accessor = column.accessor;
 
-    // Create worksheet and workbook
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
-    const workbook = XLSX.utils.book_new()
+          // Handle specific columns based on the column's accessor
+          if (accessor === 'groups') {
+            return item.groups?.map((group) => group.name).join(', ') || 'N/A';
+          } else if (accessor === 'geofences') {
+            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A';
+          } else if (accessor === 'users') {
+            return item.users?.map((user) => user.username).join(', ') || 'N/A';
+          } else if (accessor === 'Driver') {
+            return item.Driver?.name || 'N/A';
+          } else if (accessor === 'device') {
+            return item.device?.name || 'N/A';
+          } else {
+            return item[accessor] || 'N/A';
+          }
+        });
+        return [rowIndex + 1, ...rowData]; // Add SN column
+      });
 
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Table Data')
+      // Initialize workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Devices Report');
 
-    // Write the Excel file
-    XLSX.writeFile(workbook, 'Devices_data.xlsx')
-  }
+      // Add title and metadata
+      const addHeaderSection = () => {
+        // Company title
+        const titleRow = worksheet.addRow([CONFIG.company.name]);
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } };
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        };
+        titleRow.alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A1:I1');
+
+        // Report title
+        const subtitleRow = worksheet.addRow(['Devices Report']);
+        subtitleRow.font = { ...CONFIG.styles.titleFont, size: 14, color: { argb: CONFIG.styles.textColor } };
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        };
+        subtitleRow.alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A2:I2');
+
+        // Metadata
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`]);
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`]);
+        worksheet.addRow([]); // Spacer
+      };
+
+      // Add data table
+      const addDataTable = () => {
+        // Add column headers
+        const headerRow = worksheet.addRow(tableColumn);
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          };
+        });
+
+        // Add data rows
+        tableRows.forEach((rowData) => {
+          const dataRow = worksheet.addRow(rowData);
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont;
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            };
+          });
+        });
+
+        // Set column widths
+        worksheet.columns = tableColumn.map((col, index) => ({
+          width: index === 0 ? 8 : 20, // First column (SN) is narrower
+          style: { alignment: { horizontal: 'left' } },
+        }));
+      };
+
+      // Add footer
+      const addFooter = () => {
+        worksheet.addRow([]); // Spacer
+        const footerRow = worksheet.addRow([CONFIG.company.copyright]);
+        footerRow.font = { italic: true };
+        worksheet.mergeCells(`A${footerRow.number}:I${footerRow.number}`);
+      };
+
+      // Build the document
+      addHeaderSection();
+      addDataTable();
+      addFooter();
+
+      // Generate and save file
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      saveAs(blob, filename);
+      toast.success('Excel file downloaded successfully');
+    } catch (error) {
+      console.error('Excel Export Error:', error);
+      toast.error(error.message || 'Failed to export Excel file');
+    }
+  };
 
   // Export to PDF
 
@@ -1300,6 +1408,7 @@ const Devices = () => {
       toast.error(error.message || 'Failed to export PDF');
     }
   };
+
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
