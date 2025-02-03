@@ -114,6 +114,10 @@ const getCategory = (category) => {
       return 'truck'
     case 'motorcycle':
       return 'bike' // Adjusted to match the imageMap key
+    case 'bike':
+      return 'bike'
+    case 'BIKE':
+      return 'bike'
     case 'auto':
       return 'auto'
     case 'tractor':
