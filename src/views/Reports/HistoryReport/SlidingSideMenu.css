@@ -1,15 +1,16 @@
-.divide{
+.divide {
   display: flex;
   flex-direction: row;
   gap: 15px;
 }
 
-.bold{
+.bold {
   font-weight: 750;
   min-width: 6rem;
   width: auto;
   font-size: 0.75rem;
 }
+
 .light {
   font-weight: 500;
   font-size: 0.7rem;
@@ -21,7 +22,7 @@
   width: 5rem;
 }
 
-.control-trips{
+.control-trips {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,28 +33,30 @@
 
   border: 1px solid black;
   border-radius: 5px;
-  transition: border 0.3s ease; /* Smooth transition for the border change */
+  transition: border 0.3s ease;
+  /* Smooth transition for the border change */
 }
 
 .custom-div:hover {
   border: 2px solid gray !important;
 }
+
 .custom-div:active {
   border: 2px solid black !important;
 }
 
 
-.lighting{
+.lighting {
   font-weight: 500;
   font-size: 0.7rem;
 }
 
-.bolding{
+.bolding {
   font-weight: 750;
   width: auto;
   font-size: 0.75rem;
 }
 
-hr{
+hr {
   margin: 0 0 0 0;
 }

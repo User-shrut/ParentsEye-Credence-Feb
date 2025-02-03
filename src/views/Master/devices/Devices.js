@@ -63,6 +63,15 @@ import { getDevices, getGroups, getUsers, Selector } from '../../dashboard/dashA
 import { default as Sselect } from 'react-select'
 import '../index.css'
 import { LuRefreshCw } from 'react-icons/lu'
+import IconDropdown from '../../../components/ButtonDropdown'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+
+const accessToken = Cookies.get('authToken')
+
+const decodedToken = jwtDecode(accessToken)
 
 const Devices = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -847,153 +856,6 @@ const Devices = () => {
     setExtendedPasswordModel(true)
   }
 
-  const exportToExcel = () => {
-    // Map filtered data into the format required for export
-    const dataToExport = filteredData.map((item, rowIndex) => {
-      const rowData = columns.slice(1).reduce((acc, column) => {
-        const accessor = column.accessor
-
-        // Handle specific columns based on the column's accessor
-        if (accessor === 'groups') {
-          acc[column.Header] =
-            item.groups && item.groups.length > 0
-              ? item.groups.map((group) => group.name).join(', ') // Join group names if there are multiple
-              : 'N/A'
-        } else if (accessor === 'geofences') {
-          acc[column.Header] =
-            item.geofences && item.geofences.length > 0
-              ? item.geofences.map((geofence) => geofence.name).join(', ') // Join geofence names if there are multiple
-              : 'N/A'
-        } else if (accessor === 'users') {
-          acc[column.Header] =
-            item.users && item.users.length > 0
-              ? item.users.map((user) => user.username).join(', ') // Join usernames if there are multiple
-              : 'N/A'
-        } else if (accessor === 'Driver') {
-          acc[column.Header] = item.Driver?.name || 'N/A'
-        } else if (accessor === 'device') {
-          acc[column.Header] = item.device?.name || 'N/A'
-        } else {
-          acc[column.Header] = item[accessor] || 'N/A' // Fallback for other columns
-        }
-
-        return acc
-      }, {})
-
-      return { SN: rowIndex + 1, ...rowData } // Include row index as SN
-    })
-
-    // Create worksheet and workbook
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
-    const workbook = XLSX.utils.book_new()
-
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Table Data')
-
-    // Write the Excel file
-    XLSX.writeFile(workbook, 'Devices_data.xlsx')
-  }
-
-  const exportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4',
-    })
-
-    // Add current date
-    const today = new Date()
-    const date = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear().toString()}`
-
-    // Add "Credence Tracker" heading
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(22)
-    const title = 'Credence Tracker'
-    const pageWidth = doc.internal.pageSize.width
-    const titleWidth = doc.getTextWidth(title)
-    const titleX = (pageWidth - titleWidth) / 2
-    doc.text(title, titleX, 15)
-
-    // Add "Devices Reports" heading
-    doc.setFontSize(16)
-    const subtitle = 'Devices Reports'
-    const subtitleWidth = doc.getTextWidth(subtitle)
-    const subtitleX = (pageWidth - subtitleWidth) / 2
-    doc.text(subtitle, subtitleX, 25)
-
-    // Add current date at the top-right corner
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Date: ${date}`, pageWidth - 20, 15, { align: 'right' })
-
-    // Add user and group details
-    const details = [
-      `User Name: ${selectedUsername || 'N/A'}`,
-      `Group Name: ${selectedGroupName || 'N/A'}`,
-    ]
-    details.forEach((detail, index) => {
-      doc.text(detail, 10, 35 + index * 6) // Adjust vertical spacing
-    })
-
-    // Define the table headers and rows
-    const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)]
-    const tableRows = filteredData.map((item, rowIndex) => {
-      const rowData = columns.slice(1).map((column) => {
-        const accessor = column.accessor
-        if (accessor === 'groups') {
-          return item.groups?.map((group) => group.name).join(', ') || 'N/A'
-        } else if (accessor === 'geofences') {
-          return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A'
-        } else if (accessor === 'users') {
-          return item.users?.map((user) => user.username).join(', ') || 'N/A'
-        } else if (accessor === 'Driver') {
-          return item.Driver?.name || 'N/A'
-        } else if (accessor === 'device') {
-          return item.device?.name || 'N/A'
-        } else {
-          return item[accessor] || 'N/A'
-        }
-      })
-      return [rowIndex + 1, ...rowData]
-    })
-
-    // Generate the table with autoTable
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 50, // Start below the details
-      theme: 'grid', // Clean grid style
-      headStyles: {
-        fillColor: [100, 100, 255], // Blue header background
-        textColor: [255, 255, 255], // White text
-        fontStyle: 'bold',
-      },
-      bodyStyles: {
-        fontSize: 10,
-        cellPadding: 3,
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240], // Light gray for alternating rows
-      },
-      margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    })
-
-    // Footer with page numbers
-    const pageCount = doc.internal.getNumberOfPages()
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i)
-      doc.setFontSize(10)
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, {
-        align: 'center',
-      })
-    }
-
-    // Save the PDF
-    doc.save(`Devices_Reports_${date}.pdf`)
-  }
-
   // console.log("pageCountttttttttttt",pageCount)
   console.log('data.lengthhhhhhhhhhhhhh', data)
   console.log('filteredDataaaaaaaaaaaaaa offf devicessssssssssssssssssss', filteredData)
@@ -1079,6 +941,365 @@ const Devices = () => {
     console.log("Selected Device Name:", selectedDeviceName);
   }, [selectedDeviceName]); // Log when the selected device changes
 
+
+  // Dropdown icons downloads section
+
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
+  // dropdown handel section
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+    @page {
+      size: landscape;
+    }
+  `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+  // Export to Excel
+
+  const exportToExcel = () => {
+    // Map filtered data into the format required for export
+    const dataToExport = filteredData.map((item, rowIndex) => {
+      const rowData = columns.slice(1).reduce((acc, column) => {
+        const accessor = column.accessor
+
+        // Handle specific columns based on the column's accessor
+        if (accessor === 'groups') {
+          acc[column.Header] =
+            item.groups && item.groups.length > 0
+              ? item.groups.map((group) => group.name).join(', ') // Join group names if there are multiple
+              : 'N/A'
+        } else if (accessor === 'geofences') {
+          acc[column.Header] =
+            item.geofences && item.geofences.length > 0
+              ? item.geofences.map((geofence) => geofence.name).join(', ') // Join geofence names if there are multiple
+              : 'N/A'
+        } else if (accessor === 'users') {
+          acc[column.Header] =
+            item.users && item.users.length > 0
+              ? item.users.map((user) => user.username).join(', ') // Join usernames if there are multiple
+              : 'N/A'
+        } else if (accessor === 'Driver') {
+          acc[column.Header] = item.Driver?.name || 'N/A'
+        } else if (accessor === 'device') {
+          acc[column.Header] = item.device?.name || 'N/A'
+        } else {
+          acc[column.Header] = item[accessor] || 'N/A' // Fallback for other columns
+        }
+
+        return acc
+      }, {})
+
+      return { SN: rowIndex + 1, ...rowData } // Include row index as SN
+    })
+
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = XLSX.utils.book_new()
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Table Data')
+
+    // Write the Excel file
+    XLSX.writeFile(workbook, 'Devices_data.xlsx')
+  }
+
+  // Export to PDF
+
+  const exportToPDF = () => {
+    try {
+      // Validate data before proceeding
+      // if (!Array.isArray(sortedData) || sortedData.length === 0) {
+      //   throw new Error('No data available for PDF export');
+      // }
+
+      // Constants and configuration
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99],
+          secondary: [70, 70, 70],
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      }
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // Helper functions
+      const applyPrimaryColor = () => {
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.setTextColor(...CONFIG.colors.primary);
+      };
+
+      const applySecondaryColor = () => {
+        doc.setTextColor(...CONFIG.colors.secondary);
+      };
+
+      const addHeader = () => {
+        // Company logo and name
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        );
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(16);
+        doc.text(CONFIG.company.name, 28, 21);
+
+        // Header line
+        doc.setDrawColor(...CONFIG.colors.primary);
+        doc.setLineWidth(0.5);
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
+      };
+
+      const addMetadata = () => {
+        const metadata = [
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+        ];
+
+        doc.setFontSize(10);
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+
+        let yPosition = 45;
+        const xPosition = 15;
+        const lineHeight = 6;
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition);
+          yPosition += lineHeight;
+        });
+      };
+
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+
+          // Footer line
+          doc.setDrawColor(...CONFIG.colors.border);
+          doc.setLineWidth(0.5);
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          );
+
+          // Copyright text
+          doc.setFontSize(9);
+          applySecondaryColor();
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          );
+
+          // Page number
+          const pageNumber = `Page ${i} of ${pageCount}`;
+          const pageNumberWidth = doc.getTextWidth(pageNumber);
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          );
+        }
+      };
+
+      const formatDate = (dateString) => {
+        if (!dateString) return '--';
+        const date = new Date(dateString);
+        return isNaN(date)
+          ? '--'
+          : date
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '');
+      };
+
+      const formatCoordinates = (coords) => {
+        if (!coords) return '--';
+        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()));
+        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`;
+      };
+
+      // Main document creation
+      addHeader();
+
+      // Title and date
+      doc.setFontSize(24);
+      doc.setFont(CONFIG.fonts.primary, 'bold');
+      doc.text('Devices Report', CONFIG.layout.margin, 35);
+
+      const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      const dateText = `Generated: ${currentDate}`;
+      applySecondaryColor();
+      doc.setFontSize(10);
+      doc.text(
+        dateText,
+        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
+        21,
+      );
+
+      addMetadata();
+
+      // Replace this part with the tableColumn and tableRows logic from the original code
+      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)];
+      const tableRows = filteredData.map((item, rowIndex) => {
+        const rowData = columns.slice(1).map((column) => {
+          const accessor = column.accessor;
+          if (accessor === 'groups') {
+            return item.groups?.map((group) => group.name).join(', ') || 'N/A';
+          } else if (accessor === 'geofences') {
+            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A';
+          } else if (accessor === 'users') {
+            return item.users?.map((user) => user.username).join(', ') || 'N/A';
+          } else if (accessor === 'Driver') {
+            return item.Driver?.name || 'N/A';
+          } else if (accessor === 'device') {
+            return item.device?.name || 'N/A';
+          } else {
+            return item[accessor] || 'N/A';
+          }
+        });
+        return [rowIndex + 1, ...rowData];
+      });
+
+      // Generate the table
+      doc.autoTable({
+        startY: 65,
+        head: [tableColumn],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 22 },
+          4: { cellWidth: 35 },
+          5: { cellWidth: 25 },
+          7: { cellWidth: 35 },
+          9: { cellWidth: 20 },
+          10: { cellWidth: 20 },
+          11: { cellWidth: 20 },
+        },
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+        didDrawPage: (data) => {
+          // Add header on subsequent pages
+          if (doc.getCurrentPageInfo().pageNumber > 1) {
+            doc.setFontSize(15);
+            doc.setFont(CONFIG.fonts.primary, 'bold');
+            doc.text('Status Report', CONFIG.layout.margin, 10);
+          }
+        },
+      });
+
+      addFooter();
+
+      // Save PDF
+      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+      toast.success('PDF downloaded successfully');
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      toast.error(error.message || 'Failed to export PDF');
+    }
+  };
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
@@ -1435,18 +1656,14 @@ const Devices = () => {
         </CCol>
       </CRow>
 
-      <CDropdown className="position-fixed bottom-0 end-0 m-3">
-        <CDropdownToggle
-          color="secondary"
-          style={{ borderRadius: '50%', padding: '10px', height: '48px', width: '48px' }}
-        >
-          <CIcon icon={cilSettings} />
-        </CDropdownToggle>
-        <CDropdownMenu>
-          <CDropdownItem onClick={exportToPDF}>PDF</CDropdownItem>
-          <CDropdownItem onClick={exportToExcel}>Excel</CDropdownItem>
-        </CDropdownMenu>
-      </CDropdown>
+      {/* DropDown icons download section */}
+
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
+        <IconDropdown items={dropdownItems} />
+      </div>
+
+      {/* pagination */}
+
       <div className="d-flex justify-content-center align-items-center">
         <div className="d-flex">
           {/* Pagination */}

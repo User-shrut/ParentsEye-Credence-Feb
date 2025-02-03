@@ -153,7 +153,7 @@ const HistoryMap = ({
   }
 
   const fetchAddress = async (latitude, longitude, setAddress) => {
-    const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your MapTiler API key
+    const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your MapTiler API key
     const addressUrl = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
 
     try {
@@ -500,9 +500,9 @@ const HistoryMap = ({
           center={
             filteredData && positions && currentPositionIndex
               ? [
-                  positions[currentPositionIndex]?.latitude,
-                  positions[currentPositionIndex]?.longitude,
-                ]
+                positions[currentPositionIndex]?.latitude,
+                positions[currentPositionIndex]?.longitude,
+              ]
               : [21.1458, 79.0882]
           }
           zoom={zoomLevel}
@@ -524,7 +524,7 @@ const HistoryMap = ({
               isSatelliteView
                 ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
                 : // Satellite View
-                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
             }
             attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
           />

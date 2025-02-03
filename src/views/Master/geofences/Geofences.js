@@ -69,6 +69,18 @@ import {
 } from 'react-icons/fa'
 import { MdGpsFixed, MdPolyline } from 'react-icons/md'
 import { IoAnalyticsOutline } from 'react-icons/io5'
+import IconDropdown from '../../../components/ButtonDropdown'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+import { jwtDecode } from 'jwt-decode'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
+
+const accessToken = Cookies.get('authToken')
+
+const decodedToken = jwtDecode(accessToken)
 
 const Geofences = () => {
   const [deviceData, setDeviceData] = useState()
@@ -618,118 +630,6 @@ const Geofences = () => {
   }
 
 
-  // Export data to Excel
-
-  const exportToExcel = () => {
-    // Map filtered data into the format required for export
-    const dataToExport = filteredData.map((item, rowIndex) => {
-      // Define row data for each item in the filteredData array
-      const rowData = {
-        SN: rowIndex + 1, // Serial Number
-        'Geofence Name': item.name || 'N/A', // Name of the geofence
-        Type: item.type || 'N/A', // Type of the geofence
-        Vehicles: item.deviceIds.map((device) => device.name).join() || 'N/A', // Number of vehicles
-      }
-
-      return rowData // Return row data in the correct format
-    })
-
-    // Create worksheet and workbook
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport) // Convert data to worksheet format
-    const workbook = XLSX.utils.book_new() // Create a new workbook
-
-    // Append the worksheet to the workbook with the sheet name 'Geofence Data'
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Geofence Data')
-
-    // Write the Excel file to the client's computer
-    XLSX.writeFile(workbook, 'geofence_data.xlsx')
-  }
-
-  const exportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-    });
-
-    // Add current date
-    const today = new Date();
-    const date = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear().toString()}`;
-
-    // Add "Credence Tracker" heading
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    const title = 'Credence Tracker';
-    const pageWidth = doc.internal.pageSize.width;
-    const titleWidth = doc.getTextWidth(title);
-    const titleX = (pageWidth - titleWidth) / 2;
-    doc.text(title, titleX, 15);
-
-    // Add "Geofences Reports" heading
-    doc.setFontSize(16);
-    const subtitle = 'Geofences Reports';
-    const subtitleWidth = doc.getTextWidth(subtitle);
-    const subtitleX = (pageWidth - subtitleWidth) / 2;
-    doc.text(subtitle, subtitleX, 25);
-
-    // Add current date at the top-right corner
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Date: ${date}`, pageWidth - 20, 15, { align: 'right' });
-
-    // Define the table headers
-    const tableColumn = ['SN', 'Geofence Name', 'Type', 'Vehicles'];
-
-    // Extracting the relevant data for the table
-    const tableRows = filteredData.map((item, index) => [
-      index + 1, // Serial Number
-      item.name || '--', // Geofence Name
-      item.type || '--', // Type
-      item.deviceIds.map((device) => device.name).join(', ') || 'N/A', // Vehicles
-    ]);
-
-    // Create the table with autoTable
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 40, // Start below headings
-      theme: 'grid', // Clean grid theme
-      headStyles: {
-        fillColor: [100, 100, 255], // Blue header background
-        textColor: [255, 255, 255], // White text
-        fontStyle: 'bold',
-        fontSize: 12,
-      },
-      bodyStyles: {
-        fontSize: 10,
-        cellPadding: 3,
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240], // Light gray for alternating rows
-      },
-      columnStyles: {
-        3: { cellWidth: 60 }, // Adjust width for the "Vehicles" column
-      },
-      margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    });
-
-    // Add footer with page numbers
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        pageWidth / 2,
-        doc.internal.pageSize.height - 10,
-        { align: 'center' }
-      );
-    }
-
-    // Save the PDF
-    doc.save(`geofence_data_${date}.pdf`);
-  };
-
   // Show Co-ordinates of Polyline and circle centroid of lat lng
 
   function calculateCentroid(polygon) {
@@ -772,6 +672,424 @@ const Geofences = () => {
   }
 
   //  ###############################################################
+
+  // handel download icon dropdown
+
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
+  // handel dropdown icon download section
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+      @page {
+        size: landscape;
+      }
+    `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+  // Export data to Excel
+
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for Excel export')
+      }
+
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        columns: [
+          { header: 'SN', width: 8 },
+          { header: 'Geofence Name', width: 25 },
+          { header: 'Type', width: 20 },
+          { header: 'Vehicles', width: 35 },
+        ],
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      }
+
+      // Helper function to format the vehicles list
+      const formatVehicles = (devices) => {
+        if (!devices || devices.length === 0) return 'N/A'
+        return devices.map((device) => device.name).join(', ')
+      }
+
+      // Initialize workbook and worksheet
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Geofence Data')
+
+      // Add title and metadata
+      const addHeaderSection = () => {
+        // Company title
+        const titleRow = worksheet.addRow([CONFIG.company.name])
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } }
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        }
+        titleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A1:D1')
+
+        // Report title
+        const subtitleRow = worksheet.addRow(['Geofence Data'])
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        }
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        }
+        subtitleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A2:D2')
+
+        // Metadata
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`])
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
+        worksheet.addRow([]) // Spacer
+      }
+
+      // Add data table
+      const addDataTable = () => {
+        // Add column headers
+        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header))
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          }
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          }
+        })
+
+        // Add data rows
+        filteredData.forEach((item, index) => {
+          const rowData = [
+            index + 1,
+            item.name || 'N/A', // Geofence Name
+            item.type || 'N/A', // Type
+            formatVehicles(item.deviceIds) // Vehicles
+          ]
+
+          const dataRow = worksheet.addRow(rowData)
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            }
+          })
+        })
+
+        // Set column widths
+        worksheet.columns = CONFIG.columns.map((col) => ({
+          width: col.width,
+          style: { alignment: { horizontal: 'left' } },
+        }))
+      }
+
+      // Add footer
+      const addFooter = () => {
+        worksheet.addRow([]) // Spacer
+        const footerRow = worksheet.addRow([CONFIG.company.copyright])
+        footerRow.font = { italic: true }
+        worksheet.mergeCells(`A${footerRow.number}:D${footerRow.number}`)
+      }
+
+      // Build the document
+      addHeaderSection()
+      addDataTable()
+      addFooter()
+
+      // Generate and save file
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const filename = `Geofence_Data_${new Date().toISOString().split('T')[0]}.xlsx`
+      saveAs(blob, filename)
+      toast.success('Excel file downloaded successfully')
+    } catch (error) {
+      console.error('Excel Export Error:', error)
+      toast.error(error.message || 'Failed to export Excel file')
+    }
+  }
+
+  // Export data to PDF
+
+  const exportToPDF = () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for PDF export');
+      }
+
+      // Constants and configuration
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99],
+          secondary: [70, 70, 70],
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      };
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // Helper functions
+      const applyPrimaryColor = () => {
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.setTextColor(...CONFIG.colors.primary);
+      };
+
+      const applySecondaryColor = () => {
+        doc.setTextColor(...CONFIG.colors.secondary);
+      };
+
+      const addHeader = () => {
+        // Company logo and name
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        );
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(16);
+        doc.text(CONFIG.company.name, 28, 21);
+
+        // Header line
+        doc.setDrawColor(...CONFIG.colors.primary);
+        doc.setLineWidth(0.5);
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
+      };
+
+      const addMetadata = () => {
+        const metadata = [
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+        ];
+
+        doc.setFontSize(10);
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+
+        let yPosition = 45;
+        const xPosition = 15;
+        const lineHeight = 6;
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition);
+          yPosition += lineHeight;
+        });
+      };
+
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+
+          // Footer line
+          doc.setDrawColor(...CONFIG.colors.border);
+          doc.setLineWidth(0.5);
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          );
+
+          // Copyright text
+          doc.setFontSize(9);
+          applySecondaryColor();
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          );
+
+          // Page number
+          const pageNumber = `Page ${i} of ${pageCount}`;
+          const pageNumberWidth = doc.getTextWidth(pageNumber);
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          );
+        }
+      };
+
+      // Title and date
+      addHeader();
+      doc.setFontSize(24);
+      doc.setFont(CONFIG.fonts.primary, 'bold');
+      doc.text('Geofences Reports', CONFIG.layout.margin, 35);
+
+      const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      const dateText = `Generated: ${currentDate}`;
+      applySecondaryColor();
+      doc.setFontSize(10);
+      doc.text(
+        dateText,
+        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
+        21,
+      );
+
+      addMetadata();
+
+      // Table data preparation
+      const tableColumns = ['SN', 'Geofence Name', 'Type', 'Vehicles'];
+
+      const tableRows = filteredData.map((item, index) => [
+        index + 1, // Serial Number
+        item.name || '--', // Geofence Name
+        item.type || '--', // Type
+        item.deviceIds.map((device) => device.name).join(', ') || 'N/A', // Vehicles
+      ]);
+
+      // Generate table
+      doc.autoTable({
+        startY: 65,
+        head: [tableColumns],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        columnStyles: {
+          3: { cellWidth: 60 }, // Adjust width for the "Vehicles" column
+        },
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+        didDrawPage: (data) => {
+          // Add header on subsequent pages
+          if (doc.getCurrentPageInfo().pageNumber > 1) {
+            doc.setFontSize(15);
+            doc.setFont(CONFIG.fonts.primary, 'bold');
+            doc.text('Geofences Reports', CONFIG.layout.margin, 10);
+          }
+        },
+      });
+
+      addFooter();
+
+      // Save PDF
+      const filename = `Geofences_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+      toast.success('PDF downloaded successfully');
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      toast.error(error.message || 'Failed to export PDF');
+    }
+  };
+
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
@@ -1026,24 +1344,12 @@ const Geofences = () => {
               zIndex: 1000, // Ensures it stays above other elements
             }}
           >
-            {/* Dropdown Menu */}
-            <CDropdown>
-              <CDropdownToggle
-                color="secondary"
-                style={{
-                  borderRadius: '50%',
-                  padding: '10px',
-                  height: '48px',
-                  width: '48px',
-                }}
-              >
-                <CIcon icon={cilSettings} />
-              </CDropdownToggle>
-              <CDropdownMenu>
-                <CDropdownItem onClick={exportToPDF}>PDF</CDropdownItem>
-                <CDropdownItem onClick={exportToExcel}>Excel</CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
+            {/* Dropdown Menu icon download */}
+
+            <div className="position-fixed bottom-3 end-0 mb-5 m-3 z-5">
+              <IconDropdown items={dropdownItems} />
+            </div>
+
           </div>
         </div>
       </div>

@@ -78,6 +78,15 @@ import 'jspdf-autotable' // For table formatting in PDF
 import '../../../../src/app.css'
 import SearchIcon from '@mui/icons-material/Search'
 import { Eye, EyeOff } from 'lucide-react'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+import IconDropdown from '../../../components/ButtonDropdown'
+
+const accessToken = Cookies.get('authToken')
+
+const decodedToken = jwtDecode(accessToken)
 
 const Users = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
@@ -140,10 +149,8 @@ const Users = () => {
         distance: false,
         trips: false,
         history: false,
-        sensor: false,
         idle: false,
         alerts: false,
-        vehicle: false,
       },
       isAdmin: false,
     })
@@ -274,10 +281,8 @@ const Users = () => {
       status: false,
       distance: false,
       history: false,
-      sensor: false,
       idle: false,
       alerts: false,
-      vehicle: false,
       geofenceReport: false,
     },
     isAdmin: false,
@@ -417,10 +422,8 @@ const Users = () => {
             status: false,
             distance: false,
             history: false,
-            sensor: false,
             idle: false,
             alerts: false,
-            vehicle: false,
             geofenceReport: false,
           },
           isAdmin: false,
@@ -471,10 +474,8 @@ const Users = () => {
         status: userData.status,
         distance: userData.distance,
         history: userData.history,
-        sensor: userData.sensor,
         idle: userData.idle,
         alerts: userData.alerts,
-        vehicle: userData.vehicle,
         geofenceReport: userData.geofenceReport,
       },
       isAdmin: userData.isAdmin || false, // Assuming there is an isAdmin field
@@ -541,10 +542,8 @@ const Users = () => {
             status: false,
             distance: false,
             history: false,
-            sensor: false,
             idle: false,
             alerts: false,
-            vehicle: false,
             geofenceReport: false,
           },
           isAdmin: false,
@@ -601,232 +600,6 @@ const Users = () => {
     }
   }
 
-  // Excel and pdf download
-
-  const exportToExcel = async () => {
-    // Create a new workbook and worksheet
-    const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet('Users Report')
-
-    // Add title rows
-    const titleRow = ['Credence Tracker']
-    const subtitleRow = ['Users Report']
-    const dateRow = [`Date: ${new Date().toLocaleDateString()}`]
-    const emptyRow = []
-
-    // Add headers
-    const headerRow = [
-      'SN',
-      'Name',
-      'Email',
-      'Mobile No.',
-      'Master Permissions',
-      'Reports Permissions',
-    ]
-
-    // Add all rows to the worksheet
-    worksheet.addRows([titleRow, subtitleRow, dateRow, emptyRow, headerRow])
-
-    // Add data rows
-    filteredData?.forEach((item, index) => {
-      const masterPermissions =
-        ['users', 'groups', 'devices', 'geofence', 'driver', 'notification', 'maintenance']
-          .filter((p) => item[p])
-          .join(', ') || 'N/A'
-
-      const reportsPermissions =
-        [
-          'history',
-          'stop',
-          'travel',
-          'trips',
-          'status',
-          'distance',
-          'idle',
-          'sensor',
-          'alerts',
-          'vehicle',
-          'geofenceReport',
-        ]
-          .filter((p) => item[p])
-          .join(', ') || 'N/A'
-
-      worksheet.addRow([
-        index + 1,
-        item.username || '--',
-        item.email || '--',
-        item.mobile || 'N/A',
-        masterPermissions,
-        reportsPermissions,
-      ])
-    })
-
-    // Styling
-    const titleFont = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } }
-    const headerFont = { bold: true, color: { argb: 'FFFFFFFF' } }
-
-    // Title styling
-    worksheet.getRow(1).eachCell((cell) => {
-      cell.font = titleFont
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF0A2D63' }, // Dark blue
-      }
-    })
-
-    // Subtitle styling
-    worksheet.getRow(2).eachCell((cell) => {
-      cell.font = { ...titleFont, size: 14 }
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF6C757D' }, // Gray
-      }
-    })
-
-    // Header styling
-    worksheet.getRow(5).eachCell((cell) => {
-      cell.font = headerFont
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF0A2D63' }, // Dark blue
-      }
-      cell.alignment = { vertical: 'middle', horizontal: 'center' }
-    })
-
-    // Column widths
-    worksheet.columns = [
-      { key: 'sn', width: 8 }, // SN
-      { key: 'name', width: 25 }, // Name
-      { key: 'email', width: 35 }, // Email
-      { key: 'mobile', width: 15 }, // Mobile
-      { key: 'master', width: 35 }, // Master Permissions
-      { key: 'reports', width: 35 }, // Reports Permissions
-    ]
-
-    // Add borders to data rows
-    const lastRow = worksheet.rowCount
-    for (let i = 6; i <= lastRow; i++) {
-      worksheet.getRow(i).border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      }
-    }
-
-    // Save the file
-    const buffer = await workbook.xlsx.writeBuffer()
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    })
-    saveAs(blob, `Users_Report_${new Date().toISOString().split('T')[0]}.xlsx`)
-    toast.success('Excel file downloaded successfully!')
-  }
-
-  // PDF CODE
-
-  const exportToPDF = async () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4',
-    })
-
-    // Main content
-    const today = new Date()
-    const date = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear().toString()}`
-
-    // Title
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(22)
-    doc.text('Credence Tracker', 15, 20)
-
-    // Subtitle
-    doc.setFontSize(16)
-    doc.text('Users Report', 15, 28)
-
-    // Metadata
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Date: ${date}`, 250, 20)
-
-    // Table data
-    const tableColumn = [
-      'SN',
-      'Name',
-      'Email',
-      'Mobile No.',
-      'Master Permissions',
-      'Reports Permissions',
-    ]
-
-    const tableRows = filteredData?.map((row, rowIndex) => [
-      rowIndex + 1,
-      row.username || '--',
-      row.email || '--',
-      row.mobile || 'N/A',
-      ['users', 'groups', 'devices', 'geofence', 'driver', 'notification', 'maintenance']
-        .filter((permission) => row[permission])
-        .join(', ') || 'N/A',
-      [
-        'history',
-        'stop',
-        'travel',
-        'trips',
-        'status',
-        'distance',
-        'idle',
-        'sensor',
-        'alerts',
-        'vehicle',
-        'geofenceReport',
-      ]
-        .filter((permission) => row[permission])
-        .join(', ') || 'N/A',
-    ])
-
-    // Generate table
-    doc.autoTable({
-      startY: 45,
-      head: [tableColumn],
-      body: tableRows,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [10, 45, 99], // Dark blue
-        textColor: 255,
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      margin: { left: 20, right: 10 },
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-      },
-      columnStyles: {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 50 },
-        3: { cellWidth: 30 },
-        4: { cellWidth: 60 },
-        5: { cellWidth: 60 },
-      },
-      didDrawPage: () => {
-        // Footer
-        doc.setFontSize(10)
-        doc.text('Page ' + doc.internal.getNumberOfPages(), 280, 200)
-      },
-    })
-
-    // Save PDF
-    doc.save(`Users_Report_${date}.pdf`)
-  }
 
   // add group
 
@@ -951,6 +724,491 @@ const Users = () => {
   }
 
   //  ####################################################
+
+  // Dropdown download options icons
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
+  // all handel of drowpdown icons
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+        @page {
+          size: landscape;
+        }
+      `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+
+  // Excel and pdf download
+
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for Excel export');
+      }
+
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        columns: [
+          { header: 'SN', width: 8 },
+          { header: 'Name', width: 25 },
+          { header: 'Email', width: 35 },
+          { header: 'Mobile No.', width: 15 },
+          { header: 'Master Permissions', width: 35 },
+          { header: 'Reports Permissions', width: 35 },
+        ],
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      };
+
+      // Helper function to format permissions
+      const formatPermissions = (permissionsList, item) => {
+        return permissionsList.filter((p) => item[p]).join(', ') || 'N/A';
+      };
+
+      // Initialize workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Users Report');
+
+      // Add title and metadata
+      const addHeaderSection = () => {
+        // Company title
+        const titleRow = worksheet.addRow([CONFIG.company.name]);
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } };
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        };
+        titleRow.alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A1:F1');
+
+        // Report title
+        const subtitleRow = worksheet.addRow(['Users Report']);
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        };
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        };
+        subtitleRow.alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A2:F2');
+
+        // Metadata (Generated by, Generated Date Time)
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`]);
+        worksheet.addRow([`Generated Date Time: ${new Date().toLocaleString()}`]);
+        worksheet.addRow([]); // Spacer
+      };
+
+      // Add data table
+      const addDataTable = () => {
+        // Add column headers
+        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header));
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          };
+        });
+
+        // Add data rows
+        filteredData.forEach((item, index) => {
+          const masterPermissions = formatPermissions(
+            ['users', 'groups', 'devices', 'geofence', 'driver', 'notification', 'maintenance'],
+            item
+          );
+          const reportsPermissions = formatPermissions(
+            ['history', 'stop', 'travel', 'trips', 'status', 'distance', 'idle', 'alerts', 'geofenceReport'],
+            item
+          );
+
+          const rowData = [
+            index + 1, // SN
+            item.username || '--', // Name
+            item.email || '--', // Email
+            item.mobile || 'N/A', // Mobile No.
+            masterPermissions, // Master Permissions
+            reportsPermissions, // Reports Permissions
+          ];
+
+          const dataRow = worksheet.addRow(rowData);
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont;
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            };
+          });
+        });
+
+        // Set column widths
+        worksheet.columns = CONFIG.columns.map((col) => ({
+          width: col.width,
+          style: { alignment: { horizontal: 'left' } },
+        }));
+      };
+
+      // Add footer
+      const addFooter = () => {
+        worksheet.addRow([]); // Spacer
+        const footerRow = worksheet.addRow([CONFIG.company.copyright]);
+        footerRow.font = { italic: true };
+        worksheet.mergeCells(`A${footerRow.number}:F${footerRow.number}`);
+      };
+
+      // Build the document
+      addHeaderSection();
+      addDataTable();
+      addFooter();
+
+      // Generate and save file
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const filename = `Users_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      saveAs(blob, filename);
+      toast.success('Excel file downloaded successfully');
+    } catch (error) {
+      console.error('Excel Export Error:', error);
+      toast.error(error.message || 'Failed to export Excel file');
+    }
+  };
+
+  // PDF CODE
+
+  const exportToPDF = () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(sortedData) || sortedData.length === 0) {
+        throw new Error('No data available for PDF export')
+      }
+
+      // Constants and configuration
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99],
+          secondary: [70, 70, 70],
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      }
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      })
+
+      // Helper functions
+      const applyPrimaryColor = () => {
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.setTextColor(...CONFIG.colors.primary)
+      }
+
+      const applySecondaryColor = () => {
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
+
+      const addHeader = () => {
+        // Company logo and name
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        )
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
+
+        // Header line
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
+
+      const addMetadata = () => {
+        const metadata = [
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+        ]
+
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+
+        let yPosition = 45
+        const xPosition = 15
+        const lineHeight = 6
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
+
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages()
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i)
+
+          // Footer line
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          )
+
+          // Copyright text
+          doc.setFontSize(9)
+          applySecondaryColor()
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          )
+
+          // Page number
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          )
+        }
+      }
+
+      const formatDate = (dateString) => {
+        if (!dateString) return '--'
+        const date = new Date(dateString)
+        return isNaN(date)
+          ? '--'
+          : date
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
+      }
+
+      const formatCoordinates = (coords) => {
+        if (!coords) return '--'
+        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()))
+        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`
+      }
+
+      // Main document creation
+      addHeader()
+
+      // Title and date
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Users Report', CONFIG.layout.margin, 35)
+
+      const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+      const dateText = `Generated: ${currentDate}`
+      applySecondaryColor()
+      doc.setFontSize(10)
+      doc.text(
+        dateText,
+        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
+        21,
+      )
+
+      addMetadata()
+
+      // Table data preparation (replacing with your data)
+      const tableColumns = [
+        'SN',
+        'Name',
+        'Email',
+        'Mobile No.',
+        'Master Permissions',
+        'Reports Permissions',
+      ]
+
+      const tableRows = filteredData?.map((row, rowIndex) => [
+        rowIndex + 1,
+        row.username || '--',
+        row.email || '--',
+        row.mobile || 'N/A',
+        ['users', 'groups', 'devices', 'geofence', 'driver', 'notification', 'maintenance']
+          .filter((permission) => row[permission])
+          .join(', ') || 'N/A',
+        [
+          'history',
+          'stop',
+          'travel',
+          'trips',
+          'status',
+          'distance',
+          'idle',
+          'sensor',
+          'alerts',
+          'vehicle',
+          'geofenceReport',
+        ]
+          .filter((permission) => row[permission])
+          .join(', ') || 'N/A',
+      ])
+
+      // Calculate column widths dynamically based on content
+      const availableWidth = doc.internal.pageSize.width - 2 * CONFIG.layout.margin
+      const columnWidths = new Array(tableColumns.length).fill(availableWidth / tableColumns.length)
+
+      // Generate table with dynamic width for columns
+      doc.autoTable({
+        startY: 65,
+        head: [tableColumns],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        columnStyles: tableColumns.reduce((acc, col, index) => {
+          acc[index] = { cellWidth: columnWidths[index] }
+          return acc
+        }, {}),
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+        didDrawPage: (data) => {
+          // Add header on subsequent pages
+          if (doc.getCurrentPageInfo().pageNumber > 1) {
+            doc.setFontSize(15)
+            doc.setFont(CONFIG.fonts.primary, 'bold')
+            doc.text('Status Report', CONFIG.layout.margin, 10)
+          }
+        },
+      })
+
+      addFooter()
+
+      // Save PDF
+      const filename = `Users_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
+    } catch (error) {
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
+    }
+  }
+
+
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
@@ -1224,9 +1482,7 @@ const Users = () => {
                                 'status',
                                 'distance',
                                 'idle',
-                                'sensor',
                                 'alerts',
-                                'vehicle',
                                 'geofenceReport',
                               ].map(
                                 (permission) =>
@@ -1383,20 +1639,15 @@ const Users = () => {
         </CCol>
       </CRow>
 
-      {/* </div> */}
-      <CDropdown className="position-fixed bottom-0 end-0 m-3">
-        <CDropdownToggle
-          color="secondary"
-          style={{ borderRadius: '50%', padding: '10px', height: '48px', width: '48px' }}
-        >
-          <CIcon icon={cilSettings} />
-        </CDropdownToggle>
-        <CDropdownMenu>
-          <CDropdownItem onClick={exportToPDF}>PDF</CDropdownItem>
-          <CDropdownItem onClick={exportToExcel}>Excel</CDropdownItem>
-        </CDropdownMenu>
-      </CDropdown>
+      {/* download dropdown option icon */}
+
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
+        <IconDropdown items={dropdownItems} />
+      </div>
+
+
       <br />
+
       <div className="d-flex justify-content-center align-items-center">
         <div className="d-flex">
           {/* Pagination */}
@@ -1770,8 +2021,6 @@ const Users = () => {
                             'status',
                             'distance',
                             'alerts',
-                            'vehicle',
-                            'sensor',
                             'geofenceReport',
                           ].map((permission) => (
                             <FormControlLabel
@@ -1845,8 +2094,6 @@ const Users = () => {
                               'status',
                               'distance',
                               'alerts',
-                              'vehicle',
-                              'sensor',
                               'geofenceReport',
                             ]
                               .filter((permission) => availablePermissions[permission])
@@ -2129,8 +2376,6 @@ const Users = () => {
                             'status',
                             'distance',
                             'alerts',
-                            'vehicle',
-                            'sensor',
                             'geofenceReport',
                           ].map((permission) => (
                             <FormControlLabel
@@ -2157,8 +2402,6 @@ const Users = () => {
                             'status',
                             'distance',
                             'alerts',
-                            'vehicle',
-                            'sensor',
                             'geofenceReport',
                           ]
                             .filter((permission) => availablePermissions[permission])

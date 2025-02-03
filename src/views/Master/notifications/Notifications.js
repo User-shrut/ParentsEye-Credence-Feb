@@ -61,7 +61,20 @@ import 'jspdf-autotable' // For table formatting in PDF
 import CIcon from '@coreui/icons-react'
 import { cilSettings } from '@coreui/icons'
 import '../../../../src/app.css'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
+import IconDropdown from '../../../components/ButtonDropdown'
 import SearchIcon from '@mui/icons-material/Search'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+import { jwtDecode } from 'jwt-decode'
+
+
+const accessToken = Cookies.get('authToken')
+
+const decodedToken = jwtDecode(accessToken)
 
 const notificationTypes = [
   'statusOnline',
@@ -354,127 +367,322 @@ const Notification = () => {
 
   //  ###############################################################
 
+  // Pdf Download
+
   const exportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-    })
+    try {
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for PDF export')
+      }
 
-    // Add current date
-    const today = new Date()
-    const date = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear().toString()}`
+      // Configuration Settings
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99],
+          secondary: [70, 70, 70],
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      }
 
-    // Add "Credence Tracker" heading
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(22)
-    const title = 'Credence Tracker'
-    const pageWidth = doc.internal.pageSize.width
-    const titleWidth = doc.getTextWidth(title)
-    const titleX = (pageWidth - titleWidth) / 2
-    doc.text(title, titleX, 15)
-
-    // Add "Devices Reports" heading
-    doc.setFontSize(16)
-    const subtitle = 'Devices Notifications Reports'
-    const subtitleWidth = doc.getTextWidth(subtitle)
-    const subtitleX = (pageWidth - subtitleWidth) / 2
-    doc.text(subtitle, subtitleX, 25)
-
-    // Add current date at the top-right corner
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Date: ${date}`, pageWidth - 20, 15, { align: 'right' })
-
-    // Define table headers
-    const tableColumn = ['SN', 'Device Name', 'Notifications']
-
-    // Generate rows of data for the PDF
-    const tableRows = filteredData.map((item, index) => {
-      const rowData = [
-        index + 1, // Serial Number
-        item.deviceId?.name || '--', // Device Name
-        item.type.length || '--', // Notifications (assuming type length is what you want here)
-      ]
-
-      return rowData
-    })
-
-    // Calculate the total width of the table based on the number of columns
-    const columnWidths = [20, 100, 40] // Adjust column widths based on content
-    const totalWidth = columnWidths.reduce((acc, width) => acc + width, 0)
-    const marginLeft = 10 // Left margin
-    const marginRight = 10 // Right margin
-    const remainingWidth = pageWidth - marginLeft - marginRight
-
-    // Calculate scaling factor to make the table fit the full width
-    const scaleFactor = remainingWidth / totalWidth
-
-    // Use autoTable to create the table in the PDF
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 40, // Table starts below the headings
-      theme: 'grid', // Adds a clean grid style
-      headStyles: {
-        fillColor: [100, 100, 255], // Blue background for header
-        textColor: [255, 255, 255], // White text
-        fontStyle: 'bold',
-        fontSize: 12,
-      },
-      bodyStyles: {
-        fontSize: 10,
-        cellPadding: 5, // Add more padding for readability
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240], // Light gray for alternating rows
-      },
-      columnStyles: {
-        0: { cellWidth: columnWidths[0] * scaleFactor }, // Scale serial number column
-        1: { cellWidth: columnWidths[1] * scaleFactor }, // Scale device name column
-        2: { cellWidth: columnWidths[2] * scaleFactor }, // Scale notifications column
-      },
-      margin: { top: 10, right: marginRight, bottom: 10, left: marginLeft }, // Adjust margins
-    })
-
-    // Add footer with page numbers
-    const pageCount = doc.internal.getNumberOfPages()
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i)
-      doc.setFontSize(10)
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, {
-        align: 'center',
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
       })
-    }
 
-    // Save the generated PDF
-    doc.save(`Notifications_Reports_${date}.pdf`)
+      // Add Header
+      const addHeader = () => {
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.rect(CONFIG.company.logo.x, CONFIG.company.logo.y, CONFIG.company.logo.size, CONFIG.company.logo.size, 'F')
+
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
+
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
+
+      // Add Footer
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages()
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i)
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15
+          )
+
+          doc.setFontSize(9)
+          doc.setTextColor(...CONFIG.colors.secondary)
+          doc.text(`© ${CONFIG.company.name}`, CONFIG.layout.margin, doc.internal.pageSize.height - 10)
+
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10
+          )
+        }
+      }
+
+      // Add Metadata (Including Generated By and Generated Date)
+      const addMetadata = () => {
+        const generatedBy = decodedToken?.username || 'N/A'
+        const generatedDate = new Date().toLocaleDateString('en-GB')
+
+        const metadata = [
+          { label: 'Generated By:', value: generatedBy },
+        ]
+
+        // Add "Generated Date" to top-right corner
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'normal')
+        const generatedDateWidth = doc.getTextWidth(`Generated Date: ${generatedDate}`)
+        doc.text(
+          `Generated Date: ${generatedDate}`,
+          doc.internal.pageSize.width - CONFIG.layout.margin - generatedDateWidth,
+          21
+        )
+
+        // Add other metadata
+        let yPosition = 45
+        const xPosition = 15
+        const lineHeight = 6
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
+
+      // Main Document Structure
+      addHeader()
+
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Devices Notifications Report', CONFIG.layout.margin, 35)
+
+      addMetadata()
+
+      // Table Data Preparation
+      const tableColumns = ['SN', 'Device Name', 'Notifications']
+      const tableRows = filteredData.map((item, index) => [
+        index + 1,
+        item.deviceId?.name || '--',
+        item.type.length || '--',
+      ])
+
+      // Adjust Column Widths
+      const pageWidth = doc.internal.pageSize.width
+      const columnWidths = [20, 100, 40]
+      const totalWidth = columnWidths.reduce((acc, width) => acc + width, 0)
+      const remainingWidth = pageWidth - 2 * CONFIG.layout.margin
+      const scaleFactor = remainingWidth / totalWidth
+
+      // Generate Table
+      doc.autoTable({
+        startY: 65,
+        head: [tableColumns],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 10,
+          cellPadding: 4,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        columnStyles: {
+          0: { cellWidth: columnWidths[0] * scaleFactor },
+          1: { cellWidth: columnWidths[1] * scaleFactor },
+          2: { cellWidth: columnWidths[2] * scaleFactor },
+        },
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+      })
+
+      addFooter()
+
+      // Save PDF
+      const filename = `Notifications_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
+    } catch (error) {
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
+    }
   }
 
   // Excel download
 
-  const exportToExcel = () => {
-    // Map filtered data into the format required for export
-    const dataToExport = filteredData.map((item, rowIndex) => {
-      const rowData = {
-        SN: rowIndex + 1, // Include row index as SN
-        'Device Name': item.deviceId?.name || 'N/A', // Device Name
-        Notifications: item.type.length || '0', // Notifications count
-        // 'Actions': 'N/A' // Placeholder for Actions, adjust as needed
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        throw new Error('No data available for Excel export')
       }
 
-      return rowData
-    })
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        columns: [
+          { header: 'SN', width: 8 },
+          { header: 'Device Name', width: 25 },
+          { header: 'Notifications', width: 20 },
+        ],
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      }
 
-    // Create worksheet and workbook
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
-    const workbook = XLSX.utils.book_new()
+      // Initialize workbook and worksheet
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Notification Report')
 
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Table Data')
+      // Add title and metadata
+      const addHeaderSection = () => {
+        // Company title
+        const titleRow = worksheet.addRow([CONFIG.company.name])
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } }
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        }
+        titleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A1:C1')
 
-    // Write the Excel file
-    XLSX.writeFile(workbook, 'Notification_data.xlsx')
+        // Report title
+        const subtitleRow = worksheet.addRow(['Notification Report'])
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        }
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        }
+        subtitleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A2:C2')
+
+        // Metadata
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`])
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
+        worksheet.addRow([]) // Spacer
+      }
+
+      // Add data table
+      const addDataTable = () => {
+        // Add column headers
+        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header))
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          }
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          }
+        })
+
+        // Add data rows
+        filteredData.forEach((item, index) => {
+          const rowData = [
+            index + 1, // SN
+            item.deviceId?.name || 'N/A', // Device Name
+            (item.type.length || 0).toString(), // Notifications count
+          ]
+
+          const dataRow = worksheet.addRow(rowData)
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            }
+          })
+        })
+
+        // Set column widths
+        worksheet.columns = CONFIG.columns.map((col) => ({
+          width: col.width,
+          style: { alignment: { horizontal: 'left' } },
+        }))
+      }
+
+      // Add footer
+      const addFooter = () => {
+        worksheet.addRow([]) // Spacer
+        const footerRow = worksheet.addRow([CONFIG.company.copyright])
+        footerRow.font = { italic: true }
+        worksheet.mergeCells(`A${footerRow.number}:C${footerRow.number}`)
+      }
+
+      // Build the document
+      addHeaderSection()
+      addDataTable()
+      addFooter()
+
+      // Generate and save file
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const filename = `Notification_Report_${new Date().toISOString().split('T')[0]}.xlsx`
+      saveAs(blob, filename)
+      toast.success('Excel file downloaded successfully')
+    } catch (error) {
+      console.error('Excel Export Error:', error)
+      toast.error(error.message || 'Failed to export Excel file')
+    }
   }
 
   // SORTING LOGIC
@@ -498,6 +706,70 @@ const Notification = () => {
     }
     return 0
   })
+
+  // Dropdown items for icons modal
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+      @page {
+        size: landscape;
+      }
+    `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
@@ -727,18 +999,14 @@ const Notification = () => {
           </CCard>
         </CCol>
       </CRow>
-      <CDropdown className="position-fixed bottom-0 end-0 m-3">
-        <CDropdownToggle
-          color="secondary"
-          style={{ borderRadius: '50%', padding: '10px', height: '48px', width: '48px' }}
-        >
-          <CIcon icon={cilSettings} />
-        </CDropdownToggle>
-        <CDropdownMenu>
-          <CDropdownItem onClick={exportToPDF}>PDF</CDropdownItem>
-          <CDropdownItem onClick={exportToExcel}>Excel</CDropdownItem>
-        </CDropdownMenu>
-      </CDropdown>
+
+      {/* download icon */}
+
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
+        <IconDropdown items={dropdownItems} />
+      </div>
+
+
       <div className="d-flex justify-content-center align-items-center">
         <div className="d-flex">
           {/* Pagination */}
@@ -947,7 +1215,7 @@ const Notification = () => {
                   renderOption={(props, option, { selected }) => {
                     const isDisabled = devicesAlreadyAdded.includes(option.name)
                     {
-                      ;(() =>
+                      ; (() =>
                         console.log(
                           'Logging inside JSX:',
                           devicesAlreadyAdded,
@@ -958,19 +1226,19 @@ const Notification = () => {
                     return (
                       <li
                         {...props}
-                        // aria-disabled={isDisabled}
+                      // aria-disabled={isDisabled}
                       >
                         <Checkbox
                           style={{ marginRight: 8 }}
                           checked={selected}
-                          //disabled={isDisabled} // Disable the checkbox if condition is met
+                        //disabled={isDisabled} // Disable the checkbox if condition is met
                         />
                         <ListItemText
                           primary={option.name}
-                          // style={{
-                          //   textDecoration: isDisabled ? "line-through" : "none", // Optional: Style disabled options
-                          //   color: isDisabled ? "gray" : "inherit",
-                          // }}
+                        // style={{
+                        //   textDecoration: isDisabled ? "line-through" : "none", // Optional: Style disabled options
+                        //   color: isDisabled ? "gray" : "inherit",
+                        // }}
                         />
                       </li>
                     )

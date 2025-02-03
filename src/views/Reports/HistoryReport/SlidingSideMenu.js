@@ -58,7 +58,7 @@ const processStopData = (stopData) => {
 
 const fetchAddress = async (latitude, longitude) => {
   try {
-    const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your geocoding API key
+    const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your geocoding API key
     const response = await fetch(
       `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
     )
@@ -141,7 +141,7 @@ const SlidingSideMenu = ({
 
   const fetchAddress = async (vehicleId, longitude, latitude) => {
     try {
-      const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your MapTiler API key
       const response = await axios.get(
         `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
       )
@@ -527,7 +527,7 @@ const SlidingSideMenu = ({
                       onClick={() => filterPositionsByTrip(trip)}
                     >
 
-                    <h5>Trip {index + 1}</h5>
+                      <h5>Trip {index + 1}</h5>
                       <div className="divide">
                         <div className="bold">Start Time:</div>
                         <div className="light">

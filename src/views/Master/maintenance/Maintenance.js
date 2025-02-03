@@ -38,6 +38,8 @@ const Maintenance = () => {
     //   </button>
     // </div>
 
+    // New tempory template code..
+
     <div className="d-flex vh-100 justify-content-center align-items-center bg-light">
       <CContainer>
         <CRow className="justify-content-center">
