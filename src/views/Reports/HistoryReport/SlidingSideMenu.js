@@ -23,7 +23,62 @@ const formatDuration = (milliseconds) => {
   return `${d.days()}d ${d.hours()}h ${d.minutes()}m ${d.seconds()}s`
 }
 
-// Process and calculate additional data fields
+// #####################################################################///
+// This Shudesh Previous Code for stopages data calculation 
+
+// // Process and calculate additional data fields
+// const processStopData = (stopData) => {
+//   return stopData.map((stop, index, array) => {
+//     const previousStop = array[index - 1]
+//     const nextStop = array[index + 1]
+//     const arrivalTime = dayjs(stop.arrivalTime)
+//     const departureTime = stop.departureTime
+//       ? dayjs(stop.departureTime)
+//       : nextStop?.arrivalTime
+//         ? dayjs(nextStop.arrivalTime)
+//         : null
+
+//     const durationFromPrevious = previousStop
+//       ? arrivalTime.diff(dayjs(previousStop.departureTime))
+//       : 0
+
+//     const haltTime = departureTime ? departureTime.diff(arrivalTime) : null
+//     const latitude = stop.latitude
+//     const longitude = stop.longitude
+
+//     const obj = {
+//       ...stop,
+//       departureTime: departureTime?.toISOString() || null,
+//       distanceFromPrevious: previousStop ? stop.distance - previousStop.distance : 0,
+//       durationFromPrevious: formatDuration(durationFromPrevious),
+//       haltTime: haltTime ? formatDuration(haltTime) : 'N/A',
+//     }
+
+//     console.log('object hai yee', obj)
+//     return obj
+//   })
+// }
+// ######################################################################################################
+
+// this is new calculation for stopages data Rohit
+
+const toRadians = (degree) => (degree * Math.PI) / 180
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371e3 // Earth's radius in meters
+  const φ1 = toRadians(lat1)
+  const φ2 = toRadians(lat2)
+  const Δφ = toRadians(lat2 - lat1)
+  const Δλ = toRadians(lon2 - lon1)
+
+  const a =
+    Math.sin(Δφ / 2) ** 2 +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return R * c // Distance in meters
+}
+
 const processStopData = (stopData) => {
   return stopData.map((stop, index, array) => {
     const previousStop = array[index - 1]
@@ -40,13 +95,21 @@ const processStopData = (stopData) => {
       : 0
 
     const haltTime = departureTime ? departureTime.diff(arrivalTime) : null
-    const latitude = stop.latitude
-    const longitude = stop.longitude
+
+    // Calculate distance from the previous stop in kilometers
+    const distanceFromPrevious = previousStop
+      ? (calculateDistance(
+        stop.latitude,
+        stop.longitude,
+        previousStop.latitude,
+        previousStop.longitude
+      ) / 1000) // Convert meters to kilometers
+      : 0
 
     const obj = {
       ...stop,
       departureTime: departureTime?.toISOString() || null,
-      distanceFromPrevious: previousStop ? stop.distance - previousStop.distance : 0,
+      distanceFromPrevious: distanceFromPrevious.toFixed(2), // Distance in KM, rounded to 2 decimals
       durationFromPrevious: formatDuration(durationFromPrevious),
       haltTime: haltTime ? formatDuration(haltTime) : 'N/A',
     }
@@ -56,20 +119,30 @@ const processStopData = (stopData) => {
   })
 }
 
+
+// stopages data fetching function
 const fetchAddress = async (latitude, longitude) => {
   try {
-    const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your geocoding API key
+    const apiKey = 'CWVeoDxzhkO07kO693u0'
     const response = await fetch(
-      `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
+      `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
     )
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`)
+
     const data = await response.json()
-    return data.results[0]?.formatted_address || 'Address not found'
+
+    // Correcting the response structure
+    if (data.features && data.features.length > 0) {
+      return data.features[0].place_name || 'Address not found'
+    } else {
+      return 'Address not found'
+    }
   } catch (error) {
     console.error('Geocoding error:', error)
     return 'Error fetching address'
   }
 }
+
 
 const addAddressesToData = async (data) => {
   const updatedData = await Promise.all(
@@ -139,33 +212,27 @@ const SlidingSideMenu = ({
     setCurrentPositionIndex(0)
   }
 
+  // Trip data fetching function
   const fetchAddress = async (vehicleId, longitude, latitude) => {
     try {
-      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0'; // Replace with your MapTiler API key
       const response = await axios.get(
         `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
-      )
+      );
       const address =
         response.data.features.length <= 5
           ? response.data.features[0]?.place_name_en || 'Address not available'
-          : response.data.features[1]?.place_name_en || 'Address not available'
-
-      setAddress((prevAddresses) => ({
-        ...prevAddresses,
-        [vehicleId]: address, // Update the specific vehicle's address
-      }))
+          : response.data.features[1]?.place_name_en || 'Address not available';
+      return address;  // Make sure to return the address
     } catch (error) {
-      console.error('Error fetching the address:', error)
-      setAddress((prevAddresses) => ({
-        ...prevAddresses,
-        [vehicleId]: 'Error fetching address',
-      }))
+      console.error('Error fetching the address:', error);
+      return 'Error fetching address'; // Return a default message if error occurs
     }
-  }
+  };
 
   useEffect(() => {
     const fetchTripData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const enrichedData = await Promise.all(
           trips.map(async (trip) => {
@@ -174,32 +241,34 @@ const SlidingSideMenu = ({
                 trip.vehicleId,
                 trip.startLongitude,
                 trip.startLatitude,
-              )
+              );
               const endAddress = await fetchAddress(
                 trip.vehicleId,
                 trip.endLongitude,
                 trip.endLatitude,
-              )
+              );
+
               return {
                 ...trip,
-                startAddress,
-                endAddress,
+                startAddress,  // Assign the fetched address to trip
+                endAddress,    // Assign the fetched address to trip
                 duration: new Date(trip.endTime) - new Date(trip.startTime),
-              }
+              };
             } catch (error) {
-              console.error('Error fetching trip data:', error)
+              console.error('Error fetching trip data:', error);
             }
-          }),
-        )
-        setTripData(enrichedData)
+          })
+        );
+        setTripData(enrichedData);
       } catch (error) {
-        console.error('Error processing trip data:', error)
+        console.error('Error processing trip data:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchTripData()
-  }, [trips])
+    };
+    fetchTripData();
+  }, [trips]);
+
 
   const handleStopPage = () => {
     setStopPage(true)
@@ -325,251 +394,169 @@ const SlidingSideMenu = ({
           <div style={{ padding: '8px', marginRight: '10px', zIndex: 9999 }}>
             {stopPage ? (
               <>
-                <hr
-                  style={{
-                    width: '95% !important',
-                  }}
-                />
+                <div>
+                  {/* <hr className="divider" /> */}
 
-                <div
-                  style={{
-                    height: '3rem',
-                    padding: '5px',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px', // Optional, to align horizontally as well
-                  }}
-                >
-                  <div className="divide">
-                    <div className="bolding">Total stops</div>
-                    <div className="lighting">{processedData?.length ?? 0}</div>
-                  </div>
-
-                  <div className="divide">
-                    <div className="bolding">Total Distance</div>
-                    <div className="lighting">
-                      {tripData?.reduce((total, trip) => {
-                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0) // Extract and convert the distance
-                        // Add to total only if distance > 1
-                        return distance > 0 ? total + distance : total
-                      }, 0) || 0}
+                  <div className="summary-header">
+                    <div className="summary-box">
+                      <div className="label">Total Stops</div>
+                      <div className="value">{processedData?.length ?? 0}</div>
                     </div>
+
+                    <div className="summary-box">
+                      <div className="label">Total Distance</div>
+                      <div className="value">
+                        {tripData?.reduce((total, trip) => {
+                          const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
+                          return distance > 0 ? total + distance : total;
+                        }, 0) || 0} km
+                      </div>
+                    </div>
+
+                    <CButton
+                      color={showStopages ? 'primary' : 'success'}
+                      onClick={toggleStopages}
+                      className="toggle-button"
+                      title={showStopages ? 'View Stopages' : 'Hide Stopages'}
+                    >
+                      {showStopages ? <BiSolidShow /> : <BiHide />}
+                    </CButton>
                   </div>
 
-                  <CButton
-                    color={showStopages ? 'primary' : 'success'}
-                    onClick={(e) => toggleStopages(e)}
-                    className="custom-button"
-                    style={{
-                      height: '2rem',
-                      width: '2rem',
-                      padding: '5px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: '8px', // Optional, to align horizontally as well
-                    }}
-                  >
-                    {showStopages ? <BiSolidShow /> : <BiHide />}
-                  </CButton>
+                  <hr className="divider" />
+
+                  {processedData.map((stop, index) => (
+                    <div
+                      key={index}
+                      className="stop-card"
+                      onClick={() => handleStopDiv(stop?.latitude, stop?.longitude)}
+                    >
+                      <h5>Stop {index + 1}</h5>
+
+                      <div className="info-row">
+                        <FaDownload className="icon" /> Arrival Time:
+                        <span>{dayjs(stop?.arrivalTime).format('MMMM D, YYYY h:mm A')}</span>
+                      </div>
+
+                      <div className="info-row">
+                        <FaUpload className="icon" /> Depart. Time:
+                        <span>{dayjs(stop?.departureTime).format('MMMM D, YYYY h:mm A')}</span>
+                      </div>
+
+                      <div className="info-row">
+                        <FaRoad className="icon" /> Dist. from Previous Stop:
+                        <span>{stop?.distanceFromPrevious} km</span>
+                      </div>
+
+                      <div className="info-row">
+                        <FaClock className="icon" /> Dur. from Previous Stop:
+                        <span>{stop?.durationFromPrevious}</span>
+                      </div>
+
+                      <div className="info-row">
+                        <GiDuration className="icon" /> Halt Time:
+                        <span>{stop?.haltTime}</span>
+                      </div>
+
+                      <div className="info-row">
+                        <IoLocationSharp className="icon" /> Address:
+                        <span>{stop?.address || 'Loading address...'}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <hr
-                  style={{
-                    width: '95% !important',
-                    marginBottom: '1rem',
-                  }}
-                />
-                {processedData.map((stop, index) => (
-                  <div
-                    key={index}
-                    className="custom-div"
-                    style={{
-                      marginBottom: '20px',
-                      padding: '10px',
-                      border: '1px solid #ccc',
-                      borderRadius: '5px',
-                    }}
-                    onClick={() => handleStopDiv(stop?.latitude, stop?.longitude)}
-                  >
-                    <h5>Stop {index + 1}</h5>
-                    <div className="divide">
-                      <div className="bold">
-                        <FaDownload />
-                        &nbsp;Arrival Time:
-                      </div>
-                      <div className="light">
-                        {dayjs(stop?.arrivalTime).format('MMMM D, YYYY h:mm A')}
-                      </div>
-                    </div>
-                    <div className="divide">
-                      <div className="bold">
-                        <FaUpload />
-                        &nbsp;Depart. Time:
-                      </div>
-                      <div className="light">
-                        {dayjs(stop?.departureTime).format('MMMM D, YYYY h:mm A')}
-                      </div>
-                    </div>
-                    <div className="divide">
-                      <div className="bold">
-                        {' '}
-                        <FaRoad /> &nbsp;Dist. from Previous Stop:
-                      </div>
-                      <div className="light">{stop?.distanceFromPrevious} km</div>
-                    </div>
-                    <div className="divide">
-                      <div className="bold">
-                        {' '}
-                        <FaClock />
-                        &nbsp;Dur. from Previous Stop:
-                      </div>
-                      <div className="light">{stop?.durationFromPrevious}</div>
-                    </div>
-                    <div className="divide">
-                      <div className="bold">
-                        <GiDuration />
-                        &nbsp;Halt Time:
-                      </div>
-                      <div className="light">{stop?.haltTime}</div>
-                    </div>
-                    <div className="divide">
-                      <div className="bold">
-                        <IoLocationSharp /> &nbsp;Address:{' '}
-                      </div>
-                      <div className="light">{stop?.address}</div>
-                    </div>
-                  </div>
-                ))}
               </>
             ) : (
               <>
-                <hr
-                  style={{
-                    width: '95% !important',
-                  }}
-                />
+                {/* <hr className="divider" /> */}
 
-                <div
-                  style={{
-                    height: '3rem',
-                    padding: '5px',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px', // Optional, to align horizontally as well
-                  }}
-                >
-                  <div className="divide">
-                    <div className="bolding">Total trips</div>
-                    <div className="lighting">
+                <div className="summary-header">
+                  <div className="summary-box">
+                    <div className="label">Total Trips</div>
+                    <div className="value">
                       {tripData?.filter((trip) => {
-                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0)
-                        return distance > 1
+                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
+                        return distance > 1;
                       }).length || 0}
                     </div>
                   </div>
 
-                  <div className="divide">
-                    <div className="bolding">Total Distance</div>
-                    <div className="lighting">
+                  <div className="summary-box">
+                    <div className="label">Total Distance</div>
+                    <div className="value">
                       {tripData?.reduce((total, trip) => {
-                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0) // Extract and convert the distance
-                        // Add to total only if distance > 1
-                        return distance > 0 ? total + distance : total
-                      }, 0) || 0}
+                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
+                        return distance > 0 ? total + distance : total;
+                      }, 0) || 0} km
                     </div>
                   </div>
 
                   <CButton
-                    color="danger"
+                    color="primary"
                     onClick={handleIntialTrip}
-                    className="custom-button"
-                    style={{
-                      height: '2rem',
-                      width: '2rem',
-                      padding: '5px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center', // Optional, to align horizontally as well
-                      marginLeft: '8px',
-                    }}
+                    className="toggle-button"
+                    title="Refresh"
                   >
                     <MdOutlineRefresh />
                   </CButton>
                 </div>
 
-                <hr
-                  style={{
-                    width: '95% !important',
-                    marginBottom: '1rem',
-                  }}
-                />
+                <hr className="divider" />
+
 
                 {tripData
-                  .filter((trip) => {
-                    const distance = parseFloat(trip?.distance?.split(' ')[0])
-                    return distance > 1
-                  })
+                  .filter((trip) => parseFloat(trip?.distance?.split(' ')[0]) > 1)
                   .map((trip, index) => (
                     <div
                       key={index}
-                      className="custom-div"
-                      style={{
-                        marginBottom: '20px',
-                        padding: '10px',
-                        border: '1px solid #ccc',
-                        borderRadius: '5px',
-                      }}
+                      className="trip-card"
                       onClick={() => filterPositionsByTrip(trip)}
                     >
+                      <div className="trip-header">
+                        <div className="indicator-container">
+                          <div className="dot green"></div>
+                          <div className="dashed-line"></div>
+                          <div className="dot red"></div>
+                        </div>
 
-                      <h5>Trip {index + 1}</h5>
-                      <div className="divide">
-                        <div className="bold">Start Time:</div>
-                        <div className="light">
-                          {dayjs(trip?.startTime).format('MMMM D, YYYY h:mm A')}
+                        <div className="trip-details">
+                          <div className="time-address">
+                            <div className="time">{dayjs(trip?.startTime).format('DD/MM/YYYY HH:mm:ss')}</div>
+                            <div className="address">{trip?.startAddress || 'Loading address...'}</div>
+                          </div>
+
+                          <div className="time-address">
+                            <div className="time">{dayjs(trip?.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
+                            <div className="address">{trip?.endAddress || 'Loading address...'}</div>
+                          </div>
                         </div>
                       </div>
-                      <div className="divide">
-                        <div className="bold">Start Address:</div>
-                        <div className="light">{trip?.startAddress}</div>
-                      </div>
-                      <div className="divide">
-                        <div className="bold">End Time:</div>
-                        <div className="light">
-                          {dayjs(trip?.endTime).format('MMMM D, YYYY h:mm A')}
+
+                      <div className="metrics">
+                        <div className="metric-box">
+                          <div className="label">Running</div>
+                          <div className="value">{formatDuration(trip?.duration)}</div>
                         </div>
-                      </div>
-                      <div className="divide">
-                        <div className="bold">End Address:</div>
-                        <div className="light">{trip?.endAddress}</div>
-                      </div>
-                      <div className="divide">
-                        <div className="bold">Total Distance:</div>
-                        <div className="light">{trip?.totalDistance}</div>
-                      </div>
-                      <div className="divide">
-                        <div className="bold">Average Speed:</div>
-                        <div className="light">
-                          {(trip?.avgSpeed * 1.6).toFixed(2)}
-                          km/h
+                        <div className="metric-box">
+                          <div className="label">Distance</div>
+                          <div className="value">{trip?.distance}</div>
                         </div>
-                      </div>
-                      <div className="divide">
-                        <div className="bold">Duration:</div>
-                        <div className="light">{formatDuration(trip?.duration)}</div>
+                        <div className="metric-box">
+                          <div className="label">Avg. Speed (km/h)</div>
+                          <div className="value">{(trip?.avgSpeed * 1.6).toFixed(2)}</div>
+                        </div>
+                        <div className="metric-box">
+                          <div className="label">Max. Speed (km/h)</div>
+                          <div className="value">{trip?.maxSpeed || 'N/A'}</div>
+                        </div>
                       </div>
                     </div>
                   ))}
               </>
             )}
           </div>
-        </Scrollbars>
-      </div>
+        </Scrollbars >
+      </div >
     </>
   )
 }

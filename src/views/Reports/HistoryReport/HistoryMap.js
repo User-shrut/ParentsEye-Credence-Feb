@@ -29,6 +29,8 @@ import {
 } from 'chart.js'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import SlidingSideMenu from './SlidingSideMenu'
+import axios from 'axios';
+
 
 // Register Chart.js components
 ChartJS.register(LineElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement)
@@ -123,6 +125,7 @@ const HistoryMap = ({
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [prevhoveredIndex, setPrevHoveredIndex] = useState(null)
   const [originalPositions, setOriginalPositions] = useState([])
+
   const mapRef = useRef()
   useEffect(() => {
     if (tripData?.finalTrip) {
@@ -178,7 +181,7 @@ const HistoryMap = ({
     }
   }
   const fetchAddressStop = async (latitude, longitude) => {
-    const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your MapTiler API key
+    const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your MapTiler API key
     const addressUrl = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
 
     try {
