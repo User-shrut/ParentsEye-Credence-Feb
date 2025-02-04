@@ -153,7 +153,7 @@ const IndividualTrack = () => {
                   isSatelliteView
                     ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
                     : // Satellite View
-                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
                 }
                 attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
               />
@@ -184,7 +184,7 @@ const IndividualTrack = () => {
                         <p className="p-0 m-0">Ignition</p>
                       </div>
                       <div className="col-2 text-center attribute shadow">
-                        <strong>{`${Math.round(individualSalesMan?.speed)}`}</strong>
+                        <strong>{`${Math.round(individualSalesMan?.speed * 1.6).toFixed(2)}`}</strong>
                         <small> km/h</small>
                         <br />
                         <p className="p-0 m-0">Speed</p>
@@ -264,7 +264,7 @@ const IndividualTrack = () => {
                             if (sp < 1 && ig == false) {
                               return 'Stoped'
                             }
-                            if (sp < 2 && ig == false) {
+                            if (sp <= 2 && ig == false) {
                               return 'Idle'
                             }
                             if (sp > 2 && sp < 60 && ig == true) {
