@@ -247,9 +247,9 @@ const SearchTrip = ({
           value={
             formData.Devices
               ? {
-                  value: formData.Devices,
-                  label: devices.find((device) => device.deviceId === formData.Devices)?.name,
-                }
+                value: formData.Devices,
+                label: devices.find((device) => device.deviceId === formData.Devices)?.name,
+              }
               : null
           }
           onChange={(selectedOption) => handleInputChange('Devices', selectedOption?.value)}
@@ -388,7 +388,7 @@ const TripTable = ({
     'Start Time': 'startTime',
     'End Time': 'endTime',
     Distance: 'distance',
-    'Total Distance': 'totalDistance',
+    // 'Total Distance': 'totalDistance',
     'Maximum Speed': 'maxSpeed',
     'Average Speed': 'avgSpeed',
     Duration: 'duration',
@@ -427,7 +427,7 @@ const TripTable = ({
               : new Date(bValue) - new Date(aValue)
 
           case 'distance':
-          case 'totalDistance':
+          // case 'totalDistance':
           case 'maxSpeed':
           case 'avgSpeed':
             return sortConfig.direction === 'asc'
@@ -541,10 +541,9 @@ const TripTable = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${
-            selectedFromDate && selectedToDate
-              ? `${selectedFromDate} - ${selectedToDate}`
-              : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${selectedFromDate && selectedToDate
+            ? `${selectedFromDate} - ${selectedToDate}`
+            : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -615,10 +614,10 @@ const TripTable = ({
                 cellValue = row.distance ?? '--'
                 break
               }
-              case 'Total Distance': {
-                cellValue = row.totalDistance ?? '--'
-                break
-              }
+              // case 'Total Distance': {
+              //   cellValue = row.totalDistance ?? '--'
+              //   break
+              // }
               case 'Maximum Speed': {
                 cellValue =
                   typeof row.maxSpeed === 'number' ? `${row.maxSpeed.toFixed(2)} km/h` : '--'
@@ -911,10 +910,10 @@ const TripTable = ({
               cellValue = row.distance != null ? row.distance.toString() : '--'
               break
             }
-            case 'Total Distance': {
-              cellValue = row.totalDistance != null ? row.totalDistance.toString() : '--'
-              break
-            }
+            // case 'Total Distance': {
+            //   cellValue = row.totalDistance != null ? row.totalDistance.toString() : '--'
+            //   break
+            // }
             case 'Maximum Speed': {
               cellValue =
                 typeof row.maxSpeed === 'number' ? `${row.maxSpeed.toFixed(2)} km/h` : '--'
@@ -993,7 +992,7 @@ const TripTable = ({
           dynamicColumnStyles[colIndex] = { cellWidth: 25 }
         } else if (
           col === 'Distance' ||
-          col === 'Total Distance' ||
+          // col === 'Total Distance' ||
           col === 'Maximum Speed' ||
           col === 'Average Speed' ||
           col === 'Duration'
@@ -1245,8 +1244,8 @@ const TripTable = ({
                           })
                         case 'Distance':
                           return row.distance
-                        case 'Total Distance':
-                          return row.totalDistance
+                        // case 'Total Distance':
+                        //   return row.totalDistance
                         case 'Maximum Speed':
                           return `${row.maxSpeed.toFixed(2)} km/h`
                         case 'Average Speed':
@@ -1326,7 +1325,7 @@ const Trips = () => {
     'Distance',
     'Average Speed',
     'Maximum Speed',
-    'Total Distance',
+    // 'Total Distance',
     'End Time',
     'End Address',
     'End Co-ordinates',
