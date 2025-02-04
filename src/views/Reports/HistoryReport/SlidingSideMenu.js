@@ -1,7 +1,7 @@
 import { CButton } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import { FaBars } from 'react-icons/fa'
+import { FaBars, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import './SlidingSideMenu.css'
@@ -14,6 +14,8 @@ import { IoLocationSharp } from 'react-icons/io5'
 import { BiSolidShow } from 'react-icons/bi'
 import { FaArrowRightLong } from 'react-icons/fa6'
 import { BiHide } from "react-icons/bi";
+import { IoMdCheckmarkCircle } from 'react-icons/io';
+
 
 dayjs.extend(duration)
 
@@ -406,10 +408,10 @@ const SlidingSideMenu = ({
                     <div className="summary-box">
                       <div className="label">Total Distance</div>
                       <div className="value">
-                        {tripData?.reduce((total, trip) => {
+                        {(tripData?.reduce((total, trip) => {
                           const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
                           return distance > 0 ? total + distance : total;
-                        }, 0) || 0} km
+                        }, 0) || 0).toFixed(2)} km
                       </div>
                     </div>
 
@@ -426,41 +428,70 @@ const SlidingSideMenu = ({
                   <hr className="divider" />
 
                   {processedData.map((stop, index) => (
-                    <div
-                      key={index}
-                      className="stop-card"
-                      onClick={() => handleStopDiv(stop?.latitude, stop?.longitude)}
-                    >
-                      <h5>Stop {index + 1}</h5>
+                    <div key={index} className="stop-card">
+                      <h4 className="stop-title"> {index + 1}  Stop Details</h4>
+                      <hr className="divider" />
 
-                      <div className="info-row">
-                        <FaDownload className="icon" /> Arrival Time:
-                        <span>{dayjs(stop?.arrivalTime).format('MMMM D, YYYY h:mm A')}</span>
-                      </div>
+                      <div className="stop-info">
+                        <div className="info-item">
+                          <FaClock className="icon" />
+                          <div>
+                            <span className="info-label">Arrival</span>
+                            <p className="info-value">
+                              {dayjs(stop?.arrivalTime).format("MMM D, YYYY • h:mm A")}
+                            </p>
+                          </div>
+                        </div>
 
-                      <div className="info-row">
-                        <FaUpload className="icon" /> Depart. Time:
-                        <span>{dayjs(stop?.departureTime).format('MMMM D, YYYY h:mm A')}</span>
-                      </div>
+                        <div className="info-item">
+                          <FaCalendarAlt className="icon" />
+                          <div>
+                            <span className="info-label">Departure</span>
+                            <p className="info-value">
+                              {dayjs(stop?.departureTime).format("MMM D, YYYY • h:mm A")}
+                            </p>
+                          </div>
+                        </div>
 
-                      <div className="info-row">
-                        <FaRoad className="icon" /> Dist. from Previous Stop:
-                        <span>{stop?.distanceFromPrevious} km</span>
-                      </div>
+                        <hr className="divider" />
 
-                      <div className="info-row">
-                        <FaClock className="icon" /> Dur. from Previous Stop:
-                        <span>{stop?.durationFromPrevious}</span>
-                      </div>
+                        <div className="info-item">
+                          <FaClock className="icon" />
+                          <div>
+                            <span className="info-label">Dur. from Previous Stop</span>
+                            <p className="info-value">{stop?.durationFromPrevious}</p>
+                          </div>
+                        </div>
 
-                      <div className="info-row">
-                        <GiDuration className="icon" /> Halt Time:
-                        <span>{stop?.haltTime}</span>
-                      </div>
+                        <div className="info-item">
+                          <FaRoad className="icon" />
+                          <div>
+                            <span className="info-label">Dist. from Previous Stop:</span>
+                            <p className="info-value">{stop?.distanceFromPrevious} km</p>
+                          </div>
+                        </div>
 
-                      <div className="info-row">
-                        <IoLocationSharp className="icon" /> Address:
-                        <span>{stop?.address || 'Loading address...'}</span>
+                        <div className="info-item">
+                          <FaClock className="icon" />
+                          <div>
+                            <span className="info-label">Halt Time</span>
+                            <p className="info-value">{stop?.haltTime}</p>
+                          </div>
+                        </div>
+
+                        <hr className="divider" />
+
+                        <div className="info-item">
+                          <FaMapMarkerAlt className="icon" />
+                          <div>
+                            <span className="info-label">Location</span>
+                            <p className="info-value">
+                              {stop?.address || "Loading address..."}
+                              <br />
+                              <span className="location-sub">{stop?.city}, {stop?.state}, {stop?.country}</span>
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -474,20 +505,21 @@ const SlidingSideMenu = ({
                   <div className="summary-box">
                     <div className="label">Total Trips</div>
                     <div className="value">
-                      {tripData?.filter((trip) => {
+                      {(tripData?.filter((trip) => {
                         const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
                         return distance > 1;
-                      }).length || 0}
+                      }).length || 0)}
                     </div>
                   </div>
+
 
                   <div className="summary-box">
                     <div className="label">Total Distance</div>
                     <div className="value">
-                      {tripData?.reduce((total, trip) => {
+                      {(tripData?.reduce((total, trip) => {
                         const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
                         return distance > 0 ? total + distance : total;
-                      }, 0) || 0} km
+                      }, 0) || 0).toFixed(2)} km
                     </div>
                   </div>
 

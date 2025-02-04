@@ -328,15 +328,14 @@ const HistoryMap = ({
       intersect: false,
     },
     onHover: (event, chartElement) => {
-      // event.preventDefault();
       if (chartElement.length) {
-        const index = chartElement[0].index
-        setPrevHoveredIndex(currentPositionIndex)
-        handleGraphHover(index)
+        const index = chartElement[0].index;
+        setPrevHoveredIndex(currentPositionIndex);
+        handleGraphHover(index);
       } else {
-        handleGraphLeave()
+        handleGraphLeave();
       }
-    },
+    }
   }
 
   // console.log(poly)
