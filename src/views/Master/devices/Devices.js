@@ -71,7 +71,6 @@ import { FaArrowUp } from 'react-icons/fa'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 
-
 const accessToken = Cookies.get('authToken')
 
 const decodedToken = jwtDecode(accessToken)
@@ -113,7 +112,7 @@ const Devices = () => {
 
   const [selectedUsername, setSelectedUsername] = useState('') // State for username
   const [selectedGroupName, setSelectedGroupName] = useState('') // State for group name
-  const [devices, setDevices] = useState([]); // Initialize devices as an empty array
+  const [devices, setDevices] = useState([]) // Initialize devices as an empty array
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -876,7 +875,6 @@ const Devices = () => {
     try {
       const data = await fetchFunction(params)
       setData(data)
-
     } catch (error) {
       console.error(`Error fetching data:`, error)
     } finally {
@@ -901,13 +899,12 @@ const Devices = () => {
           const devicesData = await getDevices(selectedGroup)
           setFillDevices(devicesData)
 
-
-          setDevices(devicesData);
-          setFilteredData(devicesData);
+          setDevices(devicesData)
+          setFilteredData(devicesData)
           // const finalData = filteredData.filter((vehicle) =>
           //   devicesData.some((device) => device.deviceId === vehicle.deviceId),
           // )
-          console.log("Fetched Devices:", devicesData);
+          console.log('Fetched Devices:', devicesData)
         } catch (error) {
           console.error('Error fetching devices:', error)
         }
@@ -919,31 +916,29 @@ const Devices = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       if (!selectedGroup) {
-        setFillDevices([]); // Reset if no group is selected
-        return;
+        setFillDevices([]) // Reset if no group is selected
+        return
       }
 
       try {
-        const devicesData = await getDevices(selectedGroup);
-        setFillDevices(devicesData); // Set only relevant devices
-        console.log("Filtered Devices for Group:", devicesData);
+        const devicesData = await getDevices(selectedGroup)
+        setFillDevices(devicesData) // Set only relevant devices
+        console.log('Filtered Devices for Group:', devicesData)
       } catch (error) {
-        console.error("Error fetching devices:", error);
+        console.error('Error fetching devices:', error)
       }
-    };
+    }
 
-    fetchDevices();
-  }, [selectedGroup]); // Runs when selectedGroup changes
-
+    fetchDevices()
+  }, [selectedGroup]) // Runs when selectedGroup changes
 
   // Get selected device name safely
-  const selectedDevice = devices.find((device) => device.deviceId === formData.Devices);
-  const selectedDeviceName = selectedDevice ? selectedDevice.name : "";
+  const selectedDevice = devices.find((device) => device.deviceId === formData.Devices)
+  const selectedDeviceName = selectedDevice ? selectedDevice.name : ''
 
   useEffect(() => {
-    console.log("Selected Device Name:", selectedDeviceName);
-  }, [selectedDeviceName]); // Log when the selected device changes
-
+    console.log('Selected Device Name:', selectedDeviceName)
+  }, [selectedDeviceName]) // Log when the selected device changes
 
   // Dropdown icons downloads section
 
@@ -1016,7 +1011,7 @@ const Devices = () => {
     try {
       // Validate data before proceeding
       if (!Array.isArray(filteredData) || filteredData.length === 0) {
-        throw new Error('No data available for Excel export');
+        throw new Error('No data available for Excel export')
       }
 
       // Configuration constants
@@ -1034,135 +1029,139 @@ const Devices = () => {
           name: 'Credence Tracker',
           copyright: `© ${new Date().getFullYear()} Credence Tracker`,
         },
-      };
+      }
 
       // Create table columns (header row) based on your columns data
-      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)];
+      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)]
 
       // Create table rows from filteredData
       const tableRows = filteredData.map((item, rowIndex) => {
         const rowData = columns.slice(1).map((column) => {
-          const accessor = column.accessor;
+          const accessor = column.accessor
 
           // Handle specific columns based on the column's accessor
           if (accessor === 'groups') {
-            return item.groups?.map((group) => group.name).join(', ') || 'N/A';
+            return item.groups?.map((group) => group.name).join(', ') || 'N/A'
           } else if (accessor === 'geofences') {
-            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A';
+            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A'
           } else if (accessor === 'users') {
-            return item.users?.map((user) => user.username).join(', ') || 'N/A';
+            return item.users?.map((user) => user.username).join(', ') || 'N/A'
           } else if (accessor === 'Driver') {
-            return item.Driver?.name || 'N/A';
+            return item.Driver?.name || 'N/A'
           } else if (accessor === 'device') {
-            return item.device?.name || 'N/A';
+            return item.device?.name || 'N/A'
           } else {
-            return item[accessor] || 'N/A';
+            return item[accessor] || 'N/A'
           }
-        });
-        return [rowIndex + 1, ...rowData]; // Add SN column
-      });
+        })
+        return [rowIndex + 1, ...rowData] // Add SN column
+      })
 
       // Initialize workbook and worksheet
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Devices Report');
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Devices Report')
 
       // Add title and metadata
       const addHeaderSection = () => {
         // Company title
-        const titleRow = worksheet.addRow([CONFIG.company.name]);
-        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } };
+        const titleRow = worksheet.addRow([CONFIG.company.name])
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } }
         titleRow.fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: CONFIG.styles.primaryColor },
-        };
-        titleRow.alignment = { horizontal: 'center' };
-        worksheet.mergeCells('A1:I1');
+        }
+        titleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A1:I1')
 
         // Report title
-        const subtitleRow = worksheet.addRow(['Devices Report']);
-        subtitleRow.font = { ...CONFIG.styles.titleFont, size: 14, color: { argb: CONFIG.styles.textColor } };
+        const subtitleRow = worksheet.addRow(['Devices Report'])
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        }
         subtitleRow.fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: CONFIG.styles.secondaryColor },
-        };
-        subtitleRow.alignment = { horizontal: 'center' };
-        worksheet.mergeCells('A2:I2');
+        }
+        subtitleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A2:I2')
 
         // Metadata
-        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`]);
-        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`]);
-        worksheet.addRow([]); // Spacer
-      };
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`])
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
+        worksheet.addRow([]) // Spacer
+      }
 
       // Add data table
       const addDataTable = () => {
         // Add column headers
-        const headerRow = worksheet.addRow(tableColumn);
+        const headerRow = worksheet.addRow(tableColumn)
         headerRow.eachCell((cell) => {
-          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } };
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
           cell.fill = {
             type: 'pattern',
             pattern: 'solid',
             fgColor: { argb: CONFIG.styles.primaryColor },
-          };
-          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          }
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
           cell.border = {
             top: { style: CONFIG.styles.borderStyle },
             bottom: { style: CONFIG.styles.borderStyle },
             left: { style: CONFIG.styles.borderStyle },
             right: { style: CONFIG.styles.borderStyle },
-          };
-        });
+          }
+        })
 
         // Add data rows
         tableRows.forEach((rowData) => {
-          const dataRow = worksheet.addRow(rowData);
+          const dataRow = worksheet.addRow(rowData)
           dataRow.eachCell((cell) => {
-            cell.font = CONFIG.styles.dataFont;
+            cell.font = CONFIG.styles.dataFont
             cell.border = {
               top: { style: CONFIG.styles.borderStyle },
               bottom: { style: CONFIG.styles.borderStyle },
               left: { style: CONFIG.styles.borderStyle },
               right: { style: CONFIG.styles.borderStyle },
-            };
-          });
-        });
+            }
+          })
+        })
 
         // Set column widths
         worksheet.columns = tableColumn.map((col, index) => ({
           width: index === 0 ? 8 : 20, // First column (SN) is narrower
           style: { alignment: { horizontal: 'left' } },
-        }));
-      };
+        }))
+      }
 
       // Add footer
       const addFooter = () => {
-        worksheet.addRow([]); // Spacer
-        const footerRow = worksheet.addRow([CONFIG.company.copyright]);
-        footerRow.font = { italic: true };
-        worksheet.mergeCells(`A${footerRow.number}:I${footerRow.number}`);
-      };
+        worksheet.addRow([]) // Spacer
+        const footerRow = worksheet.addRow([CONFIG.company.copyright])
+        footerRow.font = { italic: true }
+        worksheet.mergeCells(`A${footerRow.number}:I${footerRow.number}`)
+      }
 
       // Build the document
-      addHeaderSection();
-      addDataTable();
-      addFooter();
+      addHeaderSection()
+      addDataTable()
+      addFooter()
 
       // Generate and save file
-      const buffer = await workbook.xlsx.writeBuffer();
+      const buffer = await workbook.xlsx.writeBuffer()
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
-      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
-      saveAs(blob, filename);
-      toast.success('Excel file downloaded successfully');
+      })
+      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.xlsx`
+      saveAs(blob, filename)
+      toast.success('Excel file downloaded successfully')
     } catch (error) {
-      console.error('Excel Export Error:', error);
-      toast.error(error.message || 'Failed to export Excel file');
+      console.error('Excel Export Error:', error)
+      toast.error(error.message || 'Failed to export Excel file')
     }
-  };
+  }
 
   // Export to PDF
 
@@ -1201,162 +1200,160 @@ const Devices = () => {
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
-      });
+      })
 
       // Helper functions
       const applyPrimaryColor = () => {
-        doc.setFillColor(...CONFIG.colors.primary);
-        doc.setTextColor(...CONFIG.colors.primary);
-      };
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.setTextColor(...CONFIG.colors.primary)
+      }
 
       const applySecondaryColor = () => {
-        doc.setTextColor(...CONFIG.colors.secondary);
-      };
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
 
       const addHeader = () => {
         // Company logo and name
-        doc.setFillColor(...CONFIG.colors.primary);
+        doc.setFillColor(...CONFIG.colors.primary)
         doc.rect(
           CONFIG.company.logo.x,
           CONFIG.company.logo.y,
           CONFIG.company.logo.size,
           CONFIG.company.logo.size,
           'F',
-        );
-        doc.setFont(CONFIG.fonts.primary, 'bold');
-        doc.setFontSize(16);
-        doc.text(CONFIG.company.name, 28, 21);
+        )
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
 
         // Header line
-        doc.setDrawColor(...CONFIG.colors.primary);
-        doc.setLineWidth(0.5);
-        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
-      };
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
 
       const addMetadata = () => {
-        const metadata = [
-          { label: 'User:', value: decodedToken.username || 'N/A' },
-        ];
+        const metadata = [{ label: 'User:', value: decodedToken.username || 'N/A' }]
 
-        doc.setFontSize(10);
-        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
 
-        let yPosition = 45;
-        const xPosition = 15;
-        const lineHeight = 6;
+        let yPosition = 45
+        const xPosition = 15
+        const lineHeight = 6
 
         metadata.forEach((item) => {
-          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition);
-          yPosition += lineHeight;
-        });
-      };
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
 
       const addFooter = () => {
-        const pageCount = doc.getNumberOfPages();
+        const pageCount = doc.getNumberOfPages()
         for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
+          doc.setPage(i)
 
           // Footer line
-          doc.setDrawColor(...CONFIG.colors.border);
-          doc.setLineWidth(0.5);
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
           doc.line(
             CONFIG.layout.margin,
             doc.internal.pageSize.height - 15,
             doc.internal.pageSize.width - CONFIG.layout.margin,
             doc.internal.pageSize.height - 15,
-          );
+          )
 
           // Copyright text
-          doc.setFontSize(9);
-          applySecondaryColor();
+          doc.setFontSize(9)
+          applySecondaryColor()
           doc.text(
             `© ${CONFIG.company.name}`,
             CONFIG.layout.margin,
             doc.internal.pageSize.height - 10,
-          );
+          )
 
           // Page number
-          const pageNumber = `Page ${i} of ${pageCount}`;
-          const pageNumberWidth = doc.getTextWidth(pageNumber);
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
           doc.text(
             pageNumber,
             doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
             doc.internal.pageSize.height - 10,
-          );
+          )
         }
-      };
+      }
 
       const formatDate = (dateString) => {
-        if (!dateString) return '--';
-        const date = new Date(dateString);
+        if (!dateString) return '--'
+        const date = new Date(dateString)
         return isNaN(date)
           ? '--'
           : date
-            .toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-            .replace(',', '');
-      };
+              .toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+              .replace(',', '')
+      }
 
       const formatCoordinates = (coords) => {
-        if (!coords) return '--';
-        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()));
-        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`;
-      };
+        if (!coords) return '--'
+        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()))
+        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`
+      }
 
       // Main document creation
-      addHeader();
+      addHeader()
 
       // Title and date
-      doc.setFontSize(24);
-      doc.setFont(CONFIG.fonts.primary, 'bold');
-      doc.text('Devices Report', CONFIG.layout.margin, 35);
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Devices Report', CONFIG.layout.margin, 35)
 
       const currentDate = new Date().toLocaleDateString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-      });
-      const dateText = `Generated: ${currentDate}`;
-      applySecondaryColor();
-      doc.setFontSize(10);
+      })
+      const dateText = `Generated: ${currentDate}`
+      applySecondaryColor()
+      doc.setFontSize(10)
       doc.text(
         dateText,
         doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
         21,
-      );
+      )
 
-      addMetadata();
+      addMetadata()
 
       // Replace this part with the tableColumn and tableRows logic from the original code
-      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)];
+      const tableColumn = ['SN', ...columns.slice(1).map((column) => column.Header)]
       const tableRows = filteredData.map((item, rowIndex) => {
         const rowData = columns.slice(1).map((column) => {
-          const accessor = column.accessor;
+          const accessor = column.accessor
           if (accessor === 'groups') {
-            return item.groups?.map((group) => group.name).join(', ') || 'N/A';
+            return item.groups?.map((group) => group.name).join(', ') || 'N/A'
           } else if (accessor === 'geofences') {
-            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A';
+            return item.geofences?.map((geofence) => geofence.name).join(', ') || 'N/A'
           } else if (accessor === 'users') {
-            return item.users?.map((user) => user.username).join(', ') || 'N/A';
+            return item.users?.map((user) => user.username).join(', ') || 'N/A'
           } else if (accessor === 'Driver') {
-            return item.Driver?.name || 'N/A';
+            return item.Driver?.name || 'N/A'
           } else if (accessor === 'device') {
-            return item.device?.name || 'N/A';
+            return item.device?.name || 'N/A'
           } else {
-            return item[accessor] || 'N/A';
+            return item[accessor] || 'N/A'
           }
-        });
-        return [rowIndex + 1, ...rowData];
-      });
+        })
+        return [rowIndex + 1, ...rowData]
+      })
 
       // Generate the table
       doc.autoTable({
-        startY: 65,
+        startY: 50,
         head: [tableColumn],
         body: tableRows,
         theme: 'grid',
@@ -1379,44 +1376,41 @@ const Devices = () => {
           0: { cellWidth: 10 },
           1: { cellWidth: 22 },
           2: { cellWidth: 22 },
-          4: { cellWidth: 35 },
-          5: { cellWidth: 25 },
-          7: { cellWidth: 35 },
+          4: { cellWidth: 15 },
+          5: { cellWidth: 15 },
+          7: { cellWidth: 15 },
           9: { cellWidth: 20 },
-          10: { cellWidth: 20 },
-          11: { cellWidth: 20 },
+          10: { cellWidth: 15 },
+          11: { cellWidth: 15 },
         },
         margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
         didDrawPage: (data) => {
           // Add header on subsequent pages
           if (doc.getCurrentPageInfo().pageNumber > 1) {
-            doc.setFontSize(15);
-            doc.setFont(CONFIG.fonts.primary, 'bold');
-            doc.text('Status Report', CONFIG.layout.margin, 10);
+            doc.setFontSize(15)
+            doc.setFont(CONFIG.fonts.primary, 'bold')
+            doc.text('Status Report', CONFIG.layout.margin, 10)
           }
         },
-      });
+      })
 
-      addFooter();
+      addFooter()
 
       // Save PDF
-      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(filename);
-      toast.success('PDF downloaded successfully');
+      const filename = `Devices_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
     } catch (error) {
-      console.error('PDF Export Error:', error);
-      toast.error(error.message || 'Failed to export PDF');
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
     }
-  };
-
+  }
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="d-flex gap- justify-content-end gap-3  mb-2">
-
         <div className="d-flex">
-
           <div
             className="ms-2 p-0 me-1 refresh"
             onClick={() => {
@@ -1444,32 +1438,31 @@ const Devices = () => {
                     value={
                       selectedUser
                         ? {
-                          value: selectedUser,
-                          label:
-                            users?.find((user) => user._id === selectedUser)?.username || "",
-                        }
+                            value: selectedUser,
+                            label: users?.find((user) => user._id === selectedUser)?.username || '',
+                          }
                         : null
                     }
                     onChange={(selectedOption) => {
-                      const selectedUserId = selectedOption?.value || null;
+                      const selectedUserId = selectedOption?.value || null
                       const selectedUsernameValue =
                         selectedOption?.label ||
                         users?.find((user) => user._id === selectedUserId)?.username ||
-                        "";
+                        ''
 
-                      setSelectedUser(selectedUserId);
-                      setSelectedUsername(selectedUsernameValue);
+                      setSelectedUser(selectedUserId)
+                      setSelectedUsername(selectedUsernameValue)
 
-                      console.log("Selected User ID:", selectedUserId);
-                      console.log("Selected Username:", selectedUsernameValue);
+                      console.log('Selected User ID:', selectedUserId)
+                      console.log('Selected Username:', selectedUsernameValue)
                     }}
                     isLoading={fillLoading}
                   />
 
                   <Sselect
                     style={{
-                      zIndex: "1000",
-                      minWidth: "10rem",
+                      zIndex: '1000',
+                      minWidth: '10rem',
                     }}
                     id="group-select"
                     placeholder="Select a Group"
@@ -1480,23 +1473,23 @@ const Devices = () => {
                     value={
                       selectedGroup
                         ? {
-                          value: selectedGroup,
-                          label: groups.find((group) => group._id === selectedGroup)?.name,
-                        }
+                            value: selectedGroup,
+                            label: groups.find((group) => group._id === selectedGroup)?.name,
+                          }
                         : null
                     }
                     onChange={(selectedOption) => {
-                      const selectedGroupId = selectedOption?.value || null;
+                      const selectedGroupId = selectedOption?.value || null
                       const selectedGroupNameValue =
                         selectedOption?.label ||
                         groups.find((group) => group._id === selectedGroupId)?.name ||
-                        "";
+                        ''
 
-                      setSelectedGroup(selectedGroupId);
-                      setSelectedGroupName(selectedGroupNameValue);
+                      setSelectedGroup(selectedGroupId)
+                      setSelectedGroupName(selectedGroupNameValue)
 
-                      console.log("Selected Group ID:", selectedGroupId);
-                      console.log("Selected Group Name:", selectedGroupNameValue);
+                      console.log('Selected Group ID:', selectedGroupId)
+                      console.log('Selected Group Name:', selectedGroupNameValue)
                     }}
                     isLoading={fillLoading}
                   />
@@ -1508,25 +1501,24 @@ const Devices = () => {
                     fillDevices={devices || []} // Ensure devices is always an array
                     onChange={(selectedDeviceId) => {
                       if (!devices || devices.length === 0) {
-                        console.warn("Devices list is empty or undefined");
-                        return;
+                        console.warn('Devices list is empty or undefined')
+                        return
                       }
 
-                      setFormData((prev) => ({ ...prev, Devices: selectedDeviceId }));
+                      setFormData((prev) => ({ ...prev, Devices: selectedDeviceId }))
 
                       const selectedDevice = devices.find(
-                        (device) => device.deviceId === selectedDeviceId
-                      );
+                        (device) => device.deviceId === selectedDeviceId,
+                      )
 
                       if (selectedDevice) {
-                        console.log("Selected Device ID:", selectedDeviceId);
-                        console.log("Selected Device Name:", selectedDevice.name);
+                        console.log('Selected Device ID:', selectedDeviceId)
+                        console.log('Selected Device Name:', selectedDevice.name)
                       } else {
-                        console.warn("Selected device not found in the list");
+                        console.warn('Selected device not found in the list')
                       }
                     }}
                   />
-
                 </div>
 
                 <div className="d-flex align-items-center gap-3">
@@ -1535,7 +1527,7 @@ const Devices = () => {
                       <InputBase
                         type="search"
                         className="form-control border"
-                        style={{ height: "40px" }}
+                        style={{ height: '40px' }}
                         placeholder="Search for Device"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -1543,7 +1535,7 @@ const Devices = () => {
                       />
                       <IconButton
                         className="bg-white rounded-end border disable"
-                        style={{ height: "40px" }}
+                        style={{ height: '40px' }}
                         onClick={handleSearch}
                       >
                         <SearchIcon />
@@ -1555,14 +1547,13 @@ const Devices = () => {
                     <button
                       onClick={handleOpen}
                       className="btn text-white"
-                      style={{ backgroundColor: "#0a2d63" }}
+                      style={{ backgroundColor: '#0a2d63' }}
                     >
                       Add Device
                     </button>
                   )}
                 </div>
               </div>
-
             </CCardHeader>
             <TableContainer
               component={Paper}

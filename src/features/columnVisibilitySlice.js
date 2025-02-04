@@ -9,6 +9,7 @@ const initialState = {
   cd: true,
   sp: true,
   distance: true,
+  fuelConsumption: true,
   td: true,
   sat: true,
   ig: true,

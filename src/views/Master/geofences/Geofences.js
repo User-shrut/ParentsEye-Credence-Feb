@@ -96,44 +96,42 @@ const Geofences = () => {
   const steps = ['Select Geofence', 'Geofence Info']
   const [filteredData, setFilteredData] = useState([])
   const [centerMap, setCenterMap] = useState({ latitude: 0, longitude: 0 })
-  const [area, setArea] = useState(''); // Area format for geofence
+  const [area, setArea] = useState('') // Area format for geofence
   const [selectedLocation, setSelectedLocation] = useState({ lat: 21.1458, lng: 79.0882 })
 
-  // Google map search map code 
-  const [searchQuery1, setSearchQuery1] = useState(''); // Search query state
+  // Google map search map code
+  const [searchQuery1, setSearchQuery1] = useState('') // Search query state
   const handleSearch = async () => {
-    if (!searchQuery1) return;
+    if (!searchQuery1) return
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          searchQuery1
-        )}&format=json&limit=1`
-      );
-      const data = await response.json();
+          searchQuery1,
+        )}&format=json&limit=1`,
+      )
+      const data = await response.json()
 
       if (data.length > 0) {
-        const { lat, lon } = data[0];
-        const location = { lat: parseFloat(lat), lng: parseFloat(lon) };
+        const { lat, lon } = data[0]
+        const location = { lat: parseFloat(lat), lng: parseFloat(lon) }
 
         // Set location and polygon coordinates
-        setSelectedLocation(location);
-        setPolygonCoords([{ lat: location.lat, lng: location.lng }]);
+        setSelectedLocation(location)
+        setPolygonCoords([{ lat: location.lat, lng: location.lng }])
 
         // Generate the area logic
-        const generatedArea = `Circle(${location.lat} ${location.lng}, ${radius})`;
-        setArea(generatedArea);
+        const generatedArea = `Circle(${location.lat} ${location.lng}, ${radius})`
+        setArea(generatedArea)
 
-        console.log('Generated Area:', generatedArea);
-        alert('Location and area successfully set!');
-
+        console.log('Generated Area:', generatedArea)
+        alert('Location and area successfully set!')
       } else {
-        alert("Location not found!  please Enter a valid location");
+        alert('Location not found!  please Enter a valid location')
       }
     } catch (error) {
-      console.error("Error fetching location:", error);
+      console.error('Error fetching location:', error)
     }
-  };
-
+  }
 
   const handleEditModalClose = () => {
     setCurrentStep(0)
@@ -348,7 +346,7 @@ const Geofences = () => {
 
   if (polygonCoords) {
     console.log('this is selected points', polygonCoords)
-    console.log("Radiusssssssscc", radius);
+    console.log('Radiusssssssscc', radius)
   }
 
   // ######################### get geofences ##############################################
@@ -494,8 +492,8 @@ const Geofences = () => {
   // ######################  Edit Geofence ###################################
 
   const EditGeofenceSubmit = async (e) => {
-    e.preventDefault();
-    console.log("FormData before submission:", formData);
+    e.preventDefault()
+    console.log('FormData before submission:', formData)
 
     // Construct the edited data - extract device IDs correctly
     const editedData = {
@@ -506,97 +504,97 @@ const Geofences = () => {
           : polygonCoords,
       deviceIds: selectedDevices.map((device) =>
         // Handle both string and object device.value formats
-        typeof device.value === "object" ? device.value.id : device.value
+        typeof device.value === 'object' ? device.value.id : device.value,
       ),
-    };
+    }
 
-    console.log("Formatted Geofence Data:", editedData);
+    console.log('Formatted Geofence Data:', editedData)
 
     try {
-      const accessToken = Cookies.get("authToken");
+      const accessToken = Cookies.get('authToken')
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/Geofence/${formData._id}`,
         editedData,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        }
-      );
+        },
+      )
 
       if (response.status === 200) {
-        toast.success("Geofence updated successfully!");
-        fetchGeofenceData();
+        toast.success('Geofence updated successfully!')
+        fetchGeofenceData()
         // Reset states
-        setFormData({});
-        setPolygonCoords([]);
-        setSelectedDevices([]);
-        setSelectedLocation(null);
-        setCurrentStep(0);
-        setArea("");
-        setIsDrawing(false);
-        setRadius(500);
-        setEditModalOpen(false);
+        setFormData({})
+        setPolygonCoords([])
+        setSelectedDevices([])
+        setSelectedLocation(null)
+        setCurrentStep(0)
+        setArea('')
+        setIsDrawing(false)
+        setRadius(500)
+        setEditModalOpen(false)
       }
     } catch (error) {
-      console.error("Update error:", error.response || error);
-      toast.error(error.response?.data?.message || "Update failed");
+      console.error('Update error:', error.response || error)
+      toast.error(error.response?.data?.message || 'Update failed')
     }
-  };
+  }
 
   const handleEditGeofence = async (item) => {
-    console.log('Geofence item to edit:', item);
+    console.log('Geofence item to edit:', item)
 
     // Open the edit modal
-    setEditModalOpen(true);
+    setEditModalOpen(true)
 
     // Set form data with the existing item
-    setFormData({ ...item });
+    setFormData({ ...item })
 
-    setSelectedLocation({ lat: item.area[0].lat, lng: item.area[0].lng });
+    setSelectedLocation({ lat: item.area[0].lat, lng: item.area[0].lng })
     setPolygonCoords(item.area || []) // Populate polygon coordinates if present
 
     // Handle polygon coordinates and area extraction
     if (item.area?.length > 0) {
-      const area = item.area[0];
-      setArea(area.circle || '');
+      const area = item.area[0]
+      setArea(area.circle || '')
 
       // Extract lat, lng, and radius from the 'circle' string
-      const circleMatch = area.circle.match(/Circle\(([\d.-]+) ([\d.-]+), ([\d.-]+)\)/);
+      const circleMatch = area.circle.match(/Circle\(([\d.-]+) ([\d.-]+), ([\d.-]+)\)/)
 
       if (circleMatch) {
-        const [_, lat, lng, radius] = circleMatch;
-        const parsedLat = parseFloat(lat);
-        const parsedLng = parseFloat(lng);
-        const parsedRadius = parseFloat(radius);
+        const [_, lat, lng, radius] = circleMatch
+        const parsedLat = parseFloat(lat)
+        const parsedLng = parseFloat(lng)
+        const parsedRadius = parseFloat(radius)
 
         // Set selected location and radius
-        setSelectedLocation({ lat: parsedLat, lng: parsedLng, radius: parsedRadius });
-        setRadius(parsedRadius);
-        setPolygonCoords([{ lat: parsedLat, lng: parsedLng }]); // If needed for display
+        setSelectedLocation({ lat: parsedLat, lng: parsedLng, radius: parsedRadius })
+        setRadius(parsedRadius)
+        setPolygonCoords([{ lat: parsedLat, lng: parsedLng }]) // If needed for display
       } else {
-        console.error('Invalid circle format:', area.circle);
-        setSelectedLocation({});
-        setRadius(null);
-        setPolygonCoords([]);
+        console.error('Invalid circle format:', area.circle)
+        setSelectedLocation({})
+        setRadius(null)
+        setPolygonCoords([])
       }
     } else {
-      setArea('');
-      setSelectedLocation({});
-      setRadius(null);
-      setPolygonCoords([]);
+      setArea('')
+      setSelectedLocation({})
+      setRadius(null)
+      setPolygonCoords([])
     }
 
     // Map device IDs to react-select format
     const formattedDevices = (item.deviceIds || []).map((deviceId) => {
-      const matchingDevice = deviceOptions.find((device) => device.value === deviceId);
-      return matchingDevice || { value: deviceId, label: deviceId.name || deviceId };
-    });
+      const matchingDevice = deviceOptions.find((device) => device.value === deviceId)
+      return matchingDevice || { value: deviceId, label: deviceId.name || deviceId }
+    })
 
-    setSelectedDevices(formattedDevices);
-    console.log("Formatted devices:", formattedDevices);
-  };
+    setSelectedDevices(formattedDevices)
+    console.log('Formatted devices:', formattedDevices)
+  }
 
   // #########################################################################
 
@@ -628,7 +626,6 @@ const Geofences = () => {
       toast.error(errorMessage)
     }
   }
-
 
   // Show Co-ordinates of Polyline and circle centroid of lat lng
 
@@ -840,7 +837,7 @@ const Geofences = () => {
             index + 1,
             item.name || 'N/A', // Geofence Name
             item.type || 'N/A', // Type
-            formatVehicles(item.deviceIds) // Vehicles
+            formatVehicles(item.deviceIds), // Vehicles
           ]
 
           const dataRow = worksheet.addRow(rowData)
@@ -895,7 +892,7 @@ const Geofences = () => {
     try {
       // Validate data before proceeding
       if (!Array.isArray(filteredData) || filteredData.length === 0) {
-        throw new Error('No data available for PDF export');
+        throw new Error('No data available for PDF export')
       }
 
       // Constants and configuration
@@ -920,128 +917,126 @@ const Geofences = () => {
           primary: 'helvetica',
           secondary: 'courier',
         },
-      };
+      }
 
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
-      });
+      })
 
       // Helper functions
       const applyPrimaryColor = () => {
-        doc.setFillColor(...CONFIG.colors.primary);
-        doc.setTextColor(...CONFIG.colors.primary);
-      };
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.setTextColor(...CONFIG.colors.primary)
+      }
 
       const applySecondaryColor = () => {
-        doc.setTextColor(...CONFIG.colors.secondary);
-      };
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
 
       const addHeader = () => {
         // Company logo and name
-        doc.setFillColor(...CONFIG.colors.primary);
+        doc.setFillColor(...CONFIG.colors.primary)
         doc.rect(
           CONFIG.company.logo.x,
           CONFIG.company.logo.y,
           CONFIG.company.logo.size,
           CONFIG.company.logo.size,
           'F',
-        );
-        doc.setFont(CONFIG.fonts.primary, 'bold');
-        doc.setFontSize(16);
-        doc.text(CONFIG.company.name, 28, 21);
+        )
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
 
         // Header line
-        doc.setDrawColor(...CONFIG.colors.primary);
-        doc.setLineWidth(0.5);
-        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
-      };
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
 
       const addMetadata = () => {
-        const metadata = [
-          { label: 'User:', value: decodedToken.username || 'N/A' },
-        ];
+        const metadata = [{ label: 'User:', value: decodedToken.username || 'N/A' }]
 
-        doc.setFontSize(10);
-        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
 
-        let yPosition = 45;
-        const xPosition = 15;
-        const lineHeight = 6;
+        let yPosition = 45
+        const xPosition = 15
+        const lineHeight = 6
 
         metadata.forEach((item) => {
-          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition);
-          yPosition += lineHeight;
-        });
-      };
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
 
       const addFooter = () => {
-        const pageCount = doc.getNumberOfPages();
+        const pageCount = doc.getNumberOfPages()
         for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
+          doc.setPage(i)
 
           // Footer line
-          doc.setDrawColor(...CONFIG.colors.border);
-          doc.setLineWidth(0.5);
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
           doc.line(
             CONFIG.layout.margin,
             doc.internal.pageSize.height - 15,
             doc.internal.pageSize.width - CONFIG.layout.margin,
             doc.internal.pageSize.height - 15,
-          );
+          )
 
           // Copyright text
-          doc.setFontSize(9);
-          applySecondaryColor();
+          doc.setFontSize(9)
+          applySecondaryColor()
           doc.text(
             `© ${CONFIG.company.name}`,
             CONFIG.layout.margin,
             doc.internal.pageSize.height - 10,
-          );
+          )
 
           // Page number
-          const pageNumber = `Page ${i} of ${pageCount}`;
-          const pageNumberWidth = doc.getTextWidth(pageNumber);
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
           doc.text(
             pageNumber,
             doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
             doc.internal.pageSize.height - 10,
-          );
+          )
         }
-      };
+      }
 
       // Title and date
-      addHeader();
-      doc.setFontSize(24);
-      doc.setFont(CONFIG.fonts.primary, 'bold');
-      doc.text('Geofences Reports', CONFIG.layout.margin, 35);
+      addHeader()
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Geofences Reports', CONFIG.layout.margin, 35)
 
       const currentDate = new Date().toLocaleDateString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-      });
-      const dateText = `Generated: ${currentDate}`;
-      applySecondaryColor();
-      doc.setFontSize(10);
+      })
+      const dateText = `Generated: ${currentDate}`
+      applySecondaryColor()
+      doc.setFontSize(10)
       doc.text(
         dateText,
         doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
         21,
-      );
+      )
 
-      addMetadata();
+      addMetadata()
 
       // Table data preparation
-      const tableColumns = ['SN', 'Geofence Name', 'Type', 'Vehicles'];
+      const tableColumns = ['SN', 'Geofence Name', 'Type', 'Vehicles']
 
       const tableRows = filteredData.map((item, index) => [
         index + 1, // Serial Number
         item.name || '--', // Geofence Name
         item.type || '--', // Type
         item.deviceIds.map((device) => device.name).join(', ') || 'N/A', // Vehicles
-      ]);
+      ])
 
       // Generate table
       doc.autoTable({
@@ -1071,25 +1066,24 @@ const Geofences = () => {
         didDrawPage: (data) => {
           // Add header on subsequent pages
           if (doc.getCurrentPageInfo().pageNumber > 1) {
-            doc.setFontSize(15);
-            doc.setFont(CONFIG.fonts.primary, 'bold');
-            doc.text('Geofences Reports', CONFIG.layout.margin, 10);
+            doc.setFontSize(15)
+            doc.setFont(CONFIG.fonts.primary, 'bold')
+            doc.text('Geofences Reports', CONFIG.layout.margin, 10)
           }
         },
-      });
+      })
 
-      addFooter();
+      addFooter()
 
       // Save PDF
-      const filename = `Geofences_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(filename);
-      toast.success('PDF downloaded successfully');
+      const filename = `Geofences_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
     } catch (error) {
-      console.error('PDF Export Error:', error);
-      toast.error(error.message || 'Failed to export PDF');
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
     }
-  };
-
+  }
 
   return (
     <div className="d-flex flex-column mx-md-3 mt-3 h-auto">
@@ -1349,7 +1343,6 @@ const Geofences = () => {
             <div className="position-fixed bottom-3 end-0 mb-5 m-3 z-5">
               <IconDropdown items={dropdownItems} />
             </div>
-
           </div>
         </div>
       </div>
@@ -1403,9 +1396,7 @@ const Geofences = () => {
                   <div className="d-flex flex-row gap-3 ms-3">
                     {/* Set Circle Radius Section */}
                     <div className="d-flex flex-column mb-3">
-                      <label className="fw-medium text-dark">
-                        Set Circle Radius (in meters)
-                      </label>
+                      <label className="fw-medium text-dark">Set Circle Radius (in meters)</label>
                       <div className="d-flex align-items-center gap-2">
                         <input
                           type="number"
@@ -1436,8 +1427,8 @@ const Geofences = () => {
                           value={searchQuery1}
                           onChange={(e) => setSearchQuery1(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleSearch();
+                            if (e.key === 'Enter') {
+                              handleSearch()
                             }
                           }}
                           className="form-control w-100"
@@ -1448,7 +1439,6 @@ const Geofences = () => {
                       </div>
                     </div>
                   </div>
-
                 ) : (
                   <div className="d-flex">
                     <div style={{ marginBottom: '10px', marginLeft: '15px' }}>
@@ -1819,9 +1809,7 @@ const Geofences = () => {
                 <div className="d-flex flex-row gap-3 ms-3">
                   {/* Set Circle Radius Section */}
                   <div className="d-flex flex-column mb-3">
-                    <label className="fw-medium text-dark">
-                      Set Circle Radius (in meters)
-                    </label>
+                    <label className="fw-medium text-dark">Set Circle Radius (in meters)</label>
                     <div className="d-flex align-items-center gap-2">
                       <input
                         type="number"
@@ -1852,8 +1840,8 @@ const Geofences = () => {
                         value={searchQuery1}
                         onChange={(e) => setSearchQuery1(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleSearch();
+                          if (e.key === 'Enter') {
+                            handleSearch()
                           }
                         }}
                         className="form-control w-100"

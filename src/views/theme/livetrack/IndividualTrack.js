@@ -86,7 +86,9 @@ const IndividualTrack = () => {
   const [address, setAddress] = useState(null)
   const previousPosition = useRef(null) // Ref to store the previous position
   const [path, setPath] = useState([]) // State for polyline path
+  const [geofences, setGeofences] = useState([]) // for geofence
 
+  // fetch vehicle data
   useEffect(() => {
     if (vehicleData) {
       setIndividualSalesMan(vehicleData[0])
@@ -94,6 +96,7 @@ const IndividualTrack = () => {
     }
   }, [vehicleData])
 
+  // Fetch address using vehicle coordinates
   useEffect(() => {
     const fetchAddress = async () => {
       try {
@@ -117,6 +120,22 @@ const IndividualTrack = () => {
       fetchAddress()
     }
   }, [individualSalesMan])
+
+  // NEW: Fetch geofence data for this vehicle
+  useEffect(() => {
+    const fetchGeofences = async () => {
+      try {
+        // Update the endpoint and parameters as per your API
+        const response = await axios.get(`/api/geofences/${deviceId}`)
+        setGeofences(response.data)
+      } catch (error) {
+        console.error('Error fetching geofences:', error)
+      }
+    }
+
+    fetchGeofences()
+  }, [deviceId])
+
   const navigate = useNavigate()
   const iconImage = (item, category) => useGetVehicleIcon(item, category)
   const vehicleImage = (category, item) => useVehicleImage(category, item)
@@ -153,7 +172,7 @@ const IndividualTrack = () => {
                   isSatelliteView
                     ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
                     : // Satellite View
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
                 }
                 attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
               />
@@ -251,7 +270,7 @@ const IndividualTrack = () => {
                             <strong>
                               <IoMdSpeedometer size={17} color="#FF7A00" />
                             </strong>{' '}
-                            {individualSalesMan.speed.toFixed(2) * 1.6} km/h{' '}
+                            {(individualSalesMan?.speed * 1.6).toFixed(2)} km/h{' '}
                           </div>
                         </div>
                         <div>
@@ -264,7 +283,7 @@ const IndividualTrack = () => {
                             if (sp < 1 && ig == false) {
                               return 'Stoped'
                             }
-                            if (sp <= 2 && ig == false) {
+                            if (sp < 2 && ig == true) {
                               return 'Idle'
                             }
                             if (sp > 2 && sp < 60 && ig == true) {

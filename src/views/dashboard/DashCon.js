@@ -233,7 +233,7 @@ const Dashboard = () => {
       case 'truck':
         return 'truck'
       case 'motorcycle':
-        return 'bike' // Adjusted to match the imageMap key
+        return 'motorcycle' // Adjusted to match the imageMap key
       case 'bike':
         return 'bike'
       case 'BIKE':
@@ -350,8 +350,8 @@ const Dashboard = () => {
     try {
       const apiKey = 'huWGT6bXG3aRcdvLhkca' // Replace with your actual MapTiler API key
       const response = await axios.get(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
-      );
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
+      )
 
       // console.log(response)
       const address =
@@ -433,6 +433,7 @@ const Dashboard = () => {
         break
       case 'tracktor':
         dispatch(filterByCategory({ cat: 'tracktor', data: filteredVehicles }))
+        break
       case 'jcb':
         dispatch(filterByCategory({ cat: 'jcb', data: filteredVehicles }))
         break
@@ -441,6 +442,9 @@ const Dashboard = () => {
         break
       case 'motorcycle':
         dispatch(filterByCategory({ cat: 'motorcycle', data: filteredVehicles }))
+        break
+      case 'bike':
+        dispatch(filterByCategory({ cat: 'bike', data: filteredVehicles }))
         break
       case 'geofence_1':
         dispatch(filterByGeofence(1))
@@ -595,6 +599,8 @@ const Dashboard = () => {
         return item.speed
       case 'distance':
         return item.attributes.distance
+      case 'fuelConsumption':
+        return item.fuelConsumption
       case 'td':
         return item.TD
       case 'sat':
@@ -791,7 +797,7 @@ const Dashboard = () => {
                 >
                   <div
                     className="vehicle-card new-vehicles"
-                  // onClick={() => dispatch(filterInactiveVehicles())}
+                    // onClick={() => dispatch(filterInactiveVehicles())}
                   >
                     <div className="vehicle-info">
                       <div className="vehicle-type text-muted">
@@ -896,10 +902,10 @@ const Dashboard = () => {
                               value={
                                 selectedUser
                                   ? {
-                                    value: selectedUser,
-                                    label: users.find((user) => user._id === selectedUser)
-                                      ?.username,
-                                  }
+                                      value: selectedUser,
+                                      label: users.find((user) => user._id === selectedUser)
+                                        ?.username,
+                                    }
                                   : null
                               }
                               onChange={(selectedOption) => setSelectedUser(selectedOption?.value)}
@@ -919,10 +925,10 @@ const Dashboard = () => {
                               value={
                                 selectedGroup
                                   ? {
-                                    value: selectedGroup,
-                                    label: groups.find((group) => group._id === selectedGroup)
-                                      ?.name,
-                                  }
+                                      value: selectedGroup,
+                                      label: groups.find((group) => group._id === selectedGroup)
+                                        ?.name,
+                                    }
                                   : null
                               }
                               onChange={(selectedOption) => setSelectedGroup(selectedOption?.value)}
@@ -976,7 +982,8 @@ const Dashboard = () => {
                               value={filter1}
                               onChange={(e) => setFilter1(e.target.value)}
                             >
-                              <option selected>Select By Category</option>
+                              <option disabled>Select by Category</option>
+                              <option selected>All</option>
                               <option value="car">Car</option>
                               <option value="bus">Bus</option>
                               <option value="motorcycle">Bike</option>
@@ -1196,6 +1203,23 @@ const Dashboard = () => {
                                     (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                 </CTableHeaderCell>
                               )}
+                              {visibleColumns.fuelConsumption && (
+                                <CTableHeaderCell
+                                  onClick={() => handleSort('fuelConsumption')}
+                                  className="text-center distance table-cell"
+                                  style={{
+                                    cursor: 'pointer',
+                                    position: 'sticky',
+                                    top: 0,
+                                    background: '#0a2d63',
+                                    color: 'white',
+                                  }}
+                                >
+                                  Fuel Consumption
+                                  {sortConfig.key === 'fuelConsumption' &&
+                                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                </CTableHeaderCell>
+                              )}
                               {visibleColumns.td && (
                                 <CTableHeaderCell
                                   onClick={() => handleSort('td')}
@@ -1312,7 +1336,7 @@ const Dashboard = () => {
                             {firstLoad ? (
                               // Show skeleton loader while vehicles are loading
                               <CTableRow>
-                                <CTableDataCell colSpan="15" className="text-center">
+                                <CTableDataCell colSpan="18" className="text-center">
                                   <div className="text-nowrap mb-2 text-center">
                                     <p className="card-text placeholder-glow">
                                       <span className="placeholder col-12" />
@@ -1504,6 +1528,16 @@ const Dashboard = () => {
                                       className="text-center d distance table-cell"
                                     >
                                       {`${Math.round(item.attributes.distance)} km`}
+                                    </CTableDataCell>
+                                  )}
+                                  {visibleColumns.fuelConsumption && (
+                                    <CTableDataCell
+                                      style={{
+                                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#eeeeefc2',
+                                      }}
+                                      className="text-center d distance table-cell"
+                                    >
+                                      {`${item.fuelConsumption} Litre`}
                                     </CTableDataCell>
                                   )}
                                   {visibleColumns.td && (
