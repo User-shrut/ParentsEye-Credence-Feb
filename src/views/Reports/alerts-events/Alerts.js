@@ -101,7 +101,7 @@ const Alerts = () => {
       const newApiData = response.data.devices
       const deviceNames = newApiData.map((device) => device.name)
       setDevices(deviceNames)
-      setLoading(false)
+      // setLoading(false)
     } catch (error) {
       console.error('Error fetching data:', error)
       setLoading(false)
@@ -142,7 +142,7 @@ const Alerts = () => {
   useEffect(() => {
     fetchNotificationData()
     getDevices()
-  }, [])
+  }, [rowsPerPage, filterDevice, filterType, searchQuery])
 
   const getAlerts = async (deviceIds) => {
     const url = `${import.meta.env.VITE_API_URL}/alerts?deviceIds=${deviceIds}&limit=1000&types=`
@@ -317,15 +317,15 @@ const Alerts = () => {
         return isNaN(date)
           ? '--'
           : date.toLocaleString('en-IN', {
-              timeZone: 'Asia/Kolkata',
-              hour12: false,
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            })
+            timeZone: 'Asia/Kolkata',
+            hour12: false,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })
       }
 
       // Initialize workbook and worksheet
@@ -509,14 +509,14 @@ const Alerts = () => {
         return isNaN(date)
           ? '--'
           : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
       }
 
       // Header: Company logo, name, and header line
