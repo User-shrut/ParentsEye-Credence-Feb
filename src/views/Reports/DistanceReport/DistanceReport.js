@@ -445,10 +445,7 @@ const ShowDistance = ({
         worksheet.addRow([`User: ${decodedToken.username || 'N/A'}`])
         worksheet.addRow([`Selected User: ${selectedUserName || 'N/A'}`])
         worksheet.addRow([`Group: ${selectedGroupName || 'N/A'}`])
-        worksheet.addRow([
-          `Date Range: ${selectedFromDate} To ${selectedToDate}`,
-          `Vehicle: ${selectedDeviceName || 'N/A'}`,
-        ])
+        worksheet.addRow([`Date Range: ${selectedFromDate} To ${selectedToDate}`])
         worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
         worksheet.addRow([]) // Spacer
       }

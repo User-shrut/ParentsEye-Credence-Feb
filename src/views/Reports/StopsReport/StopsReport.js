@@ -22,6 +22,7 @@ import {
   CDropdownItem,
 } from '@coreui/react'
 import Select from 'react-select'
+import ExcelJS from 'exceljs'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
@@ -39,6 +40,17 @@ import '../style/remove-gutter.css'
 import ignitionOff from 'src/status/power-off.png'
 import ignitionOn from 'src/status/power-on.png'
 import '../../../utils.css'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+import toast, { Toaster } from 'react-hot-toast'
+import { jwtDecode } from 'jwt-decode'
+import IconDropdown from '../../../components/ButtonDropdown'
+import { saveAs } from 'file-saver'
+
+const accessToken = Cookies.get('authToken')
+const decodedToken = jwtDecode(accessToken)
 
 const SearchStop = ({
   formData,
@@ -148,30 +160,6 @@ const SearchStop = ({
       </CCol>
       <CCol md={2}>
         <CFormLabel htmlFor="devices">Groups</CFormLabel>
-        {/* <CFormSelect
-          id="group"
-          required
-          value={selectedG}
-          onChange={(e) => {
-            const selectedGroup = e.target.value;
-            setSelectedG(selectedGroup);
-            console.log("Selected Group ID:", selectedGroup);
-            getDevices(selectedGroup);
-          }}
-        >
-          <option value="">Choose a group...</option>
-
-          {loading ? (<option>Loading Groups...</option>) : (
-            groups?.length > 0 ? (
-              groups?.map((group) => (
-                <option key={group._id} value={group._id}>{group.name}</option>
-              ))
-            ) : (
-              <option disabled>No Groups in this User</option>
-            )
-          )
-          }
-        </CFormSelect> */}
         <Select
           id="group"
           options={
@@ -329,7 +317,7 @@ const StopTable = ({
 
   // Function to convert latitude and longitude into a location name
   const fetchLocationName = async (lat, lng, rowIndex) => {
-    // const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
 
     try {
       const response = await axios.get(url)
@@ -354,223 +342,7 @@ const StopTable = ({
     }
   }, [apiData])
 
-  // Function to generate PDF
-  const downloadPDF = () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-    })
-
-    // Add current date
-    const today = new Date()
-    const date = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear().toString().slice(-2)}`
-
-    // Add "Credence Tracker" heading centered
-    doc.setFontSize(22)
-    doc.setFont('helvetica', 'bold')
-    const title = 'Credence Tracker'
-    const titleWidth =
-      (doc.getStringUnitWidth(title) * doc.internal.getFontSize()) / doc.internal.scaleFactor
-    const titleX = (doc.internal.pageSize.width - titleWidth) / 2
-    doc.text(title, titleX, 15)
-
-    // Add "Status Reports" heading below "Credence Tracker"
-    doc.setFontSize(18)
-    const subtitle = 'Stops Reports' // Align with the title
-    const subtitleWidth =
-      (doc.getStringUnitWidth(subtitle) * doc.internal.getFontSize()) / doc.internal.scaleFactor
-    const subtitleX = (doc.internal.pageSize.width - subtitleWidth) / 2
-    doc.text(subtitle, subtitleX, 25)
-
-    // Add current date at the top-right corner
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Date: ${date}`, doc.internal.pageSize.width - 20, 15, { align: 'right' })
-
-    // Add device and user details with clear styling
-    const details = [
-      `User Name: ${selectedUserName || 'N/A'}`,
-      `Group Name: ${selectedGroupName || 'N/A'}`,
-      `Vehicle Name: ${selectedDeviceName || 'N/A'}`,
-      `From Date: ${selectedFromDate || 'N/A'} , To Date: ${selectedToDate || 'N/A'}`,
-    ]
-
-    let yPosition = 35
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    details.forEach((detail) => {
-      doc.text(detail, 14, yPosition)
-      yPosition += 8 // Adjusted spacing for better readability
-    })
-
-    // Define table columns and rows
-    const tableColumn = ['SN', 'Device Name', ...selectedColumns]
-    const tableRows = []
-
-    sortedData.forEach((row, rowIndex) => {
-      const tableRow = [
-        rowIndex + 1,
-        row.device?.name || selectedDeviceName || '--',
-        ...selectedColumns.map((column) => {
-          switch (column) {
-            case 'Speed':
-              return `${(row.speed * 3.6).toFixed(2)} km/h`
-            case 'Ignition':
-              return row.ignition ? 'ON' : 'OFF'
-            case 'Direction':
-              if (row.course < 90 && row.course > 0) return 'North East'
-              if (row.course > 90 && row.course < 180) return 'North West'
-              if (row.course > 180 && row.course < 270) return 'South West'
-              return 'South East'
-            case 'Location':
-              return locationData[rowIndex] || 'Fetching location...'
-            case 'Co-ordinates':
-              return row.latitude && row.longitude
-                ? `${row.latitude}, ${row.longitude}`
-                : 'Fetching location...'
-            case 'Start Time':
-              return new Date(
-                new Date(row.arrivalTime).setHours(
-                  new Date(row.arrivalTime).getHours() - 5,
-                  new Date(row.arrivalTime).getMinutes() - 30,
-                ),
-              ).toLocaleString([], {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              })
-            case 'End Time':
-              return new Date(
-                new Date(row.departureTime).setHours(
-                  new Date(row.departureTime).getHours() - 5,
-                  new Date(row.departureTime).getMinutes() - 30,
-                ),
-              ).toLocaleString([], {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              })
-            default:
-              return '--'
-          }
-        }),
-      ]
-      tableRows.push(tableRow)
-    })
-
-    // Add autoTable with enhanced styling
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: yPosition + 1,
-      styles: {
-        fontSize: 10,
-        halign: 'center',
-        valign: 'middle',
-        lineColor: [0, 0, 0],
-        lineWidth: 0.5,
-      },
-      headStyles: {
-        fillColor: [100, 100, 255], // Light blue header
-        textColor: [255, 255, 255],
-        fontSize: 12,
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240], // Light gray for alternating rows
-      },
-      margin: { top: 20 },
-    })
-
-    // Save the PDF with a descriptive name
-    const fileName = selectedDeviceName
-      ? `${selectedDeviceName.replace(/ /g, '_')}_Stops_Report_${date}.pdf`
-      : 'Stops_Report_.pdf'
-    doc.save(fileName)
-  }
-
-  // Function to generate and download Excel without using file-saver
-  const downloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      sortedData.map((row, rowIndex) => {
-        const rowData = {
-          SN: rowIndex + 1, // Serial Number
-          'Device Name': row.device?.name || selectedDeviceName || '--', // Add Device Name
-        }
-
-        selectedColumns.forEach((column) => {
-          if (column === 'Speed') rowData.Speed = `${(row.speed * 3.6).toFixed(2)} km/h`
-          if (column === 'Ignition') rowData.Ignition = row.ignition ? 'ON' : 'OFF'
-          if (column === 'Direction') {
-            rowData.Direction =
-              row.course < 90 && row.course > 0
-                ? 'North East'
-                : row.course > 90 && row.course < 180
-                  ? 'North West'
-                  : row.course > 180 && row.course < 270
-                    ? 'South West'
-                    : 'South East'
-          }
-          if (column === 'Location')
-            rowData.Location = locationData[rowIndex] || 'Fetching location...'
-          if (column === 'Start Time')
-            rowData['Start Time'] = new Date(
-              new Date(row.arrivalTime).setHours(
-                new Date(row.arrivalTime).getHours() - 5,
-                new Date(row.arrivalTime).getMinutes() - 30,
-              ),
-            ).toLocaleString([], {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            })
-          if (column === 'End Time')
-            rowData['End Time'] = new Date(
-              new Date(row.departureTime).setHours(
-                new Date(row.departureTime).getHours() - 5,
-                new Date(row.departureTime).getMinutes() - 30,
-              ),
-            ).toLocaleString([], {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            })
-        })
-        return rowData
-      }),
-    )
-
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stops')
-
-    // Generate Excel file
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-
-    // Create a Blob from the Excel data
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
-
-    // Create a link element, trigger download, and remove the element
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `${selectedDeviceName || 'Stops_Report'}.xlsx`)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-  }
+  // Function to export table data to Excel
 
   const columnKeyMap = {
     'Start Time': 'arrivalTime',
@@ -627,8 +399,585 @@ const StopTable = ({
     return data
   }, [apiData, sortConfig])
 
+  console.log('SORTED DATA:', sortedData)
+
+  // EXPORT TO EXCEL FUNCTION
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(sortedData) || sortedData.length === 0) {
+        throw new Error('No data available for Excel export')
+      }
+
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        columns: [
+          { header: 'SN', width: 8 },
+          { header: 'Vehicle Name', width: 25 },
+          ...selectedColumns.map((column) => ({ header: column, width: 25 })),
+        ],
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      }
+
+      // Helper functions for formatting
+      const formatExcelDate = (dateString) => {
+        if (!dateString) return '--'
+        const date = new Date(dateString)
+        return isNaN(date) ? '--' : date.toLocaleString('en-GB')
+      }
+
+      const formatCoordinates = (lat, lon) => {
+        if (lat == null || lon == null) return 'Fetching location...'
+        return `${parseFloat(lat).toFixed(5)}, ${parseFloat(lon).toFixed(5)}`
+      }
+
+      // Helper function to get a cell's value based on column name
+      const getColumnValue = (row, column, rowIndex) => {
+        switch (column) {
+          case 'Speed':
+            // Assuming row.speed is in km/h already; otherwise, multiply by 3.6
+            return row.speed != null ? row.speed.toFixed(2) + ' km/h' : '--'
+
+          case 'Ignition':
+            // Excel cannot render images so we output text
+            return row.ignition === true ? 'ON' : 'OFF'
+
+          case 'Direction':
+            // Determine direction based on row.course
+            if (row.course == null) return '--'
+            if (row.course > 0 && row.course < 90) return 'North East'
+            if (row.course >= 90 && row.course < 180) return 'North West'
+            if (row.course >= 180 && row.course < 270) return 'South West'
+            return 'South East'
+
+          case 'Location':
+            // Use locationData if available, otherwise show a default message.
+            return locationData && locationData[rowIndex]
+              ? locationData[rowIndex]
+              : 'Fetching location...'
+
+          case 'Co-ordinates':
+            return row.latitude && row.longitude
+              ? formatCoordinates(row.latitude, row.longitude)
+              : 'Fetching location...'
+
+          case 'Start Time': {
+            if (!row.arrivalTime) return '--'
+            // Adjusting the time as per your UI logic: subtract 5 hours and 30 minutes
+            const arrival = new Date(row.arrivalTime)
+            arrival.setHours(arrival.getHours() - 5, arrival.getMinutes() - 30)
+            return arrival.toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            })
+          }
+
+          case 'End Time': {
+            if (!row.departureTime) return '--'
+            // Adjusting the time as per your UI logic: subtract 5 hours and 30 minutes
+            const departure = new Date(row.departureTime)
+            departure.setHours(departure.getHours() - 5, departure.getMinutes() - 30)
+            return departure.toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            })
+          }
+
+          case 'Device Name':
+            return row.device && row.device.name ? row.device.name : '--'
+
+          default:
+            return '--'
+        }
+      }
+
+      // Initialize workbook and worksheet
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Status Report')
+
+      // Add header section (company title, report title, and metadata)
+      const addHeaderSection = () => {
+        // Company title
+        const titleRow = worksheet.addRow([CONFIG.company.name])
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } }
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        }
+        titleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A1:L1')
+
+        // Report title
+        const subtitleRow = worksheet.addRow(['Stop Report'])
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        }
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        }
+        subtitleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A2:L2')
+
+        // Metadata rows
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`])
+        worksheet.addRow([
+          `User: ${selectedUserName || 'N/A'}`,
+          `Group: ${selectedGroupName || 'N/A'}`,
+        ])
+        worksheet.addRow([
+          `Date Range: ${
+            selectedFromDate && selectedToDate
+              ? `${selectedFromDate} - ${selectedToDate}`
+              : getDateRangeFromPeriod(selectedPeriod)
+          }`,
+          `Selected Vehicle: ${selectedDeviceName || '--'}`,
+        ])
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
+        worksheet.addRow([]) // Spacer row
+      }
+
+      // Add data table
+      const addDataTable = () => {
+        // Add column headers
+        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header))
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          }
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          }
+        })
+
+        // Add data rows based on sortedData
+        sortedData.forEach((row, index) => {
+          // Build the row array: first two cells then one for each selected column
+          const rowData = [
+            index + 1, // SN
+            selectedDeviceName || '--', // Vehicle Name
+            ...selectedColumns.map((col) => getColumnValue(row, col, index)),
+          ]
+          const dataRow = worksheet.addRow(rowData)
+
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            }
+          })
+        })
+
+        // Set column widths and default alignment
+        worksheet.columns = CONFIG.columns.map((col) => ({
+          width: col.width,
+          style: { alignment: { horizontal: 'left' } },
+        }))
+      }
+
+      // Add footer with copyright
+      const addFooter = () => {
+        worksheet.addRow([]) // Spacer row
+        const footerRow = worksheet.addRow([CONFIG.company.copyright])
+        footerRow.font = { italic: true }
+        // Merge across all columns (assuming A to L covers the entire width)
+        worksheet.mergeCells(`A${footerRow.number}:L${footerRow.number}`)
+      }
+
+      // Build the Excel document
+      addHeaderSection()
+      addDataTable()
+      addFooter()
+
+      // Generate and save file
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const filename = `Stop_Report_${new Date().toISOString().split('T')[0]}.xlsx`
+      saveAs(blob, filename)
+      toast.success('Excel file downloaded successfully')
+    } catch (error) {
+      console.error('Excel Export Error:', error)
+      toast.error(error.message || 'Failed to export Excel file')
+    }
+  }
+
+  const exportToPDF = () => {
+    try {
+      if (!Array.isArray(sortedData) || sortedData.length === 0) {
+        throw new Error('No data available for PDF export')
+      }
+
+      // Configuration constants
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99],
+          secondary: [70, 70, 70],
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      }
+
+      // Create the document (landscape A4)
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      })
+
+      // Helper functions
+      const applyPrimaryColor = () => {
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.setTextColor(...CONFIG.colors.primary)
+      }
+
+      const applySecondaryColor = () => {
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
+
+      const addHeader = () => {
+        // Draw company logo (as a filled square)
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        )
+
+        // Company name text
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
+
+        // Draw header line
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
+
+      const addMetadata = () => {
+        const metadata = [
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+          { label: 'Selected User:', value: selectedUserName || 'N/A' },
+          { label: 'Group:', value: selectedGroupName || 'N/A' },
+          { label: 'Date Range:', value: `${selectedFromDate} To ${selectedToDate}` },
+          { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
+        ]
+
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+
+        let yPosition = 45
+        const xPosition = CONFIG.layout.margin
+        const lineHeight = CONFIG.layout.lineHeight
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
+
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages()
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i)
+
+          // Footer line
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          )
+
+          // Copyright text
+          doc.setFontSize(9)
+          applySecondaryColor()
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          )
+
+          // Page number
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          )
+        }
+      }
+
+      // Helper functions to format values
+      const formatDate = (dateString) => {
+        if (!dateString) return '--'
+        const date = new Date(dateString)
+        return isNaN(date)
+          ? '--'
+          : date
+              .toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+              .replace(',', '')
+      }
+
+      const formatCoordinates = (lat, lon) => {
+        if (lat == null || lon == null) return 'Fetching location...'
+        return `${parseFloat(lat).toFixed(5)}, ${parseFloat(lon).toFixed(5)}`
+      }
+
+      // Prepare table data
+      // Build headers: SN, Vehicle Name, and the dynamic selected columns.
+      const headers = ['SN', 'Vehicle Name', ...selectedColumns.map((col) => col)]
+      const tableRows = []
+
+      // Process each data row
+      sortedData.forEach((row, index) => {
+        const rowData = [index + 1, selectedDeviceName || '--']
+
+        selectedColumns.forEach((column) => {
+          // Apply similar formatting as in your table rendering
+          switch (column) {
+            case 'Start Time':
+              rowData.push(new Date(row.arrivalTime).toLocaleString())
+              break
+            case 'End Time':
+              rowData.push(new Date(row.departureTime).toLocaleString())
+              break
+            case 'Speed':
+              rowData.push(row.speed ? `${row.speed.toFixed(2)} km/h` : '--')
+              break
+            case 'Ignition':
+              rowData.push(row.ignition ? 'ON' : 'OFF')
+              break
+            case 'Direction':
+              // Determine direction based on course value
+              if (row.course == null) {
+                rowData.push('--')
+              } else if (row.course < 90 && row.course > 0) {
+                rowData.push('North East')
+              } else if (row.course > 90 && row.course < 180) {
+                rowData.push('North West')
+              } else if (row.course > 180 && row.course < 270) {
+                rowData.push('South West')
+              } else {
+                rowData.push('North East')
+              }
+              break
+            case 'Location':
+              rowData.push(
+                locationData && locationData[row.id]
+                  ? locationData[row.id]
+                  : 'Fetching location...',
+              )
+              break
+            case 'Co-ordinates':
+              rowData.push(
+                row.latitude && row.longitude
+                  ? `${parseFloat(row.latitude).toFixed(5)}, ${parseFloat(row.longitude).toFixed(5)}`
+                  : 'Fetching location...',
+              )
+              break
+            default:
+              rowData.push('--')
+          }
+        })
+
+        tableRows.push(rowData)
+      })
+
+      // Add header, metadata, and title
+      addHeader()
+
+      // Title and generation date
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Stop Report', CONFIG.layout.margin, 35)
+
+      const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+      const dateText = `Generated: ${currentDate}`
+      applySecondaryColor()
+      doc.setFontSize(10)
+      doc.text(
+        dateText,
+        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
+        21,
+      )
+
+      addMetadata()
+
+      // Create the table using autoTable
+      autoTable(doc, {
+        startY: 65,
+        head: [headers],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+        didDrawPage: (data) => {
+          // Add header on subsequent pages if needed
+          if (doc.getCurrentPageInfo().pageNumber > 1) {
+            doc.setFontSize(15)
+            doc.setFont(CONFIG.fonts.primary, 'bold')
+            doc.text('Stop Report', CONFIG.layout.margin, 10)
+          }
+        },
+      })
+
+      addFooter()
+
+      // Save the PDF file
+      const filename = `Stop_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
+    } catch (error) {
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
+    }
+  }
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+      @page {
+        size: landscape;
+      }
+    `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
   return (
     <>
+      <Toaster />
+
       <CTable bordered className="custom-table">
         <CTableHead>
           <CTableRow>
@@ -818,18 +1167,9 @@ const StopTable = ({
         </CTableBody>
       </CTable>
 
-      <CDropdown className="position-fixed bottom-0 end-0 m-3">
-        <CDropdownToggle
-          color="secondary"
-          style={{ borderRadius: '50%', padding: '10px', height: '48px', width: '48px' }}
-        >
-          <CIcon icon={cilSettings} />
-        </CDropdownToggle>
-        <CDropdownMenu>
-          <CDropdownItem onClick={downloadPDF}>PDF</CDropdownItem>
-          <CDropdownItem onClick={downloadExcel}>Excel</CDropdownItem>
-        </CDropdownMenu>
-      </CDropdown>
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
+        <IconDropdown items={dropdownItems} />
+      </div>
     </>
   )
 }

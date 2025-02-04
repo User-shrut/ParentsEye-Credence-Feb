@@ -53,8 +53,8 @@ import toast, { Toaster } from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
 import { ContentPasteOffOutlined } from '@mui/icons-material'
 const accessToken = Cookies.get('authToken')
-
 const decodedToken = jwtDecode(accessToken)
+
 const SearchStatus = ({
   formData,
   handleInputChange,
@@ -354,7 +354,7 @@ const ShowStatus = ({
   // Function to get address based on latitude and longitude using Nominatim API
   const getAddress = async (latitude, longitude) => {
     try {
-      const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your actual MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your actual MapTiler API key
       const response = await axios.get(
         `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
       )
@@ -512,7 +512,6 @@ const ShowStatus = ({
     // Format dates as DD-MM-YYYY
     const formattedFromDate = `${fromDate.getDate().toString().padStart(2, '0')}-${(fromDate.getMonth() + 1).toString().padStart(2, '0')}-${fromDate.getFullYear()}`
     const formattedToDate = `${toDate.getDate().toString().padStart(2, '0')}-${(toDate.getMonth() + 1).toString().padStart(2, '0')}-${toDate.getFullYear()}`
-
     return ` ${formattedFromDate} To ${formattedToDate}`
   }
 
