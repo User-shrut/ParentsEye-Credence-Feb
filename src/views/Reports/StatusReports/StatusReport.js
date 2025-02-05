@@ -606,9 +606,10 @@ const ShowStatus = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${selectedFromDate && selectedToDate
-            ? `${selectedFromDate} - ${selectedToDate}`
-            : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${
+            selectedFromDate && selectedToDate
+              ? `${selectedFromDate} - ${selectedToDate}`
+              : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -772,7 +773,13 @@ const ShowStatus = ({
           { label: 'User:', value: decodedToken.username || 'N/A' },
           { label: 'Selected User:', value: selectedUserName || 'N/A' },
           { label: 'Group:', value: selectedGroupName || 'N/A' },
-          { label: 'Date Range:', value: `${selectedFromDate} To ${selectedToDate}` },
+          {
+            label: 'Date Range:',
+            value:
+              selectedFromDate && selectedToDate
+                ? `${selectedFromDate} To ${selectedToDate}`
+                : `${getDateRangeFromPeriod(selectedPeriod)}`,
+          },
           { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
         ]
 
@@ -830,14 +837,14 @@ const ShowStatus = ({
         return isNaN(date)
           ? '--'
           : date
-            .toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-            .replace(',', '')
+              .toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+              .replace(',', '')
       }
 
       const formatCoordinates = (coords) => {
@@ -1176,21 +1183,25 @@ const ShowStatus = ({
                           </>
                         ) : null
                       ) : column === 'Start Date Time' ? (
-                        row.startDateTime
-                          ? new Date(row.startDateTime).toLocaleString('en-GB', {
+                        row.startDateTime ? (
+                          new Date(row.startDateTime).toLocaleString('en-GB', {
                             timeZone: 'UTC',
                             hour12: false,
                           })
-                          : '--'
+                        ) : (
+                          '--'
+                        )
                       ) : column === 'Start Address' ? (
                         newAddressData?.startAddress || 'Fetching...'
                       ) : column === 'End Date Time' ? (
-                        row.endDateTime
-                          ? new Date(row.endDateTime).toLocaleString('en-GB', {
+                        row.endDateTime ? (
+                          new Date(row.endDateTime).toLocaleString('en-GB', {
                             timeZone: 'UTC',
                             hour12: false,
                           })
-                          : '--'
+                        ) : (
+                          '--'
+                        )
                       ) : column === 'Distance' ? (
                         row.distance
                       ) : column === 'Total Distance' ? (
@@ -1204,14 +1215,14 @@ const ShowStatus = ({
                       ) : column === 'Duration' ? (
                         row.time
                       ) : // : column === 'Average Speed'
-                        //   ? row.averageSpeed
-                        column === 'Start Coordinates' ? (
-                          `${parseFloat(row.startLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.startLocation.split(',')[1]).toFixed(5)}`
-                        ) : column === 'End Coordinates' ? (
-                          `${parseFloat(row.endLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.endLocation.split(',')[1]).toFixed(5)}`
-                        ) : (
-                          '--'
-                        )}
+                      //   ? row.averageSpeed
+                      column === 'Start Coordinates' ? (
+                        `${parseFloat(row.startLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.startLocation.split(',')[1]).toFixed(5)}`
+                      ) : column === 'End Coordinates' ? (
+                        `${parseFloat(row.endLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.endLocation.split(',')[1]).toFixed(5)}`
+                      ) : (
+                        '--'
+                      )}
                     </CTableDataCell>
                   </>
                 ))}
@@ -1463,10 +1474,9 @@ const Status = () => {
 
     const toDate = formData.ToDate
       ? new Date(
-        new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
-      ).toISOString()
+          new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+        ).toISOString()
       : ''
-
 
     const body = {
       deviceId: formData.Devices, // Use the device ID from the form data
