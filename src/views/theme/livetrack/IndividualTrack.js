@@ -1,5 +1,14 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  Polyline,
+  Polygon,
+  Circle,
+} from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { CCard, CCardBody, CCardHeader } from '@coreui/react'
@@ -8,7 +17,7 @@ import useVehicleTracker from './useVehicleTracker'
 import { useNavigate, useParams } from 'react-router-dom'
 import location from 'src/assets/location.png'
 import { duration } from 'dayjs' // Importing all vehicle icons
-
+import { Eye, EyeOff } from 'lucide-react'
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 import './IndividualTrack.css'
 import Draggable from 'react-draggable'
@@ -23,6 +32,13 @@ import { IoLocationSharp } from 'react-icons/io5'
 
 import dayjs from 'dayjs'
 import { FaSatellite } from 'react-icons/fa'
+import Cookies from 'js-cookie'
+import IconDropdown from '../../../components/ButtonDropdown'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { MdDashboard } from 'react-icons/md'
+
+const accessToken = Cookies.get('authToken')
+
 const MapController = ({ individualSalesMan, previousPosition, setPath }) => {
   const map = useMap()
   const animationRef = useRef(null)
@@ -86,7 +102,15 @@ const IndividualTrack = () => {
   const [address, setAddress] = useState(null)
   const previousPosition = useRef(null) // Ref to store the previous position
   const [path, setPath] = useState([]) // State for polyline path
-  const [geofences, setGeofences] = useState([]) // for geofence
+  const [geofences, setGeofences] = useState([]) // state for geofence radius
+  const [polygonData, setPolygonData] = useState([]) // state for geofence polygon
+  // Toggle state for geofence display
+  const [showGeofence, setShowGeofence] = useState(true)
+
+  // Toggle handler
+  const handleToggleGeofence = () => {
+    setShowGeofence((prevState) => !prevState)
+  }
 
   // fetch vehicle data
   useEffect(() => {
@@ -126,8 +150,48 @@ const IndividualTrack = () => {
     const fetchGeofences = async () => {
       try {
         // Update the endpoint and parameters as per your API
-        const response = await axios.get(`/api/geofences/${deviceId}`)
-        setGeofences(response.data)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/geofence/${deviceId}`, {
+          headers: {
+            Authorization: 'Bearer ' + accessToken,
+          },
+        })
+        const circleData = (data) => {
+          return data
+            .filter((item) => item.area.length == 1 && item.area[0].circle)
+            .map((item) => {
+              const match = item.area[0].circle.match(/Circle\(([\d.]+) ([\d.]+), ([\d.]+)\)/)
+              if (match) {
+                return {
+                  name: item.name,
+                  lat: parseFloat(match[1]), // Extract latitude
+                  lng: parseFloat(match[2]), // Extract longitude
+                  radius: parseFloat(match[3]), // Extract radius
+                }
+              }
+              return null
+            })
+            .filter(Boolean) // Remove null values if any parsing fails
+        }
+
+        const polygon = (data) => {
+          return data
+            .filter((item) => item.area.length > 1)
+            .map((item, index) => {
+              const coordinates = item.area.map((coord) => [coord.lat, coord.lng])
+              if (coordinates) {
+                return {
+                  name: item.name,
+                  coordinates,
+                }
+              }
+            })
+            .filter(Boolean)
+        }
+
+        console.log('Fetch GEOFENCE', response.data)
+        console.log('FETCH GEOFENCE POLYGON', polygon(response.data))
+        setGeofences(circleData(response.data))
+        setPolygonData(polygon(response.data))
       } catch (error) {
         console.error('Error fetching geofences:', error)
       }
@@ -135,6 +199,8 @@ const IndividualTrack = () => {
 
     fetchGeofences()
   }, [deviceId])
+
+  console.log('SETTING GEOFENCE', geofences)
 
   const navigate = useNavigate()
   const iconImage = (item, category) => useGetVehicleIcon(item, category)
@@ -148,6 +214,28 @@ const IndividualTrack = () => {
   const toggleMapView = () => {
     setIsSatelliteView((prev) => !prev)
   }
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const backToDashboard = () => {
+    navigate(-1)
+  }
+
+  const dropdownItems = [
+    {
+      icon: MdDashboard,
+      label: 'Back To Dashboard',
+      onClick: () => backToDashboard(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+  ]
 
   return (
     <>
@@ -176,6 +264,57 @@ const IndividualTrack = () => {
                 }
                 attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
               />
+
+              <button
+                title={showGeofence ? 'Hide Geofence' : 'View Geofence'}
+                onClick={handleToggleGeofence}
+                className="geofence-button btn"
+              >
+                {showGeofence ? (
+                  <EyeOff color="black" size={18} />
+                ) : (
+                  <Eye color="black" size={18} />
+                )}
+              </button>
+
+              {/* Render Polygon Dynamically */}
+              {showGeofence &&
+                polygonData.map((polygon, index) => (
+                  <Polygon
+                    key={index}
+                    positions={polygon.coordinates}
+                    pathOptions={{
+                      color: 'blue',
+                      fillColor: 'rgba(0, 0, 255, 0.3)',
+                      fillOpacity: 0.4,
+                    }}
+                  >
+                    <Popup>
+                      <strong>{polygon.name}</strong>
+                    </Popup>
+                  </Polygon>
+                ))}
+
+              {/* Render Circles Dynamically */}
+              {showGeofence
+                ? geofences.map((location, index) => (
+                    <Circle
+                      key={index}
+                      center={[location.lat, location.lng]}
+                      radius={location.radius} // Radius in meters
+                      pathOptions={{
+                        color: '#0a2d63',
+                        fillColor: '#A1E3F9',
+                        fillOpacity: 0.3,
+                      }}
+                    >
+                      <Popup>
+                        <strong>{location.name}</strong> <br />
+                        Radius: {location.radius} m
+                      </Popup>
+                    </Circle>
+                  ))
+                : null}
 
               <Draggable bounds="parent">
                 <CCard className="mb-4 parametersContainer shadow" style={{ zIndex: '555' }}>
@@ -340,6 +479,9 @@ const IndividualTrack = () => {
             </MapContainer>
           </div>
         </div>
+      </div>
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5" style={{ 'z-index': '1000' }}>
+        <IconDropdown items={dropdownItems} />
       </div>
     </>
   )
