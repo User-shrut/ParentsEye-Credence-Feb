@@ -638,14 +638,14 @@ const ShowDistance = ({
         return isNaN(date)
           ? '--'
           : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
       }
 
       // Main document creation
@@ -1132,8 +1132,21 @@ const Distance = () => {
   const handleSubmit = async () => {
     setDistanceLoading(true)
     console.log('DataAll', formData)
-    const fromDate = formData.FromDate ? new Date(formData.FromDate).toISOString().slice(0, 10) : '' // Change to YYYY-MM-DD
-    const toDate = formData.ToDate ? new Date(formData.ToDate).toISOString().slice(0, 10) : '' // Change to YYYY-MM-DD
+    // For FromDate: Set time to 00:00:00 (start of the day)
+    const fromDate = formData.FromDate
+      ? new Date(
+        new Date(formData.FromDate).setHours(0, 0, 0, 0) + (5 * 60 + 30) * 60000
+      ).toISOString()
+      : '';
+
+    // For ToDate: Set time to 23:59:59.999 (end of the day) and adjust for UTC+5:30
+    const toDate = formData.ToDate
+      ? new Date(
+        new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000
+      ).toISOString()
+      : '';
+
+
     const body = {
       deviceIds: formData.Devices, // Convert array to comma-separated string
       // period: formData.Periods,

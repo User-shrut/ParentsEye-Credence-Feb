@@ -1215,33 +1215,31 @@ const TripTable = ({
                     {(() => {
                       switch (column) {
                         case 'Start Time':
-                          return new Date(
-                            new Date(row.startTime).setHours(
-                              new Date(row.startTime).getHours() - 5,
-                              new Date(row.startTime).getMinutes() - 30,
-                            ),
-                          ).toLocaleString([], {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false,
-                          })
+                          return row.startTime
+                            ? new Date(row.startTime).toLocaleString('en-GB', {
+                              timeZone: 'UTC',
+                              hour12: false,
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                            : '--';
+
                         case 'End Time':
-                          return new Date(
-                            new Date(row.endTime).setHours(
-                              new Date(row.endTime).getHours() - 5,
-                              new Date(row.endTime).getMinutes() - 30,
-                            ),
-                          ).toLocaleString([], {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false,
-                          })
+                          return row.endTime
+                            ? new Date(row.endTime).toLocaleString('en-GB', {
+                              timeZone: 'UTC',
+                              hour12: false,
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                            : '--';
+
                         case 'Distance':
                           return row.distance
                         // case 'Total Distance':
@@ -1499,8 +1497,19 @@ const Trips = () => {
   }
 
   // Example of extracting values similar to `selectedGroup`
-  const selectedFromDate = formData.FromDate ? new Date(formData.FromDate).toLocaleDateString() : ''
-  const selectedToDate = formData.ToDate ? new Date(formData.ToDate).toLocaleDateString() : ''
+  const selectedFromDate = formData.FromDate
+    ? new Date(
+      new Date(formData.FromDate).setHours(0, 0, 0, 0) + (5 * 60 + 30) * 60000
+    ).toISOString()
+    : '';
+
+  const selectedToDate = formData.ToDate
+    ? new Date(
+      new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+    ).toISOString()
+    : ''
+
+
   const selectedPeriod = formData.Periods || ''
 
   console.log('Selected From Date:', selectedFromDate)

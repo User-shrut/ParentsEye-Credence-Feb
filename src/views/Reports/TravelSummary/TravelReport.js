@@ -261,7 +261,7 @@ const SearchTravel = ({
           <CCol md={4}>
             <CFormLabel htmlFor="fromDate">From Date</CFormLabel>
             <CFormInput
-              type="datetime-local"
+              type="date"
               id="fromDate"
               value={formData.FromDate}
               onChange={(e) => handleInputChange('FromDate', e.target.value)}
@@ -272,7 +272,7 @@ const SearchTravel = ({
           <CCol md={4}>
             <CFormLabel htmlFor="toDate">To Date</CFormLabel>
             <CFormInput
-              type="datetime-local"
+              type="date"
               id="toDate"
               value={formData.ToDate}
               onChange={(e) => handleInputChange('ToDate', e.target.value)}
@@ -329,15 +329,23 @@ const ShowSummary = ({
   }
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return '--'
-    const date = new Date(dateString)
+    if (!dateString) return '--';
+
+    const date = new Date(dateString);
+
     return isNaN(date)
       ? '--'
-      : date.toLocaleTimeString('en-GB', {
+      : date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      })
-  }
+        hour12: false, // 24-hour format
+        timeZone: 'UTC' // Adjust based on your requirement
+      });
+  };
+
 
   // Transform apiData to match reportData structure
   const reportData =
@@ -478,8 +486,8 @@ const ShowSummary = ({
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
       const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
       return utcDate;
     };
 
@@ -551,8 +559,8 @@ const ShowSummary = ({
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
       const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
       return utcDate;
     };
 
@@ -616,6 +624,8 @@ const ShowSummary = ({
     return `from: ${formattedFromDate} to: ${formattedToDate}`;
   }
   console.log('Sorted DATA', sortedData)
+
+
   // Function to export table data to Excel
   const exportToExcel = async () => {
     try {
@@ -670,10 +680,24 @@ const ShowSummary = ({
 
       // Helper functions
       const formatExcelDate = (dateString) => {
-        if (!dateString) return '--'
-        const date = new Date(dateString)
-        return isNaN(date) ? '--' : date.toLocaleString('en-GB')
-      }
+        if (!dateString) return '--';
+
+        const date = new Date(dateString);
+
+        return isNaN(date)
+          ? '--'
+          : date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,   // 24-hour format
+            timeZone: 'UTC'  // Adjust based on your requirement
+          }).replace(',', ''); // Remove comma for clean output
+      };
+
 
       const formatCoordinates = (coords) => {
         if (!coords) return '--'
@@ -973,6 +997,25 @@ const ShowSummary = ({
         });
       };
 
+      const addGeneratedDate = () => {
+        const currentDate = new Date().toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        doc.setFontSize(10);
+        applySecondaryColor();
+
+        // Align the date to the top right corner
+        const pageWidth = doc.internal.pageSize.width;
+        const dateText = `Generated Date: ${currentDate}`;
+        const textWidth = doc.getTextWidth(dateText);
+
+        doc.text(dateText, pageWidth - CONFIG.layout.margin - textWidth, 20); // Top-right corner
+      };
+
+
       const addFooter = () => {
         const pageCount = doc.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
@@ -992,7 +1035,9 @@ const ShowSummary = ({
 
       const formatDate = (dateString) => {
         if (!dateString) return '--';
+
         const date = new Date(dateString);
+
         return isNaN(date)
           ? '--'
           : date.toLocaleString('en-GB', {
@@ -1001,7 +1046,9 @@ const ShowSummary = ({
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-          }).replace(',', '');
+            hour12: false,  // 24-hour format
+            timeZone: 'UTC' // Adjust as needed
+          }).replace(',', ''); // Removes the comma between date and time
       };
 
       const formatCoordinates = (coords) => {
@@ -1017,6 +1064,8 @@ const ShowSummary = ({
       doc.text('Travel Summary', CONFIG.layout.margin, 35);
 
       addMetadata();
+
+      addGeneratedDate(); // ✅ Only Date Added Here
 
       // Separate Column Definitions
       const tableColumns = [
@@ -1069,6 +1118,18 @@ const ShowSummary = ({
         head: [tableColumns],
         body: tableRows,
         theme: 'grid',
+        styles: {
+          fillColor: [255, 255, 255], // White background for body
+          textColor: [0, 0, 0],       // Black text for body
+        },
+        headStyles: {
+          fillColor: [10, 45, 99],    // Applying #0a2d63 to header
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [240, 245, 250], // Light gray for alternate rows
+        },
       });
 
       // Add Daywise Summary Table
@@ -1104,6 +1165,18 @@ const ShowSummary = ({
             head: [daywiseSummaryColumn],
             body: daywiseRows,
             theme: 'grid',
+            styles: {
+              fillColor: [255, 255, 255], // White for body
+              textColor: [0, 0, 0],       // Black for body text
+            },
+            headStyles: {
+              fillColor: [10, 45, 99],    // #0a2d63 for header
+              textColor: [255, 255, 255], // White header text
+              fontStyle: 'bold',
+            },
+            alternateRowStyles: {
+              fillColor: [240, 245, 250], // Light gray rows
+            },
           });
 
           yPosition = doc.lastAutoTable.finalY + 10;
@@ -1672,8 +1745,8 @@ const TravelReport = () => {
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
       const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() + 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() + 30); // Add 30 minutes for IST
+      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
       return utcDate;
     };
 
@@ -1800,9 +1873,9 @@ const TravelReport = () => {
 
   const handleInputChange = (name, value) => {
     // Convert value to IST before updating state
-    if (name === 'FromDate' || name === 'ToDate') {
-      value = convertToIST(value);
-    }
+    // if (name === 'FromDate' || name === 'ToDate') {
+    //   value = convertToIST(value);
+    // }
 
     setFormData((prevData) => ({
       ...prevData,
@@ -1828,7 +1901,7 @@ const TravelReport = () => {
       // Ensure 'date' is defined correctly
       let date = '';
       if (formData.FromDate && formData.ToDate) {
-        date = `${formData.FromDate}&to=${formData.ToDate}`;
+        date = `${selectedFromDate}&to=${selectedToDate}`;
       } else {
         date = getDateRangeFromPeriod(formData.Periods);
         // Ensure that if the period function returns 'N/A', it doesn't break the API call
@@ -1861,8 +1934,16 @@ const TravelReport = () => {
 
 
   // Example of extracting values similar to `selectedGroup`
-  const selectedFromDate = formData.FromDate ? new Date(formData.FromDate).toLocaleDateString() : ''
-  const selectedToDate = formData.ToDate ? new Date(formData.ToDate).toLocaleDateString() : ''
+  const selectedFromDate = formData.FromDate
+    ? new Date(
+      new Date(formData.FromDate).setHours(0, 0, 0, 0) + (5 * 60 + 30) * 60000
+    ).toISOString() : ''
+  const selectedToDate = formData.ToDate
+    ? new Date(
+      new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+    ).toISOString()
+    : ''
+
   const selectedPeriod = formData.Periods || ''
 
   console.log('Selected From Date:', selectedFromDate)
