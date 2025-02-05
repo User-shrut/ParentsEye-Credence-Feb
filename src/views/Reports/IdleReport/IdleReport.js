@@ -187,9 +187,9 @@ const SearchIdeal = ({
           value={
             formData.Devices
               ? {
-                value: formData.Devices,
-                label: devices.find((device) => device.deviceId === formData.Devices)?.name,
-              }
+                  value: formData.Devices,
+                  label: devices.find((device) => device.deviceId === formData.Devices)?.name,
+                }
               : null
           }
           onChange={(selectedOption) => handleInputChange('Devices', selectedOption?.value)}
@@ -307,87 +307,96 @@ const ShowIdeal = ({
   selectedToDate,
   selectedPeriod,
 }) => {
-  const [sortConfig, setSortConfig] = useState({ key: 'idleStartTime', direction: 'asc' });
-  const [dataWithAddresses, setDataWithAddresses] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'idleStartTime', direction: 'asc' })
+  const [dataWithAddresses, setDataWithAddresses] = useState([])
   console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa', selectedUserName)
 
   // MapTiler API key
-  const apiKey = 'DG2zGt0KduHmgSi2kifd';
+  const apiKey = 'DG2zGt0KduHmgSi2kifd'
 
   // Function to get address from latitude and longitude using MapTiler API
   const getAddressFromLatLng = async (latitude, longitude) => {
-    const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`;
+    const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
 
     try {
-      const response = await axios.get(url);
-      console.log('Address API Response:', response.data); // Debugging: Check the API response
-      const address = response.data?.features?.[0]?.place_name || 'Address not found';
-      console.log(`Fetched address for [${latitude}, ${longitude}]:`, address); // Debugging
-      return address;
+      const response = await axios.get(url)
+      console.log('Address API Response:', response.data) // Debugging: Check the API response
+      const address = response.data?.features?.[0]?.place_name || 'Address not found'
+      console.log(`Fetched address for [${latitude}, ${longitude}]:`, address) // Debugging
+      return address
     } catch (error) {
-      console.error('Error fetching address:', error);
-      return 'Address not found';
+      console.error('Error fetching address:', error)
+      return 'Address not found'
     }
-  };
+  }
 
   // Function to map over API data and fetch addresses
   const mapDataWithAddress = async () => {
-    if (!apiData || apiData.length === 0) return apiData;
+    if (!apiData || apiData.length === 0) return apiData
 
     const updatedData = await Promise.all(
       apiData.map(async (row) => {
-        if (row.idleArray && row.idleArray.length > 0) { // Check idleArray instead of data
+        if (row.idleArray && row.idleArray.length > 0) {
+          // Check idleArray instead of data
           const updatedNestedData = await Promise.all(
-            row.idleArray.map(async (nestedRow) => { // Process each idle period in idleArray
+            row.idleArray.map(async (nestedRow) => {
+              // Process each idle period in idleArray
               if (nestedRow.location && !nestedRow.address) {
-                const [latitude, longitude] = nestedRow.location.split(',').map(coord => coord.trim());
-                const address = await getAddressFromLatLng(latitude, longitude);
-                return { ...nestedRow, address, latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+                const [latitude, longitude] = nestedRow.location
+                  .split(',')
+                  .map((coord) => coord.trim())
+                const address = await getAddressFromLatLng(latitude, longitude)
+                return {
+                  ...nestedRow,
+                  address,
+                  latitude: parseFloat(latitude),
+                  longitude: parseFloat(longitude),
+                }
               }
-              return nestedRow;
-            })
-          );
-          return { ...row, idleArray: updatedNestedData }; // Update the row's idleArray with addresses
+              return nestedRow
+            }),
+          )
+          return { ...row, idleArray: updatedNestedData } // Update the row's idleArray with addresses
         }
-        return row;
-      })
-    );
+        return row
+      }),
+    )
 
-    return updatedData;
-  };
+    return updatedData
+  }
 
   // Fetch addresses when apiData changes
   useEffect(() => {
     const fetchDataWithAddresses = async () => {
-      const updatedData = await mapDataWithAddress();
-      setDataWithAddresses(updatedData);
-    };
+      const updatedData = await mapDataWithAddress()
+      setDataWithAddresses(updatedData)
+    }
 
-    fetchDataWithAddresses();
-  }, [apiData]);
+    fetchDataWithAddresses()
+  }, [apiData])
 
   // Flatten the data
   const enhancedFlattenedData = useMemo(() => {
-    if (!dataWithAddresses) return [];
+    if (!dataWithAddresses) return []
 
-    return dataWithAddresses.flatMap((row, rowIndex) =>
-      row.idleArray?.map((idle, nestedIndex) => ({
-        ...idle,
-        parentRow: row,
-        vehicleName: row.device?.name || selectedDeviceName || '--',
-        deviceId: row.deviceId || '--',
-        rowIndex: rowIndex + 1,
-        nestedIndex: nestedIndex + 1,
-        durationSeconds: (new Date(idle.idleEndTime) - new Date(idle.idleStartTime)) / 1000,
-      })) || []
-    );
-  }, [dataWithAddresses, selectedDeviceName]);
-
+    return dataWithAddresses.flatMap(
+      (row, rowIndex) =>
+        row.idleArray?.map((idle, nestedIndex) => ({
+          ...idle,
+          parentRow: row,
+          vehicleName: row.device?.name || selectedDeviceName || '--',
+          deviceId: row.deviceId || '--',
+          rowIndex: rowIndex + 1,
+          nestedIndex: nestedIndex + 1,
+          durationSeconds: (new Date(idle.idleEndTime) - new Date(idle.idleStartTime)) / 1000,
+        })) || [],
+    )
+  }, [dataWithAddresses, selectedDeviceName])
 
   const columnKeyMap = {
     'Start Time': 'idleStartTime',
-    'Duration': 'duration',
-    'Location': 'address',
+    Duration: 'duration',
+    Location: 'address',
     'Co-ordinates': 'location',
     'End Time': 'idleEndTime',
   }
@@ -397,43 +406,42 @@ const ShowIdeal = ({
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
-  };
+    }))
+  }
 
   // Sorted data
   const sortedFlattenedData = React.useMemo(() => {
-    const data = [...enhancedFlattenedData];
+    const data = [...enhancedFlattenedData]
 
-    if (!sortConfig.key) return data;
+    if (!sortConfig.key) return data
 
     return data.sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
+      const aValue = a[sortConfig.key]
+      const bValue = b[sortConfig.key]
 
       // Handle missing values gracefully
-      if (aValue === undefined || bValue === undefined) return 0;
+      if (aValue === undefined || bValue === undefined) return 0
 
       switch (sortConfig.key) {
         case 'idleStartTime': // Corrected key
-        case 'idleEndTime':   // Corrected key
+        case 'idleEndTime': // Corrected key
           return sortConfig.direction === 'asc'
             ? new Date(aValue) - new Date(bValue)
-            : new Date(bValue) - new Date(aValue);
+            : new Date(bValue) - new Date(aValue)
 
         case 'durationSeconds':
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue
 
         default:
           if (typeof aValue === 'string' && typeof bValue === 'string') {
             return sortConfig.direction === 'asc'
               ? aValue.localeCompare(bValue)
-              : bValue.localeCompare(aValue);
+              : bValue.localeCompare(aValue)
           }
-          return 0;
+          return 0
       }
-    });
-  }, [enhancedFlattenedData, sortConfig]);
-
+    })
+  }, [enhancedFlattenedData, sortConfig])
 
   // Function to get date range based on selectedPeriod
   const getDateRangeFromPeriod = (selectedPeriod) => {
@@ -590,9 +598,10 @@ const ShowIdeal = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${selectedFromDate && selectedToDate
-            ? `${selectedFromDate} - ${selectedToDate}`
-            : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${
+            selectedFromDate && selectedToDate
+              ? `${selectedFromDate} - ${selectedToDate}`
+              : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -1085,56 +1094,47 @@ const ShowIdeal = ({
               <CTableRow key={`${item.deviceId}-${index}`} className="custom-row">
                 <CTableDataCell>{index + 1}</CTableDataCell> {/* Serial Number */}
                 <CTableDataCell>{item.vehicleName || '--'}</CTableDataCell> {/* Vehicle Name */}
-
                 {selectedColumns.map((column, colIndex) => (
                   <CTableDataCell key={colIndex}>
                     {(() => {
                       switch (column) {
                         case 'Start Time':
                           return item.idleStartTime
-                            ? new Date(item.idleStartTime).toLocaleString([], {
-                              year: 'numeric',
-                              month: '2-digit',
-                              day: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })
-                            : '--';
+                            ? new Date(item.idleStartTime).toLocaleString('en-GB', {
+                                timeZone: 'UTC',
+                                hour12: false,
+                              })
+                            : '--'
 
                         case 'End Time':
                           return item.idleEndTime
-                            ? new Date(item.idleEndTime).toLocaleString([], {
-                              year: 'numeric',
-                              month: '2-digit',
-                              day: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })
-                            : '--';
+                            ? new Date(item.idleEndTime).toLocaleString('en-GB', {
+                                timeZone: 'UTC',
+                                hour12: false,
+                              })
+                            : '--'
 
                         case 'Duration':
-                          return item.duration || '--';
+                          return item.duration || '--'
 
                         case 'Location':
-                          return item.address || 'No Address Found...';
+                          return item.address || 'No Address Found...'
 
                         case 'Co-ordinates':
                           return item.latitude && item.longitude
                             ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
-                            : '--';
+                            : '--'
 
                         case 'Vehicle Status':
-                          return item.speed === 0 ? 'Idle' : 'Moving';
+                          return item.speed === 0 ? 'Idle' : 'Moving'
 
                         case 'Total Duration':
                           return item.durationSeconds
                             ? new Date(item.durationSeconds * 1000).toISOString().substr(11, 8)
-                            : '--';
+                            : '--'
 
                         default:
-                          return '--';
+                          return '--'
                       }
                     })()}
                   </CTableDataCell>
@@ -1178,13 +1178,7 @@ const Ideal = () => {
   const [showMap, setShowMap] = useState(false) //show mapping data
   const accessToken = Cookies.get('authToken')
   const [statusLoading, setStatusLoading] = useState(false)
-  const [columns] = useState([
-    'Start Time',
-    'Duration',
-    'Location',
-    'Co-ordinates',
-    'End Time',
-  ]);
+  const [columns] = useState(['Start Time', 'Duration', 'Location', 'Co-ordinates', 'End Time'])
 
   const [selectedColumns, setSelectedColumns] = useState([])
   const token = Cookies.get('authToken') //
@@ -1312,7 +1306,11 @@ const Ideal = () => {
 
     // Convert the dates to ISO format if they're provided
     const fromDate = formData.FromDate ? new Date(formData.FromDate).toISOString() : ''
-    const toDate = formData.ToDate ? new Date(formData.ToDate).toISOString() : ''
+    const toDate = formData.ToDate
+      ? new Date(
+          new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+        ).toISOString()
+      : ''
 
     const body = {
       deviceId: formData.Devices, // Use the device ID from the form data
