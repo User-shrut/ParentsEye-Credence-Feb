@@ -284,9 +284,9 @@ const IndividualTrack = () => {
                     key={index}
                     positions={polygon.coordinates}
                     pathOptions={{
-                      color: 'blue',
-                      fillColor: 'rgba(0, 0, 255, 0.3)',
-                      fillOpacity: 0.4,
+                      color: '#0a2d63',
+                      fillColor: '#A1E3F9',
+                      fillOpacity: 0.3,
                     }}
                   >
                     <Popup>
