@@ -101,19 +101,21 @@ const Geofences = () => {
 
   // Google map search map code
   const [searchQuery1, setSearchQuery1] = useState('') // Search query state
+
+  const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your actual MapTiler API key
+
   const handleSearch = async () => {
     if (!searchQuery1) return
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          searchQuery1,
-        )}&format=json&limit=1`,
+      const response = await axios.get(
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(searchQuery1)}.json?key=${apiKey}`,
       )
-      const data = await response.json()
 
-      if (data.length > 0) {
-        const { lat, lon } = data[0]
-        const location = { lat: parseFloat(lat), lng: parseFloat(lon) }
+      const data = response.data
+
+      if (data.features.length > 0) {
+        const { center } = data.features[0] // MapTiler returns [longitude, latitude]
+        const location = { lat: center[1], lng: center[0] } // Convert to {lat, lng}
 
         // Set location and polygon coordinates
         setSelectedLocation(location)
@@ -126,7 +128,7 @@ const Geofences = () => {
         console.log('Generated Area:', generatedArea)
         alert('Location and area successfully set!')
       } else {
-        alert('Location not found!  please Enter a valid location')
+        alert('Location not found! Please enter a valid location.')
       }
     } catch (error) {
       console.error('Error fetching location:', error)
