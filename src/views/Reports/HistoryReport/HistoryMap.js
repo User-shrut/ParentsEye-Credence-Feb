@@ -29,8 +29,7 @@ import {
 } from 'chart.js'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import SlidingSideMenu from './SlidingSideMenu'
-import axios from 'axios';
-
+import axios from 'axios'
 
 // Register Chart.js components
 ChartJS.register(LineElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement)
@@ -107,7 +106,14 @@ const HistoryMap = ({
     fetch,
   )
   console.log('return data' + stopData)
-
+  console.log(
+    'HISTORY PLAY BACK DATE######################################################################################',
+    fromDateTime,
+  )
+  console.log(
+    'HISTORY PLAY BACK DATE######################################################################################',
+    toDateTime,
+  )
   const [positions, setPositions] = useState([])
   const [stopages, setStopages] = useState(stopData?.finalDeviceDataByStopage || [])
   const [showStopages, setShowStopages] = useState(true)
@@ -271,7 +277,7 @@ const HistoryMap = ({
   const handleGraphLeave = () => {
     setHoveredIndex(null)
     setIsPlaying(true)
-    setCurrentPositionIndex(prevHoveredIndex)
+    setCurrentPositionIndex(prevhoveredIndex)
   }
 
   const speedData = positions?.map((pos) => pos.speed) || []
@@ -329,32 +335,73 @@ const HistoryMap = ({
     },
     onHover: (event, chartElement) => {
       if (chartElement.length) {
-        const index = chartElement[0].index;
-        setPrevHoveredIndex(currentPositionIndex);
-        handleGraphHover(index);
+        const index = chartElement[0].index
+        setPrevHoveredIndex(currentPositionIndex)
+        handleGraphHover(index)
       } else {
-        handleGraphLeave();
+        handleGraphLeave()
       }
-    }
+    },
   }
 
   // console.log(poly)
 
   // Playback animation logic
+  const [segmentProgress, setSegmentProgress] = useState(0)
+  const startTimeRef = useRef(null)
   useEffect(() => {
-    if (positions.length > 0 && isPlaying) {
-      const intervalSpeed = Math.max(100, 1000 / speed) // Ensure reasonable playback speed
-      const interval = setInterval(() => {
-        setCurrentPositionIndex((prevIndex) => {
-          const nextIndex = (prevIndex + 1) % positions.length
-          setProgress(((nextIndex + 1) / positions.length) * 100)
-          return nextIndex
-        })
-      }, intervalSpeed)
+    if (isPlaying && positions.length > 1) {
+      const baseDuration = 650 // base duration in ms for one segment
+      const duration = baseDuration / speed // adjust duration based on speed
+      let animationFrame
 
-      return () => clearInterval(interval)
+      const animate = (timestamp) => {
+        if (!startTimeRef.current) {
+          startTimeRef.current = timestamp
+        }
+        const elapsed = timestamp - startTimeRef.current
+        const t = Math.min(elapsed / duration, 1)
+        setSegmentProgress(t)
+        if (t < 1) {
+          animationFrame = requestAnimationFrame(animate)
+        } else {
+          setCurrentPositionIndex((prev) => (prev + 1) % positions.length)
+          setSegmentProgress(0)
+          startTimeRef.current = null
+          animationFrame = requestAnimationFrame(animate)
+        }
+      }
+
+      animationFrame = requestAnimationFrame(animate)
+      return () => cancelAnimationFrame(animationFrame)
     }
-  }, [positions, isPlaying, speed])
+  }, [isPlaying, currentPositionIndex, positions, speed])
+
+  useEffect(() => {
+    if (positions.length > 1) {
+      const overallProgress =
+        ((currentPositionIndex + segmentProgress) / (positions.length - 1)) * 100
+      setProgress(overallProgress)
+    }
+  }, [currentPositionIndex, segmentProgress, positions.length])
+
+  // Compute the current marker position using linear interpolation
+  const currentMarkerPosition = useMemo(() => {
+    if (positions.length === 0) return [0, 0]
+    if (positions.length === 1) return [positions[0].latitude, positions[0].longitude]
+
+    const validIndex = currentPositionIndex % positions.length
+    const current = positions[validIndex]
+    const next = positions[(validIndex + 1) % positions.length]
+
+    console.log('currentPositionIndex:', currentPositionIndex, 'validIndex:', validIndex)
+    console.log('current:', current, 'next:', next)
+
+    const lerp = (start, end, t) => start + (end - start) * t
+    const lat = lerp(current.latitude, next.latitude, segmentProgress)
+    const lng = lerp(current.longitude, next.longitude, segmentProgress)
+    return [lat, lng]
+  }, [currentPositionIndex, segmentProgress, positions])
 
   const handlePlayPause = () => setIsPlaying((prev) => !prev)
 
@@ -502,9 +549,9 @@ const HistoryMap = ({
           center={
             filteredData && positions && currentPositionIndex
               ? [
-                positions[currentPositionIndex]?.latitude,
-                positions[currentPositionIndex]?.longitude,
-              ]
+                  positions[currentPositionIndex]?.latitude,
+                  positions[currentPositionIndex]?.longitude,
+                ]
               : [21.1458, 79.0882]
           }
           zoom={zoomLevel}
@@ -526,7 +573,7 @@ const HistoryMap = ({
               isSatelliteView
                 ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
                 : // Satellite View
-                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
+                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
             }
             attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
           />
@@ -546,16 +593,18 @@ const HistoryMap = ({
               />
               {renderMarkers()}
               <DriftMarker
-                position={[
-                  positions[currentPositionIndex]?.latitude,
-                  positions[currentPositionIndex]?.longitude,
-                ]}
+                // position={[
+                //   positions[currentPositionIndex]?.latitude,
+                //   positions[currentPositionIndex]?.longitude,
+                // ]}
+                position={currentMarkerPosition}
                 duration={190}
                 keepAtCenter
                 icon={iconImage}
               >
                 <Popup>
-                  {`Vehicle at ${positions[currentPositionIndex]?.latitude}, ${positions[currentPositionIndex]?.longitude}`}
+                  {/* {`Vehicle at ${positions[currentPositionIndex]?.latitude}, ${positions[currentPositionIndex]?.longitude}`} */}
+                  {`Vehicle at ${currentMarkerPosition[0]}, ${currentMarkerPosition[1]}`}
                 </Popup>
               </DriftMarker>
             </>
@@ -712,24 +761,9 @@ const HistoryMap = ({
                         onChange={(e) => setSpeed(Number(e.target.value))}
                       >
                         <option value={2}>1x</option>
-                        <option value={3.2}>2x</option>
-                        <option value={4.2}>3x</option>
+                        <option value={4}>2x</option>
+                        <option value={6}>3x</option>
                       </select>
-                      <button className="zoom-toggle" onClick={() => setIsExpanded(!isExpanded)}>
-                        Zoom
-                      </button>
-                      {isExpanded && (
-                        <div className="zoom-slider">
-                          <input
-                            type="range"
-                            min="10"
-                            max="15"
-                            value={zoomLevel}
-                            onChange={(e) => handleZoomChange(Number(e.target.value))}
-                            className="slider"
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

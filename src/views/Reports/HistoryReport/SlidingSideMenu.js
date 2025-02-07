@@ -13,9 +13,8 @@ import { GiDuration } from 'react-icons/gi'
 import { IoLocationSharp } from 'react-icons/io5'
 import { BiSolidShow } from 'react-icons/bi'
 import { FaArrowRightLong } from 'react-icons/fa6'
-import { BiHide } from "react-icons/bi";
-import { IoMdCheckmarkCircle } from 'react-icons/io';
-
+import { BiHide } from 'react-icons/bi'
+import { IoMdCheckmarkCircle } from 'react-icons/io'
 
 dayjs.extend(duration)
 
@@ -26,7 +25,7 @@ const formatDuration = (milliseconds) => {
 }
 
 // #####################################################################///
-// This Shudesh Previous Code for stopages data calculation 
+// This Shudesh Previous Code for stopages data calculation
 
 // // Process and calculate additional data fields
 // const processStopData = (stopData) => {
@@ -73,9 +72,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const Δφ = toRadians(lat2 - lat1)
   const Δλ = toRadians(lon2 - lon1)
 
-  const a =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+  const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   return R * c // Distance in meters
@@ -100,12 +97,12 @@ const processStopData = (stopData) => {
 
     // Calculate distance from the previous stop in kilometers
     const distanceFromPrevious = previousStop
-      ? (calculateDistance(
-        stop.latitude,
-        stop.longitude,
-        previousStop.latitude,
-        previousStop.longitude
-      ) / 1000) // Convert meters to kilometers
+      ? calculateDistance(
+          stop.latitude,
+          stop.longitude,
+          previousStop.latitude,
+          previousStop.longitude,
+        ) / 1000 // Convert meters to kilometers
       : 0
 
     const obj = {
@@ -121,13 +118,12 @@ const processStopData = (stopData) => {
   })
 }
 
-
 // stopages data fetching function
 const fetchAddress = async (latitude, longitude) => {
   try {
     const apiKey = 'CWVeoDxzhkO07kO693u0'
     const response = await fetch(
-      `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
+      `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
     )
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`)
 
@@ -144,7 +140,6 @@ const fetchAddress = async (latitude, longitude) => {
     return 'Error fetching address'
   }
 }
-
 
 const addAddressesToData = async (data) => {
   const updatedData = await Promise.all(
@@ -217,24 +212,24 @@ const SlidingSideMenu = ({
   // Trip data fetching function
   const fetchAddress = async (vehicleId, longitude, latitude) => {
     try {
-      const apiKey = 'CWVeoDxzhkO07kO693u0'; // Replace with your MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your MapTiler API key
       const response = await axios.get(
         `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
-      );
+      )
       const address =
         response.data.features.length <= 5
           ? response.data.features[0]?.place_name_en || 'Address not available'
-          : response.data.features[1]?.place_name_en || 'Address not available';
-      return address;  // Make sure to return the address
+          : response.data.features[1]?.place_name_en || 'Address not available'
+      return address // Make sure to return the address
     } catch (error) {
-      console.error('Error fetching the address:', error);
-      return 'Error fetching address'; // Return a default message if error occurs
+      console.error('Error fetching the address:', error)
+      return 'Error fetching address' // Return a default message if error occurs
     }
-  };
+  }
 
   useEffect(() => {
     const fetchTripData = async () => {
-      setLoading(true);
+      setLoading(true)
       try {
         const enrichedData = await Promise.all(
           trips.map(async (trip) => {
@@ -243,34 +238,33 @@ const SlidingSideMenu = ({
                 trip.vehicleId,
                 trip.startLongitude,
                 trip.startLatitude,
-              );
+              )
               const endAddress = await fetchAddress(
                 trip.vehicleId,
                 trip.endLongitude,
                 trip.endLatitude,
-              );
+              )
 
               return {
                 ...trip,
-                startAddress,  // Assign the fetched address to trip
-                endAddress,    // Assign the fetched address to trip
+                startAddress, // Assign the fetched address to trip
+                endAddress, // Assign the fetched address to trip
                 duration: new Date(trip.endTime) - new Date(trip.startTime),
-              };
+              }
             } catch (error) {
-              console.error('Error fetching trip data:', error);
+              console.error('Error fetching trip data:', error)
             }
-          })
-        );
-        setTripData(enrichedData);
+          }),
+        )
+        setTripData(enrichedData)
       } catch (error) {
-        console.error('Error processing trip data:', error);
+        console.error('Error processing trip data:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchTripData();
-  }, [trips]);
-
+    }
+    fetchTripData()
+  }, [trips])
 
   const handleStopPage = () => {
     setStopPage(true)
@@ -334,7 +328,7 @@ const SlidingSideMenu = ({
           border: '2px solid gray',
         }}
       >
-        <Scrollbars style={{ width: '100%', height: '100%' }}>
+        <Scrollbars style={{ width: '100%', height: '100%', overflowX: 'hidden' }}>
           <div
             className="control-trips"
             style={{
@@ -408,10 +402,13 @@ const SlidingSideMenu = ({
                     <div className="summary-box">
                       <div className="label">Total Distance</div>
                       <div className="value">
-                        {(tripData?.reduce((total, trip) => {
-                          const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
-                          return distance > 0 ? total + distance : total;
-                        }, 0) || 0).toFixed(2)} km
+                        {(
+                          tripData?.reduce((total, trip) => {
+                            const distance = parseFloat(trip?.distance?.split(' ')[0] || 0)
+                            return distance > 0 ? total + distance : total
+                          }, 0) || 0
+                        ).toFixed(2)}{' '}
+                        km
                       </div>
                     </div>
 
@@ -429,7 +426,7 @@ const SlidingSideMenu = ({
 
                   {processedData.map((stop, index) => (
                     <div key={index} className="stop-card">
-                      <h4 className="stop-title"> {index + 1}  Stop Details</h4>
+                      <h4 className="stop-title"> {index + 1} Stop Details</h4>
                       <hr className="divider" />
 
                       <div className="stop-info">
@@ -438,7 +435,7 @@ const SlidingSideMenu = ({
                           <div>
                             <span className="info-label">Arrival</span>
                             <p className="info-value">
-                              {dayjs(stop?.arrivalTime).format("MMM D, YYYY • h:mm A")}
+                              {dayjs(stop?.arrivalTime).format('MMM D, YYYY • h:mm A')}
                             </p>
                           </div>
                         </div>
@@ -448,7 +445,7 @@ const SlidingSideMenu = ({
                           <div>
                             <span className="info-label">Departure</span>
                             <p className="info-value">
-                              {dayjs(stop?.departureTime).format("MMM D, YYYY • h:mm A")}
+                              {dayjs(stop?.departureTime).format('MMM D, YYYY • h:mm A')}
                             </p>
                           </div>
                         </div>
@@ -486,9 +483,11 @@ const SlidingSideMenu = ({
                           <div>
                             <span className="info-label">Location</span>
                             <p className="info-value">
-                              {stop?.address || "Loading address..."}
+                              {stop?.address || 'Loading address...'}
                               <br />
-                              <span className="location-sub">{stop?.city}, {stop?.state}, {stop?.country}</span>
+                              <span className="location-sub">
+                                {stop?.city}, {stop?.state}, {stop?.country}
+                              </span>
                             </p>
                           </div>
                         </div>
@@ -505,21 +504,23 @@ const SlidingSideMenu = ({
                   <div className="summary-box">
                     <div className="label">Total Trips</div>
                     <div className="value">
-                      {(tripData?.filter((trip) => {
-                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
-                        return distance > 1;
-                      }).length || 0)}
+                      {tripData?.filter((trip) => {
+                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0)
+                        return distance > 1
+                      }).length || 0}
                     </div>
                   </div>
-
 
                   <div className="summary-box">
                     <div className="label">Total Distance</div>
                     <div className="value">
-                      {(tripData?.reduce((total, trip) => {
-                        const distance = parseFloat(trip?.distance?.split(' ')[0] || 0);
-                        return distance > 0 ? total + distance : total;
-                      }, 0) || 0).toFixed(2)} km
+                      {(
+                        tripData?.reduce((total, trip) => {
+                          const distance = parseFloat(trip?.distance?.split(' ')[0] || 0)
+                          return distance > 0 ? total + distance : total
+                        }, 0) || 0
+                      ).toFixed(2)}{' '}
+                      km
                     </div>
                   </div>
 
@@ -534,7 +535,6 @@ const SlidingSideMenu = ({
                 </div>
 
                 <hr className="divider" />
-
 
                 {tripData
                   .filter((trip) => parseFloat(trip?.distance?.split(' ')[0]) > 1)
@@ -553,13 +553,27 @@ const SlidingSideMenu = ({
 
                         <div className="trip-details">
                           <div className="time-address">
-                            <div className="time">{dayjs(trip?.startTime).format('DD/MM/YYYY HH:mm:ss')}</div>
-                            <div className="address">{trip?.startAddress || 'Loading address...'}</div>
+                            <div className="time">
+                              {dayjs(trip?.startTime)
+                                .subtract(5, 'hour')
+                                .subtract(30, 'minute')
+                                .format('DD/MM/YYYY HH:mm:ss')}
+                            </div>
+                            <div className="address">
+                              {trip?.startAddress || 'Loading address...'}
+                            </div>
                           </div>
 
                           <div className="time-address">
-                            <div className="time">{dayjs(trip?.endTime).format('DD/MM/YYYY HH:mm:ss')}</div>
-                            <div className="address">{trip?.endAddress || 'Loading address...'}</div>
+                            <div className="time">
+                              {dayjs(trip?.endTime)
+                                .subtract(5, 'hour')
+                                .subtract(30, 'minute')
+                                .format('DD/MM/YYYY HH:mm:ss')}
+                            </div>
+                            <div className="address">
+                              {trip?.endAddress || 'Loading address...'}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -587,8 +601,8 @@ const SlidingSideMenu = ({
               </>
             )}
           </div>
-        </Scrollbars >
-      </div >
+        </Scrollbars>
+      </div>
     </>
   )
 }
