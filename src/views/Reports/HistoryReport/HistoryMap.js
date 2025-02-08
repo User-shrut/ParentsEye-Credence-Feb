@@ -105,15 +105,20 @@ const HistoryMap = ({
     { deviceId, from: fromDateTime, to: toDateTime },
     fetch,
   )
-  console.log('return data' + stopData)
+
   console.log(
-    'HISTORY PLAY BACK DATE######################################################################################',
-    fromDateTime,
+    'TRIP DATA ######################################################################',
+    tripData,
   )
-  console.log(
-    'HISTORY PLAY BACK DATE######################################################################################',
-    toDateTime,
-  )
+  // console.log('return data' + stopData)
+  // console.log(
+  //   'HISTORY PLAY BACK DATE######################################################################################',
+  //   fromDateTime,
+  // )
+  // console.log(
+  //   'HISTORY PLAY BACK DATE######################################################################################',
+  //   toDateTime,
+  // )
   const [positions, setPositions] = useState([])
   const [stopages, setStopages] = useState(stopData?.finalDeviceDataByStopage || [])
   const [showStopages, setShowStopages] = useState(true)
@@ -561,6 +566,7 @@ const HistoryMap = ({
           }
           zoom={zoomLevel}
           scrollWheelZoom={true}
+          dragging={true}
           style={{
             position: 'relative',
             height: '400px',
