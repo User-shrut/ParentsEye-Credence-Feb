@@ -403,6 +403,11 @@ const HistoryMap = ({
     return [lat, lng]
   }, [currentPositionIndex, segmentProgress, positions])
 
+  console.log(
+    'POSITIONS####################################################################',
+    currentMarkerPosition,
+  )
+
   const handlePlayPause = () => setIsPlaying((prev) => !prev)
 
   const handleForward = () =>
