@@ -106,6 +106,7 @@ const HistoryMap = ({
     fetch,
   )
 
+  console.log('PLAYBACK DATA######################################', data)
   console.log(
     'TRIP DATA ######################################################################',
     tripData,
@@ -136,6 +137,7 @@ const HistoryMap = ({
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [prevhoveredIndex, setPrevHoveredIndex] = useState(null)
   const [originalPositions, setOriginalPositions] = useState([])
+  const [filteredPositions, setFilteredPositions] = useState([])
 
   const mapRef = useRef()
   useEffect(() => {
@@ -234,24 +236,37 @@ const HistoryMap = ({
     return R * c // Distance in km
   }
 
+  console.log(data, 'BEFORE DEVICEHISTORY DATA#############################################')
+  // Filter data using useMemo for optimization
+  // const filteredData = useMemo(() => {
+  //   if (!data?.deviceHistory?.length) return []
+  //   return data.deviceHistory.reduce((acc, current, i) => {
+  //     if (
+  //       i === 0 ||
+  //       haversineDistance(
+  //         acc[acc.length - 1].latitude,
+  //         acc[acc.length - 1].longitude,
+  //         current.latitude,
+  //         current.longitude,
+  //       ) >= 0.5
+  //     ) {
+  //       acc.push(current)
+  //     }
+  //     return acc
+  //   }, [])
+  // }, [data])
+
+  const handleFilterData = (positions) => {
+    setFilteredPositions(positions)
+  }
+
   // Filter data using useMemo for optimization
   const filteredData = useMemo(() => {
     if (!data?.deviceHistory?.length) return []
-    return data.deviceHistory.reduce((acc, current, i) => {
-      if (
-        i === 0 ||
-        haversineDistance(
-          acc[acc.length - 1].latitude,
-          acc[acc.length - 1].longitude,
-          current.latitude,
-          current.longitude,
-        ) <= 0.5
-      ) {
-        acc.push(current)
-      }
-      return acc
-    }, [])
+    return data.deviceHistory
   }, [data])
+
+  console.log(filteredData, 'AFTER DEVICEHISTORY DATA#############################################')
 
   // Update positions when data changes
   useEffect(() => {
@@ -532,7 +547,6 @@ const HistoryMap = ({
   useEffect(() => {
     if (positions.length > 0) {
       let accumulatedDistance = 0
-
       // Loop through all the positions up to the current position index
       for (let i = 0; i <= currentPositionIndex; i++) {
         const currentPosition = positions[i]?.attributes?.distance
@@ -829,10 +843,12 @@ const HistoryMap = ({
             setIsPlaying={setIsPlaying}
             originalPositions={originalPositions}
             setPositions={setPositions}
+            positions={positions}
             trips={trips}
             setCurrentPositionIndex={setCurrentPositionIndex}
             toggleStopages={toggleStopages}
             showStopages={showStopages}
+            handleFilterData={handleFilterData}
           />
         </div>
       )}

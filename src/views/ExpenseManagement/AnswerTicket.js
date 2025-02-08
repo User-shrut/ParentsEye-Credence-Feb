@@ -34,6 +34,18 @@ import {
 import './index.css'
 import DateRangeFilter from '../../components/DateRangeFIlter/DateRangeFIlter'
 import { Pagination } from 'react-bootstrap'
+import { FaRegFilePdf, FaPrint } from 'react-icons/fa6'
+import { PiMicrosoftExcelLogo } from 'react-icons/pi'
+import { HiOutlineLogout } from 'react-icons/hi'
+import { FaArrowUp } from 'react-icons/fa'
+import toast, { Toaster } from 'react-hot-toast'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
+import IconDropdown from '../../components/ButtonDropdown'
+import { jwtDecode } from 'jwt-decode'
+
 function AnswerTicket() {
   const TICKET_TYPES = [
     'Vehicle Offline',
@@ -81,6 +93,10 @@ function AnswerTicket() {
     'updated',
     'description',
   ]
+  const accessToken = Cookies.get('authToken')
+
+  const decodedToken = jwtDecode(accessToken)
+
   useEffect(() => {
     // Calculate counts for each status
     const counts = {
@@ -268,8 +284,481 @@ function AnswerTicket() {
       ? sortedTickets
       : sortedTickets.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
 
+  const exportToPDF = () => {
+    try {
+      // Validate that there is data to export
+      if (!Array.isArray(sortedTickets) || sortedTickets.length === 0) {
+        throw new Error('No data available for PDF export')
+      }
+
+      // Configuration constants for colors, fonts, and layout
+      const CONFIG = {
+        colors: {
+          primary: [10, 45, 99], // Company primary blue
+          secondary: [70, 70, 70], // Secondary gray
+          accent: [0, 112, 201],
+          border: [220, 220, 220],
+          background: [249, 250, 251],
+        },
+        company: {
+          name: 'Credence Tracker',
+          logo: { x: 15, y: 15, size: 8 },
+        },
+        layout: {
+          margin: 15,
+          pagePadding: 15,
+          lineHeight: 6,
+        },
+        fonts: {
+          primary: 'helvetica',
+          secondary: 'courier',
+        },
+      }
+
+      // Initialize jsPDF (landscape A4)
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      })
+
+      // Helper functions to apply colors
+      const applyPrimaryColor = () => {
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.setTextColor(...CONFIG.colors.primary)
+      }
+
+      const applySecondaryColor = () => {
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
+
+      // Add header (company logo and name)
+      const addHeader = () => {
+        // Draw a filled rectangle as a placeholder for the logo
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        )
+        // Company name
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
+        // Draw header line
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
+
+      // Add metadata (customize as needed)
+      const addMetadata = () => {
+        const metadata = [
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+          // { label: 'Selected User:', value: selectedUserName || 'N/A' },
+          // { label: 'Group:', value: selectedGroupName || 'N/A' },
+          // {
+          //   label: 'Date Range:',
+          //   value:
+          //     selectedFromDate && selectedToDate
+          //       ? `${selectedFromDate} To ${selectedToDate}`
+          //       : `${getDateRangeFromPeriod(selectedPeriod)}`,
+          // },
+          { label: 'Ticket Type:', value: formData.ticketType || 'All' },
+        ]
+
+        doc.setFontSize(10)
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+
+        let yPosition = 45
+        const xPosition = 15
+        const lineHeight = CONFIG.layout.lineHeight
+
+        metadata.forEach((item) => {
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
+          yPosition += lineHeight
+        })
+      }
+
+      // Add footer with page numbers and copyright
+      const addFooter = () => {
+        const pageCount = doc.getNumberOfPages()
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i)
+
+          // Footer line
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          )
+
+          // Copyright text
+          doc.setFontSize(9)
+          applySecondaryColor()
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          )
+
+          // Page number
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          )
+        }
+      }
+
+      // Format date to match table display (e.g., dd/mm/yyyy, hh:mm)
+      const formatDate = (dateString) => {
+        if (!dateString) return '--'
+        const date = new Date(dateString)
+        return isNaN(date)
+          ? '--'
+          : date
+              .toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+              .replace(',', '')
+      }
+
+      // Begin creating the PDF document
+      addHeader()
+
+      // Title and generation date
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Tickets Report', CONFIG.layout.margin, 35)
+
+      const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+      const dateText = `Generated: ${currentDate}`
+      applySecondaryColor()
+      doc.setFontSize(10)
+      doc.text(
+        dateText,
+        doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
+        21,
+      )
+
+      addMetadata()
+
+      // Prepare table columns and rows to match your UI table
+      const tableColumns = [
+        'Ticket ID',
+        'Raised By',
+        'Vehicle No',
+        'Ticket Type',
+        'Status',
+        'Added',
+        'Updated',
+        'Description',
+      ]
+
+      const tableRows = sortedTickets.map((ticket) => [
+        ticket.ticketId,
+        ticket.raisedBy || 'N/A',
+        ticket.vehicleName || 'N/A',
+        ticket.ticketType,
+        ticket.status,
+        formatDate(ticket.createdAt),
+        formatDate(ticket.updatedAt),
+        ticket.description,
+      ])
+
+      // Generate the table using autoTable
+      doc.autoTable({
+        startY: 65,
+        head: [tableColumns],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'center',
+          lineColor: CONFIG.colors.border,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: CONFIG.colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: CONFIG.colors.background,
+        },
+        margin: { left: CONFIG.layout.margin, right: CONFIG.layout.margin },
+        didDrawPage: (data) => {
+          // Optionally, add a title on subsequent pages
+          if (doc.getCurrentPageInfo().pageNumber > 1) {
+            doc.setFontSize(15)
+            doc.setFont(CONFIG.fonts.primary, 'bold')
+            doc.text('Tickets Report', CONFIG.layout.margin, 10)
+          }
+        },
+      })
+
+      addFooter()
+
+      // Save the PDF file with a generated filename
+      const filename = `Tickets_Report_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(filename)
+      toast.success('PDF downloaded successfully')
+    } catch (error) {
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
+    }
+  }
+
+  // Function to export tickets table data to Excel
+  const exportToExcel = async () => {
+    try {
+      // Validate data before proceeding
+      if (!Array.isArray(sortedTickets) || sortedTickets.length === 0) {
+        throw new Error('No data available for Excel export')
+      }
+
+      // Configuration constants
+      const CONFIG = {
+        styles: {
+          primaryColor: 'FF0A2D63', // Company blue
+          secondaryColor: 'FF6C757D', // Gray for secondary headers
+          textColor: 'FFFFFFFF', // White text for headers
+          borderStyle: 'thin',
+          titleFont: { bold: true, size: 16 },
+          headerFont: { bold: true, size: 12 },
+          dataFont: { size: 11 },
+        },
+        // Define columns matching your table's headers
+        columns: [
+          { header: 'Ticket ID', width: 15 },
+          { header: 'Raised By', width: 20 },
+          { header: 'Vehicle No', width: 20 },
+          { header: 'Ticket Type', width: 20 },
+          { header: 'Status', width: 15 },
+          { header: 'Added', width: 25 },
+          { header: 'Updated', width: 25 },
+          { header: 'Description', width: 50 },
+        ],
+        company: {
+          name: 'Credence Tracker',
+          copyright: `© ${new Date().getFullYear()} Credence Tracker`,
+        },
+      }
+
+      // Helper function to format dates for Excel output
+      const formatExcelDate = (dateString) => {
+        if (!dateString) return '--'
+        const date = new Date(dateString)
+        return isNaN(date) ? '--' : date.toLocaleString('en-GB')
+      }
+
+      // Initialize workbook and worksheet using ExcelJS
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Tickets Report')
+
+      // Add title and metadata section
+      const addHeaderSection = () => {
+        // Company title row
+        const titleRow = worksheet.addRow([CONFIG.company.name])
+        titleRow.font = { ...CONFIG.styles.titleFont, color: { argb: 'FFFFFFFF' } }
+        titleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.primaryColor },
+        }
+        titleRow.alignment = { horizontal: 'center' }
+        // Merge cells from A1 to H1 (8 columns)
+        worksheet.mergeCells('A1:H1')
+
+        // Report title row
+        const subtitleRow = worksheet.addRow(['Tickets Report'])
+        subtitleRow.font = {
+          ...CONFIG.styles.titleFont,
+          size: 14,
+          color: { argb: CONFIG.styles.textColor },
+        }
+        subtitleRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: CONFIG.styles.secondaryColor },
+        }
+        subtitleRow.alignment = { horizontal: 'center' }
+        worksheet.mergeCells('A2:H2')
+
+        // Metadata rows (customize as needed)
+        worksheet.addRow([`Generated by: ${decodedToken.username || 'N/A'}`])
+        worksheet.addRow([
+          `Ticket Type: ${formData.ticketType || 'All'}`,
+          // `Date Range: ${
+          //   selectedFromDate && selectedToDate
+          //     ? `${selectedFromDate} - ${selectedToDate}`
+          //     : getDateRangeFromPeriod(selectedPeriod)
+          // }`,
+        ])
+        worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
+        worksheet.addRow([]) // Spacer row
+      }
+
+      // Add the data table with column headers and rows
+      const addDataTable = () => {
+        // Add column headers row
+        const headerRow = worksheet.addRow(CONFIG.columns.map((c) => c.header))
+        headerRow.eachCell((cell) => {
+          cell.font = { ...CONFIG.styles.headerFont, color: { argb: CONFIG.styles.textColor } }
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: CONFIG.styles.primaryColor },
+          }
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
+          cell.border = {
+            top: { style: CONFIG.styles.borderStyle },
+            bottom: { style: CONFIG.styles.borderStyle },
+            left: { style: CONFIG.styles.borderStyle },
+            right: { style: CONFIG.styles.borderStyle },
+          }
+        })
+
+        // Add data rows from sortedTickets
+        sortedTickets.forEach((ticket) => {
+          const rowData = [
+            ticket.ticketId,
+            ticket.raisedBy || 'N/A',
+            ticket.vehicleName || 'N/A',
+            ticket.ticketType,
+            ticket.status,
+            formatExcelDate(ticket.createdAt),
+            formatExcelDate(ticket.updatedAt),
+            ticket.description,
+          ]
+
+          const dataRow = worksheet.addRow(rowData)
+          dataRow.eachCell((cell) => {
+            cell.font = CONFIG.styles.dataFont
+            cell.border = {
+              top: { style: CONFIG.styles.borderStyle },
+              bottom: { style: CONFIG.styles.borderStyle },
+              left: { style: CONFIG.styles.borderStyle },
+              right: { style: CONFIG.styles.borderStyle },
+            }
+          })
+        })
+
+        // Set the column widths from the configuration
+        worksheet.columns = CONFIG.columns.map((col) => ({
+          width: col.width,
+          style: { alignment: { horizontal: 'left' } },
+        }))
+      }
+
+      // Add footer with copyright information
+      const addFooter = () => {
+        worksheet.addRow([]) // Spacer row
+        const footerRow = worksheet.addRow([CONFIG.company.copyright])
+        footerRow.font = { italic: true }
+        worksheet.mergeCells(`A${footerRow.number}:H${footerRow.number}`)
+      }
+
+      // Build the Excel document by calling the helper functions
+      addHeaderSection()
+      addDataTable()
+      addFooter()
+
+      // Generate the workbook as a buffer and create a Blob for download
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const filename = `Tickets_Report_${new Date().toISOString().split('T')[0]}.xlsx`
+      saveAs(blob, filename)
+      toast.success('Excel file downloaded successfully')
+    } catch (error) {
+      console.error('Excel Export Error:', error)
+      toast.error(error.message || 'Failed to export Excel file')
+    }
+  }
+
+  const handleLogout = () => {
+    Cookies.remove('authToken')
+    window.location.href = '/login'
+  }
+
+  const handlePageUp = () => {
+    window.scrollTo({
+      top: 0, // Scroll up by one viewport height
+      behavior: 'smooth', // Smooth scrolling effect
+    })
+  }
+
+  const handlePrintPage = () => {
+    // Add the landscape style to the page temporarily
+    const style = document.createElement('style')
+    style.innerHTML = `
+          @page {
+            size: landscape;
+          }
+        `
+    document.head.appendChild(style)
+
+    // Zoom out for full content
+    document.body.style.zoom = '50%'
+
+    // Print the page
+    window.print()
+
+    // Remove the landscape style and reset zoom after printing
+    document.head.removeChild(style)
+    document.body.style.zoom = '100%'
+  }
+
+  const dropdownItems = [
+    {
+      icon: FaRegFilePdf,
+      label: 'Download PDF',
+      onClick: () => exportToPDF(),
+    },
+    {
+      icon: PiMicrosoftExcelLogo,
+      label: 'Download Excel',
+      onClick: () => exportToExcel(),
+    },
+    {
+      icon: FaPrint,
+      label: 'Print Page',
+      onClick: () => handlePrintPage(),
+    },
+    {
+      icon: HiOutlineLogout,
+      label: 'Logout',
+      onClick: () => handleLogout(),
+    },
+    {
+      icon: FaArrowUp,
+      label: 'Scroll To Top',
+      onClick: () => handlePageUp(),
+    },
+  ]
+
   return (
     <div className="min-h-screen">
+      <Toaster />
       <div className="px-3 mt-2">
         {/* Button Filters */}
         <div className="d-flex justify-content-between mb-3">
@@ -562,6 +1051,9 @@ function AnswerTicket() {
           </CForm>
         </CModalBody>
       </CModal>
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
+        <IconDropdown items={dropdownItems} />
+      </div>
     </div>
   )
 }

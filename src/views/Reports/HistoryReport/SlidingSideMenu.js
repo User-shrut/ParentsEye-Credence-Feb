@@ -161,6 +161,7 @@ const SlidingSideMenu = ({
   setCurrentPositionIndex,
   toggleStopages,
   showStopages,
+  handleFilterData,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [processedData, setProcessedData] = useState([])
@@ -203,6 +204,8 @@ const SlidingSideMenu = ({
       const tripEndTime = new Date(trip.endTime).getTime()
       return posTime >= tripStartTime && posTime <= tripEndTime
     })
+
+    handleFilterData(filteredPositions)
 
     console.log('filteredPositions ', filteredPositions)
     setPositions(filteredPositions)
