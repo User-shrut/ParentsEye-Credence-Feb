@@ -37,6 +37,7 @@ import ignitionOn from 'src/status/power-on.png'
 import Loader from '../../../components/Loader/Loader'
 import '../style/remove-gutter.css'
 import '../../../utils.css'
+import idels from 'src/status/idel.png'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import IconDropdown from '../../../components/ButtonDropdown'
@@ -187,9 +188,9 @@ const SearchIdeal = ({
           value={
             formData.Devices
               ? {
-                  value: formData.Devices,
-                  label: devices.find((device) => device.deviceId === formData.Devices)?.name,
-                }
+                value: formData.Devices,
+                label: devices.find((device) => device.deviceId === formData.Devices)?.name,
+              }
               : null
           }
           onChange={(selectedOption) => handleInputChange('Devices', selectedOption?.value)}
@@ -598,10 +599,9 @@ const ShowIdeal = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${
-            selectedFromDate && selectedToDate
-              ? `${selectedFromDate} - ${selectedToDate}`
-              : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${selectedFromDate && selectedToDate
+            ? `${selectedFromDate} - ${selectedToDate}`
+            : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -1069,6 +1069,9 @@ const ShowIdeal = ({
             <CTableHeaderCell style={{ backgroundColor: '#0a2d63', color: 'white' }}>
               Vehicle Name
             </CTableHeaderCell>
+            <CTableHeaderCell style={{ backgroundColor: '#0a2d63', color: 'white' }}>
+              Vehicle Status
+            </CTableHeaderCell>
             {selectedColumns.map((column, index) => (
               <CTableHeaderCell
                 key={index}
@@ -1094,6 +1097,16 @@ const ShowIdeal = ({
               <CTableRow key={`${item.deviceId}-${index}`} className="custom-row">
                 <CTableDataCell>{index + 1}</CTableDataCell> {/* Serial Number */}
                 <CTableDataCell>{item.vehicleName || '--'}</CTableDataCell> {/* Vehicle Name */}
+
+                <CTableDataCell style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <img
+                    src={idels}
+                    alt="Vehicle Status"
+                    title='Idel'
+                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                  />
+                </CTableDataCell>
+
                 {selectedColumns.map((column, colIndex) => (
                   <CTableDataCell key={colIndex}>
                     {(() => {
@@ -1101,17 +1114,17 @@ const ShowIdeal = ({
                         case 'Start Time':
                           return item.idleStartTime
                             ? new Date(item.idleStartTime).toLocaleString('en-GB', {
-                                timeZone: 'UTC',
-                                hour12: false,
-                              })
+                              timeZone: 'UTC',
+                              hour12: false,
+                            })
                             : '--'
 
                         case 'End Time':
                           return item.idleEndTime
                             ? new Date(item.idleEndTime).toLocaleString('en-GB', {
-                                timeZone: 'UTC',
-                                hour12: false,
-                              })
+                              timeZone: 'UTC',
+                              hour12: false,
+                            })
                             : '--'
 
                         case 'Duration':
@@ -1308,8 +1321,8 @@ const Ideal = () => {
     const fromDate = formData.FromDate ? new Date(formData.FromDate).toISOString() : ''
     const toDate = formData.ToDate
       ? new Date(
-          new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
-        ).toISOString()
+        new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+      ).toISOString()
       : ''
 
     const body = {
