@@ -1,0 +1,84 @@
+.button-all-filter {
+    background-color: white !important;
+    color: #0dcaf0 !important;
+    border: solid 2px #0dcaf0 !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+    height: 35px !important;
+}
+
+.button-all-filter:hover,
+.button-all-filter.active {
+    background-color: #0dcaf0 !important;
+    color: white !important;
+    border: solid 2px #0dcaf0 !important;
+}
+
+.button-pending-filter {
+    background-color: white !important;
+    color: #dc3545 !important;
+    border: solid 2px #dc3545 !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+    height: 35px !important;
+}
+
+.button-pending-filter:hover,
+.button-pending-filter.active {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: solid 2px #dc3545 !important;
+}
+
+.button-answered-filter {
+    background-color: white !important;
+    color: #ffc107 !important;
+    border: solid 2px #ffc107 !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+    height: 35px !important;
+}
+
+.button-answered-filter:hover,
+.button-answered-filter.active {
+    background-color: #ffc107 !important;
+    color: white !important;
+    border: solid 2px #ffc107 !important;
+}
+
+.button-closed-filter {
+    background-color: white !important;
+    color: #198754 !important;
+    border: solid 2px #198754 !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+    height: 35px !important;
+}
+
+.button-closed-filter:hover,
+.button-closed-filter.active {
+    background-color: #198754 !important;
+    color: white !important;
+    border: solid 2px #198754 !important;
+}
+
+.back-hover:hover {
+    color: #0a2d63 !important;
+    transition: background-color ease !important;
+    text-decoration: underline !important;
+}
+
+.add {
+    background-color: #0a2d63 !important;
+    color: white !important;
+}
+
+.add:hover {
+    background-color: #020d1c !important;
+    color: white !important;
+}
+
+.goBack {
+    font-weight: 60 !important;
+}
+
+.goBack:hover {
+    color: #0a2d63 !important;
+    text-decoration: underline !important;
+}

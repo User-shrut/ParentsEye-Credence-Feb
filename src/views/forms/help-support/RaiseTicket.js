@@ -31,7 +31,8 @@ import {
   CFormTextarea,
   CButton,
 } from '@coreui/react'
-import './index.css'
+// import './index.css'
+import './raise.css'
 import DateRangeFilter from '../../../components/DateRangeFIlter/DateRangeFIlter'
 import { Pagination } from 'react-bootstrap'
 import { jwtDecode } from 'jwt-decode'
@@ -214,8 +215,8 @@ function Contact() {
     // Search term filter
     const matchesSearchTerm = searchTerm
       ? ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.ticketType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
+      ticket.ticketType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
       : true
 
     // Date range filter
@@ -570,14 +571,14 @@ function Contact() {
         return isNaN(date)
           ? '--'
           : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
       }
 
       // Begin PDF creation
@@ -738,12 +739,12 @@ function Contact() {
       <Toaster />
 
       {/* Header */}
-      {/* <div
-        className="shadow d-flex align-items-center ps-3 mb-3 text-white"
-        style={{ backgroundColor: '#0a2d63', height: '50px' }}
+      <div
+        className="shadow d-flex align-items-center ps-3 mb-3 "
+        style={{ height: '50px' }}
       >
         <h5 className="m-0">Raise Ticket</h5>
-      </div> */}
+      </div>
 
       <div className="px-3 mt-3">
         {/* Button Filters */}
@@ -752,9 +753,8 @@ function Contact() {
             {['all', 'pending', 'answered', 'closed'].map((type) => (
               <button
                 key={type}
-                className={`btn button-${type}-filter fw-bold ${
-                  activeButton === type ? 'active' : ''
-                }`}
+                className={`btn button-${type}-filter fw-bold ${activeButton === type ? 'active' : ''
+                  }`}
                 onClick={() => handleButtonClick(type)}
                 style={{ fontSize: '14px' }}
               >
@@ -884,15 +884,14 @@ function Contact() {
                           <CTableDataCell>{ticket.ticketType}</CTableDataCell>
                           <CTableDataCell>
                             <span
-                              className={`badge ${
-                                ticket.status === 'pending'
-                                  ? 'bg-danger'
-                                  : ticket.status === 'answered'
-                                    ? 'bg-warning'
-                                    : ticket.status === 'closed'
-                                      ? 'bg-success'
-                                      : 'bg-info'
-                              }`}
+                              className={`badge ${ticket.status === 'pending'
+                                ? 'bg-danger'
+                                : ticket.status === 'answered'
+                                  ? 'bg-warning'
+                                  : ticket.status === 'closed'
+                                    ? 'bg-success'
+                                    : 'bg-info'
+                                }`}
                             >
                               {ticket.status}
                             </span>

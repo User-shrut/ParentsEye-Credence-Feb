@@ -212,8 +212,8 @@ function AnswerTicket() {
     // Search term filter
     const matchesSearchTerm = searchTerm
       ? ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.ticketType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
+      ticket.ticketType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
       : true
 
     // Date range filter
@@ -425,14 +425,14 @@ function AnswerTicket() {
         return isNaN(date)
           ? '--'
           : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
       }
 
       // Begin creating the PDF document
@@ -759,6 +759,16 @@ function AnswerTicket() {
   return (
     <div className="min-h-screen">
       <Toaster />
+
+      {/* Header */}
+      <div
+        className="shadow d-flex align-items-center ps-3 mb-3 "
+        style={{ height: '50px' }}
+      >
+        <h5 className="m-0">Answered Ticket</h5>
+      </div>
+
+
       <div className="px-3 mt-2">
         {/* Button Filters */}
         <div className="d-flex justify-content-between mb-3">
@@ -766,9 +776,8 @@ function AnswerTicket() {
             {['all', 'pending', 'answered', 'closed'].map((type) => (
               <button
                 key={type}
-                className={`btn button-${type}-filter fw-bold ${
-                  activeButton === type ? 'active' : ''
-                }`}
+                className={`btn button-${type}-filter fw-bold ${activeButton === type ? 'active' : ''
+                  }`}
                 onClick={() => handleButtonClick(type)}
                 style={{ fontSize: '14px' }}
               >
@@ -882,15 +891,14 @@ function AnswerTicket() {
                           <CTableDataCell>{ticket.ticketType}</CTableDataCell>
                           <CTableDataCell>
                             <span
-                              className={`badge ${
-                                ticket.status === 'pending'
+                              className={`badge ${ticket.status === 'pending'
                                   ? 'bg-danger'
                                   : ticket.status === 'answered'
                                     ? 'bg-warning'
                                     : ticket.status === 'closed'
                                       ? 'bg-success'
                                       : 'bg-info'
-                              }`}
+                                }`}
                             >
                               {ticket.status}
                             </span>

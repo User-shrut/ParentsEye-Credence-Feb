@@ -491,54 +491,62 @@ const ShowSummary = ({
       return utcDate;
     };
 
+    const convertToIST1 = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours());
+      utcDate.setMinutes(utcDate.getMinutes());
+      return utcDate;
+    };
+
+
     switch (selectedPeriod) {
       case 'Today':
         fromDate = new Date();
         fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date();
         toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'Yesterday':
         fromDate = new Date();
         fromDate.setDate(today.getDate() - 1); // Move to yesterday
         fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(fromDate);
         toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'This Week':
         fromDate = new Date(today);
         const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
         const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
         fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(); // Ends at today's date
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'Previous Week':
         fromDate = new Date(today);
         const prevWeekDayOfWeek = today.getDay();
         const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
         fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(fromDate);
         toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'This Month':
         fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date();
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'Previous Month':
         fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       default:
         return 'N/A';
@@ -564,11 +572,18 @@ const ShowSummary = ({
       return utcDate;
     };
 
+    const convertToIST1 = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours());
+      utcDate.setMinutes(utcDate.getMinutes());
+      return utcDate;
+    };
+
     switch (selectedPeriod) {
       case 'Today':
         fromDate = new Date();
         fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date();
         toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
         toDate = convertToIST(toDate); // Convert to IST
@@ -577,41 +592,41 @@ const ShowSummary = ({
         fromDate = new Date();
         fromDate.setDate(today.getDate() - 1); // Move to yesterday
         fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(fromDate);
         toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'This Week':
         fromDate = new Date(today);
         const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
         const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
         fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(); // Ends at today's date
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'Previous Week':
         fromDate = new Date(today);
         const prevWeekDayOfWeek = today.getDay();
         const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
         fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(fromDate);
         toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'This Month':
         fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date();
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       case 'Previous Month':
         fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate = convertToIST(fromDate); // Convert to IST
+        fromDate = convertToIST1(fromDate); // Convert to IST
         toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate = convertToIST(toDate); // Convert to IST
+        toDate = convertToIST1(toDate); // Convert to IST
         break;
       default:
         return 'N/A';
@@ -1391,16 +1406,14 @@ const ShowSummary = ({
                       <CTableDataCell className="text-center">{index + 1}</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.name}</CTableDataCell>
                       <CTableDataCell className="text-center">
-                        {vehicle.startLat}
-                        {vehicle.startLong}
+                        {`${vehicle.startLat} ${vehicle.startLong}`}
                       </CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.distance} KM</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.running}</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.idle}</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.stop}</CTableDataCell>
                       <CTableDataCell className="text-center">
-                        {vehicle.endLat}
-                        {vehicle.endLong}
+                        {`${vehicle.endLat} ${vehicle.endLog}`}
                       </CTableDataCell>
                       <CTableDataCell className="text-center">
                         {(vehicle.maxSpeed !== null && vehicle.maxSpeed !== undefined) ? vehicle.maxSpeed.toFixed(2) : 'N/A'} km/h
@@ -1562,8 +1575,7 @@ const ShowSummary = ({
                                       </CTableDataCell>
                                       {/**Start Locations */}
                                       <CTableDataCell className="text-center">
-                                        {(trip.startLatitude !== null && trip.startLatitude !== undefined) ? trip.startLatitude.toFixed(2) : 'N/A'}
-                                        {(trip.startLongitude !== null && trip.startLongitude !== undefined) ? trip.startLongitude.toFixed(2) : 'N/A'}
+                                        {`${trip.startLatitude}, ${trip.startLongitude}`}
                                       </CTableDataCell>
                                       {/**Distance */}
                                       <CTableDataCell className="text-center">
@@ -1595,8 +1607,7 @@ const ShowSummary = ({
                                       </CTableDataCell>
                                       {/**End Location */}
                                       <CTableDataCell className="text-center">
-                                        {trip.endLatitude}
-                                        {trip.endLongitude}
+                                        {`${trip.endLatitude}, ${trip.endLongitude}`}
                                       </CTableDataCell>
                                       {/**Ignition Stop */}
                                       <CTableDataCell className="text-center">
@@ -1750,58 +1761,87 @@ const TravelReport = () => {
       return utcDate;
     };
 
+    // Helper function to convert UTC to IST
+    const convertToIST1 = (date) => {
+      const utcDate = new Date(date);
+      utcDate.setHours(utcDate.getHours()); // Convert UTC to IST
+      utcDate.setMinutes(utcDate.getMinutes());
+      return utcDate;
+    };
+
     switch (selectedPeriod) {
       case 'Today':
         fromDate = new Date(today);
-        fromDate.setHours(0, 0, 0, 0); // Start of today (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        fromDate.setHours(0, 1, 1, 0); // Start at 00:01:01
+        fromDate = convertToIST1(fromDate);
+
         toDate = new Date(today);
-        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        toDate.setHours(23, 59, 0, 0); // End at 23:59:00
+        toDate = convertToIST1(toDate);
         break;
+
       case 'Yesterday':
         fromDate = new Date(today);
-        fromDate.setDate(today.getDate() - 1); // Move to yesterday
-        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        fromDate.setDate(today.getDate() - 1);
+        fromDate.setHours(0, 1, 1, 0);
+        fromDate = convertToIST1(fromDate);
+
         toDate = new Date(fromDate);
-        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        toDate.setHours(23, 59, 0, 0);
+        toDate = convertToIST1(toDate);
         break;
+
       case 'This Week':
         fromDate = new Date(today);
-        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
-        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
-        toDate = new Date(); // Ends at today's date
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        const dayOfWeek = today.getDay();
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        fromDate.setDate(today.getDate() - daysSinceMonday);
+        fromDate.setHours(0, 1, 1, 0);
+        fromDate = convertToIST1(fromDate);
+
+        toDate = new Date();
+        toDate.setHours(23, 59, 0, 0);
+        toDate = convertToIST1(toDate);
         break;
+
       case 'Previous Week':
         fromDate = new Date(today);
         const prevWeekDayOfWeek = today.getDay();
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek;
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6);
+        fromDate.setHours(0, 1, 1, 0);
+        fromDate = convertToIST1(fromDate);
+
         toDate = new Date(fromDate);
-        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        toDate.setDate(fromDate.getDate() + 6);
+        toDate.setHours(23, 59, 0, 0);
+        toDate = convertToIST1(toDate);
         break;
+
       case 'This Month':
         fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        fromDate.setHours(0, 1, 1, 0);
+        fromDate = convertToIST1(fromDate);
+
         toDate = new Date();
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        toDate.setHours(23, 59, 0, 0);
+        toDate = convertToIST1(toDate);
         break;
+
       case 'Previous Month':
         fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate = convertToIST(fromDate); // Convert UTC to IST
+        fromDate.setHours(0, 1, 1, 0);
+        fromDate = convertToIST1(fromDate);
+
         toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate = convertToIST(toDate); // Convert UTC to IST
+        toDate.setHours(23, 59, 0, 0);
+        toDate = convertToIST1(toDate);
         break;
+
       default:
         return 'N/A';
     }
+
 
     // Convert dates to UTC format (YYYY-MM-DDTHH:mm:ss.sssZ)
     // const toUTCString = (date) => date.toISOString();

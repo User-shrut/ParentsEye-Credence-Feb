@@ -373,7 +373,7 @@ const _nav = (role, decodedToken) => {
             },
             {
               component: CNavItem,
-              name: 'Answer Ticket',
+              name: 'Answered Ticket',
               to: '/answer-ticket',
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
