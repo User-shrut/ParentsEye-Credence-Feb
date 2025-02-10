@@ -98,11 +98,11 @@ const processStopData = (stopData) => {
     // Calculate distance from the previous stop in kilometers
     const distanceFromPrevious = previousStop
       ? calculateDistance(
-          stop.latitude,
-          stop.longitude,
-          previousStop.latitude,
-          previousStop.longitude,
-        ) / 1000 // Convert meters to kilometers
+        stop.latitude,
+        stop.longitude,
+        previousStop.latitude,
+        previousStop.longitude,
+      ) / 1000 // Convert meters to kilometers
       : 0
 
     const obj = {
@@ -333,7 +333,7 @@ const SlidingSideMenu = ({
       >
         <Scrollbars style={{ width: '100%', height: '100%', overflowX: 'hidden' }}>
           <div
-            className="control-trips"
+            className="control-trips table-responsive"
             style={{
               padding: '10px 20px',
               fontSize: '18px',
@@ -393,7 +393,7 @@ const SlidingSideMenu = ({
           <div style={{ padding: '8px', marginRight: '10px', zIndex: 9999 }}>
             {stopPage ? (
               <>
-                <div>
+                <div className='table-responsive'>
                   {/* <hr className="divider" /> */}
 
                   <div className="summary-header">
@@ -503,7 +503,7 @@ const SlidingSideMenu = ({
               <>
                 {/* <hr className="divider" /> */}
 
-                <div className="summary-header">
+                <div className="summary-header table-responsive">
                   <div className="summary-box">
                     <div className="label">Total Trips</div>
                     <div className="value">
