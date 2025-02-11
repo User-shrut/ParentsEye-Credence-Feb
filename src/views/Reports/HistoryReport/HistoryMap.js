@@ -303,66 +303,72 @@ const HistoryMap = ({
   const speedData = positions?.map((pos) => pos.speed) || []
   const labels = positions?.map((_, index) => index) || []
 
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: 'Speed',
-        data: speedData,
-        borderColor: 'rgba(31, 116, 38, 0.5)',
-        backgroundColor: 'rgba(95, 237, 51, 0.5)',
-        cubicInterpolationMode: 'monotone',
-        tension: 0.4, // Smooth curve
-        pointRadius: 0, // Hide points
-        pointHoverRadius: 8, // Show points on hover
-        borderWidth: 2,
-      },
-    ],
-  }
+  const ChartData = useMemo(
+    () => ({
+      labels: positions.map((_, index) => index),
+      datasets: [
+        {
+          label: 'Speed',
+          data: positions.map((pos) => pos.speed.toFixed(2)),
+          borderColor: 'rgba(31, 116, 38, 0.5)',
+          backgroundColor: 'rgba(95, 237, 51, 0.5)',
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 8,
+          borderWidth: 2,
+        },
+      ],
+    }),
+    [positions],
+  )
 
-  const chartOptions = {
-    maintainAspectRatio: false,
-    responsive: true,
-    scales: {
-      x: {
-        title: { display: true, text: 'Position Index' },
-        grid: { display: false },
+  const ChartOptions = useMemo(
+    () => ({
+      maintainAspectRatio: false,
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Position Index' },
+          grid: { display: false },
+        },
+        y: {
+          title: { display: true, text: 'Speed (km/h)' },
+          grid: { drawBorder: false },
+        },
       },
-      y: {
-        title: { display: true, text: 'Speed (km/h)' },
-        grid: { drawBorder: false },
+      plugins: {
+        tooltip: {
+          enabled: true,
+          intersect: false,
+          mode: 'index',
+          callbacks: {
+            label: (tooltipItem) => `Speed: ${tooltipItem.raw} km/h`,
+          },
+        },
+        crosshair: {
+          line: {
+            color: 'rgba(0, 0, 0, 0.5)',
+            width: 1,
+          },
+        },
       },
-    },
-    plugins: {
-      tooltip: {
-        enabled: true,
-        intersect: false,
+      hover: {
         mode: 'index',
-        callbacks: {
-          label: (tooltipItem) => `Speed: ${tooltipItem.raw} km/h`,
-        },
+        intersect: false,
       },
-      crosshair: {
-        line: {
-          color: 'rgba(0, 0, 0, 0.5)', // Vertical line color
-          width: 1, // Vertical line width
-        },
+      onHover: (event, chartElement) => {
+        if (chartElement.length) {
+          const index = chartElement[0].index
+          setPrevHoveredIndex(currentPositionIndex)
+          handleGraphHover(index)
+        } else {
+          handleGraphLeave()
+        }
       },
-    },
-    hover: {
-      mode: 'index',
-      intersect: false,
-    },
-    onHover: (event, chartElement) => {
-      if (chartElement.length) {
-        const index = chartElement[0].index
-        setPrevHoveredIndex(currentPositionIndex)
-        handleGraphHover(index)
-      } else {
-        handleGraphLeave()
-      }
-    },
-  }
+    }),
+    [positions, currentPositionIndex],
+  )
 
   // console.log(poly)
 
@@ -723,7 +729,7 @@ const HistoryMap = ({
               </Marker>
             ))}
         </MapContainer>
-        {historyOn && chartData && chartOptions && (
+        {historyOn && positions.length > 0 && (
           <>
             <div className="infoNav" style={{ height: '60px', width: '100%' }}>
               <div className="info-img">
@@ -827,7 +833,7 @@ const HistoryMap = ({
             </div>
 
             <div style={{ height: '140px', width: '100%' }}>
-              <Line data={chartData} options={chartOptions} />
+              <Line key={positions.length} data={ChartData} options={ChartOptions} />
             </div>
           </>
         )}
