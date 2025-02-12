@@ -328,9 +328,9 @@ const ShowSummary = ({
   }
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return '--';
+    if (!dateString) return '--'
 
-    const date = new Date(dateString);
+    const date = new Date(dateString)
 
     return isNaN(date)
       ? '--'
@@ -341,10 +341,9 @@ const ShowSummary = ({
         hour: '2-digit',
         minute: '2-digit',
         hour12: false, // 24-hour format
-        timeZone: 'UTC' // Adjust based on your requirement
-      });
-  };
-
+        timeZone: 'UTC', // Adjust based on your requirement
+      })
+  }
 
   // Transform apiData to match reportData structure
   const reportData =
@@ -472,166 +471,169 @@ const ShowSummary = ({
 
   // Function to get date range based on selectedPeriod
   const getDateRangeFromPeriod = (selectedPeriod) => {
-    const today = new Date();
-    let fromDate, toDate;
+    const today = new Date()
+    let fromDate, toDate
 
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
-      return utcDate;
-    };
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours() - 5) // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30) // Add 30 minutes for IST
+      return utcDate
+    }
 
     const convertToIST1 = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours());
-      utcDate.setMinutes(utcDate.getMinutes());
-      return utcDate;
-    };
-
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours())
+      utcDate.setMinutes(utcDate.getMinutes())
+      return utcDate
+    }
 
     switch (selectedPeriod) {
       case 'Today':
-        fromDate = new Date();
-        fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date();
-        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date()
+        fromDate.setHours(0, 1, 1, 1) // Start of today (midnight UTC)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date()
+        toDate.setHours(23, 59, 59, 999) // End of today (just before midnight UTC)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'Yesterday':
-        fromDate = new Date();
-        fromDate.setDate(today.getDate() - 1); // Move to yesterday
-        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(fromDate);
-        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date()
+        fromDate.setDate(today.getDate() - 1) // Move to yesterday
+        fromDate.setHours(0, 0, 0, 0) // Start of yesterday (midnight UTC)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(fromDate)
+        toDate.setHours(23, 59, 59, 999) // End of yesterday (just before midnight UTC)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'This Week':
-        fromDate = new Date(today);
-        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
-        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(); // Ends at today's date
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today)
+        const dayOfWeek = today.getDay() // 0 (Sunday) to 6 (Saturday)
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Convert Sunday to previous Monday
+        fromDate.setDate(today.getDate() - daysSinceMonday) // Start from Monday of this week
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date() // Ends at today's date
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'Previous Week':
-        fromDate = new Date(today);
-        const prevWeekDayOfWeek = today.getDay();
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(fromDate);
-        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today)
+        const prevWeekDayOfWeek = today.getDay()
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek // Ensure previous Monday calculation
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6) // Start of previous week (Monday)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(fromDate)
+        toDate.setDate(fromDate.getDate() + 6) // End of previous week (Sunday)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'This Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date();
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date()
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'Previous Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       default:
-        return 'N/A';
+        return 'N/A'
     }
 
     // Convert dates to ISO string format (YYYY-MM-DDTHH:mm:ss.sssZ)
-    const formattedFromDate = fromDate.toISOString();
-    const formattedToDate = toDate.toISOString();
+    const formattedFromDate = fromDate.toISOString()
+    const formattedToDate = toDate.toISOString()
 
-    return `from: ${formattedFromDate} to: ${formattedToDate}`;
+    return `from: ${formattedFromDate} to: ${formattedToDate}`
   }
-
 
   const getDateRangeFromPeriods = (selectedPeriod) => {
-    const today = new Date();
-    let fromDate, toDate;
+    const today = new Date()
+    let fromDate, toDate
 
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
-      return utcDate;
-    };
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours() - 5) // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30) // Add 30 minutes for IST
+      return utcDate
+    }
 
     const convertToIST1 = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours());
-      utcDate.setMinutes(utcDate.getMinutes());
-      return utcDate;
-    };
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours())
+      utcDate.setMinutes(utcDate.getMinutes())
+      return utcDate
+    }
 
     switch (selectedPeriod) {
       case 'Today':
-        fromDate = new Date();
-        fromDate.setHours(0, 1, 1, 1); // Start of today (midnight UTC)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date();
-        toDate.setHours(23, 59, 59, 999); // End of today (just before midnight UTC)
-        toDate = convertToIST(toDate); // Convert to IST
-        break;
+        fromDate = new Date()
+        fromDate.setHours(0, 1, 1, 1) // Start of today (midnight UTC)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date()
+        toDate.setHours(23, 59, 59, 999) // End of today (just before midnight UTC)
+        toDate = convertToIST(toDate) // Convert to IST
+        break
       case 'Yesterday':
-        fromDate = new Date();
-        fromDate.setDate(today.getDate() - 1); // Move to yesterday
-        fromDate.setHours(0, 0, 0, 0); // Start of yesterday (midnight UTC)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(fromDate);
-        toDate.setHours(23, 59, 59, 999); // End of yesterday (just before midnight UTC)
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date()
+        fromDate.setDate(today.getDate() - 1) // Move to yesterday
+        fromDate.setHours(0, 0, 0, 0) // Start of yesterday (midnight UTC)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(fromDate)
+        toDate.setHours(23, 59, 59, 999) // End of yesterday (just before midnight UTC)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'This Week':
-        fromDate = new Date(today);
-        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday to previous Monday
-        fromDate.setDate(today.getDate() - daysSinceMonday); // Start from Monday of this week
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(); // Ends at today's date
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today)
+        const dayOfWeek = today.getDay() // 0 (Sunday) to 6 (Saturday)
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Convert Sunday to previous Monday
+        fromDate.setDate(today.getDate() - daysSinceMonday) // Start from Monday of this week
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date() // Ends at today's date
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'Previous Week':
-        fromDate = new Date(today);
-        const prevWeekDayOfWeek = today.getDay();
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek; // Ensure previous Monday calculation
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6); // Start of previous week (Monday)
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(fromDate);
-        toDate.setDate(fromDate.getDate() + 6); // End of previous week (Sunday)
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today)
+        const prevWeekDayOfWeek = today.getDay()
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek // Ensure previous Monday calculation
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6) // Start of previous week (Monday)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(fromDate)
+        toDate.setDate(fromDate.getDate() + 6) // End of previous week (Sunday)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'This Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date();
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date()
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       case 'Previous Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate = convertToIST1(fromDate); // Convert to IST
-        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate = convertToIST1(toDate); // Convert to IST
-        break;
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        fromDate = convertToIST1(fromDate) // Convert to IST
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0)
+        toDate = convertToIST1(toDate) // Convert to IST
+        break
       default:
-        return 'N/A';
+        return 'N/A'
     }
 
+    const formatDate = (date) => {
+      const day = date.getDate().toString().padStart(2, '0')
+      const month = (date.getMonth() + 1).toString().padStart(2, '0') // Month is 0-indexed
+      const year = date.getFullYear()
+      return `${day}-${month}-${year}`
+    }
     // Convert dates to ISO string format (YYYY-MM-DDTHH:mm:ss.sssZ)
-    const formattedFromDate = fromDate.toISOString().split('T')[0];
-    const formattedToDate = toDate.toISOString().split('T')[0];
+    const formattedFromDate = formatDate(fromDate)
+    const formattedToDate = formatDate(toDate)
 
-    return `from: ${formattedFromDate} to: ${formattedToDate}`;
+    return `${formattedFromDate} to ${formattedToDate}`
   }
   console.log('Sorted DATA', sortedData)
-
 
   // Function to export table data to Excel
   const exportToExcel = async () => {
@@ -691,24 +693,25 @@ const ShowSummary = ({
 
       // Helper functions
       const formatExcelDate = (dateString) => {
-        if (!dateString) return '--';
+        if (!dateString) return '--'
 
-        const date = new Date(dateString);
+        const date = new Date(dateString)
 
         return isNaN(date)
           ? '--'
-          : date.toLocaleString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,   // 24-hour format
-            timeZone: 'UTC'  // Adjust based on your requirement
-          }).replace(',', ''); // Remove comma for clean output
-      };
-
+          : date
+            .toLocaleString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false, // 24-hour format
+              timeZone: 'UTC', // Adjust based on your requirement
+            })
+            .replace(',', '') // Remove comma for clean output
+      }
 
       const formatCoordinates = (coords) => {
         if (!coords) return '--'
@@ -794,14 +797,13 @@ const ShowSummary = ({
             formatCoordinates(`${item.startLat}, ${item.startLong}`),
             typeof item.distance === 'string' ? `${item.distance} km` : '--', // Adjusted to string check like PDF
             item.running || '--', // Added to match PDF
-            item.idle || '--',    // Added to match PDF
-            item.stop || '--',    // Added to match PDF
+            item.idle || '--', // Added to match PDF
+            item.stop || '--', // Added to match PDF
             newAddressData?.endAddress || '--', // Same as PDF
             formatCoordinates(`${item.endLat}, ${item.endLong}`),
             typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--', // Consistent formatting
             typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--', // Added to match PDF
-
-          ];
+          ]
 
           const dataRow = worksheet.addRow(rowData)
           dataRow.eachCell((cell) => {
@@ -830,7 +832,11 @@ const ShowSummary = ({
 
           // Title row for the day-wise summary for the current vehicle
           const titleRow = worksheet.addRow([`Day-wise Summary - ${item.name}`])
-          titleRow.font = { ...CONFIG.styles.titleFont, size: 14, color: { argb: CONFIG.styles.textColor } }
+          titleRow.font = {
+            ...CONFIG.styles.titleFont,
+            size: 14,
+            color: { argb: CONFIG.styles.textColor },
+          }
           titleRow.fill = {
             type: 'pattern',
             pattern: 'solid',
@@ -892,7 +898,6 @@ const ShowSummary = ({
         })
       }
 
-
       // Add footer
       const addFooter = () => {
         worksheet.addRow([]) // Spacer
@@ -921,13 +926,12 @@ const ShowSummary = ({
     }
   }
 
-
   // Function to export table data to PDF
   const exportToPDF = () => {
     try {
       // Validate data before proceeding
       if (!Array.isArray(sortedData) || sortedData.length === 0) {
-        throw new Error('No data available for PDF export');
+        throw new Error('No data available for PDF export')
       }
 
       // Constants and configuration
@@ -952,137 +956,164 @@ const ShowSummary = ({
           primary: 'helvetica',
           secondary: 'courier',
         },
-      };
+      }
 
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
-      });
+      })
 
-      // Helper functions
+      // Helper function to apply secondary color
       const applySecondaryColor = () => {
-        doc.setTextColor(...CONFIG.colors.secondary);
-      };
+        doc.setTextColor(...CONFIG.colors.secondary)
+      }
 
+      // Add header with logo, company name, and line
       const addHeader = () => {
-        doc.setFillColor(...CONFIG.colors.primary);
-        doc.rect(CONFIG.company.logo.x, CONFIG.company.logo.y, CONFIG.company.logo.size, CONFIG.company.logo.size, 'F');
-        doc.setFont(CONFIG.fonts.primary, 'bold');
-        doc.setFontSize(16);
-        doc.text(CONFIG.company.name, 28, 21);
+        doc.setFillColor(...CONFIG.colors.primary)
+        doc.rect(
+          CONFIG.company.logo.x,
+          CONFIG.company.logo.y,
+          CONFIG.company.logo.size,
+          CONFIG.company.logo.size,
+          'F',
+        )
+        doc.setFont(CONFIG.fonts.primary, 'bold')
+        doc.setFontSize(16)
+        doc.text(CONFIG.company.name, 28, 21)
 
-        doc.setDrawColor(...CONFIG.colors.primary);
-        doc.setLineWidth(0.5);
-        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
-      };
+        doc.setDrawColor(...CONFIG.colors.primary)
+        doc.setLineWidth(0.5)
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
+      }
 
-      const addMetadata = () => {
+      // New vertical metadata function: each item is printed on its own line
+      const addMetadataVertical = () => {
+        // Starting y position for the metadata block
+        let yPosition = 45
+        const startX = 15 // Fixed x position for labels
+
+        // Define your metadata items
         const metadata = [
-          { label: 'User:', value: decodedToken.username || 'N/A', x: 15 },
-          { label: 'Selected User:', value: selectedUserName || 'N/A', x: 15 },
-          {
-            label: 'Group:',
-            value: selectedGroupName || 'N/A',
-            x: doc.internal.pageSize.width / 2,
-          },
+          { label: 'User:', value: decodedToken.username || 'N/A' },
+          { label: 'Selected User:', value: selectedUserName || 'N/A' },
+          { label: 'Group:', value: selectedGroupName || 'N/A' },
           {
             label: 'Date Range:',
             value:
               selectedFromDate && selectedToDate
                 ? `${selectedFromDate} To ${selectedToDate}`
                 : getDateRangeFromPeriods(selectedPeriod),
-            x: doc.internal.pageSize.width / 2,
           },
-          {
-            label: 'Vehicle:',
-            value: selectedDeviceName || 'N/A',
-            x: 80,
-          },
-        ];
+          { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
+        ]
 
-        doc.setFontSize(10);
-        let yPosition = 45;
+        // Set the font size for metadata
+        doc.setFontSize(10)
 
-        metadata.forEach((item, index) => {
-          doc.setFont(CONFIG.fonts.primary, 'bold');
-          doc.text(item.label, item.x, yPosition + (index % 2) * 6);
-          doc.setFont(CONFIG.fonts.primary, 'normal');
-          doc.text(item.value.toString(), item.x + 25, yPosition + (index % 2) * 6);
-        });
-      };
+        // Iterate over metadata items and print each on its own line
+        metadata.forEach((item) => {
+          // Draw the label in bold at the fixed x position
+          doc.setFont(CONFIG.fonts.primary, 'bold')
+          doc.text(item.label, startX, yPosition)
 
+          // Draw the value in normal font, offset by 25mm
+          doc.setFont(CONFIG.fonts.primary, 'normal')
+          doc.text(item.value.toString(), startX + 25, yPosition)
+
+          // Increase the y position for the next metadata item
+          yPosition += 6
+        })
+      }
+
+      // Add generated date at the top-right corner
       const addGeneratedDate = () => {
         const currentDate = new Date().toLocaleDateString('en-GB', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
-        });
+        })
 
-        doc.setFontSize(10);
-        applySecondaryColor();
+        doc.setFontSize(10)
+        applySecondaryColor()
 
         // Align the date to the top right corner
-        const pageWidth = doc.internal.pageSize.width;
-        const dateText = `Generated Date: ${currentDate}`;
-        const textWidth = doc.getTextWidth(dateText);
+        const pageWidth = doc.internal.pageSize.width
+        const dateText = `Generated Date: ${currentDate}`
+        const textWidth = doc.getTextWidth(dateText)
 
-        doc.text(dateText, pageWidth - CONFIG.layout.margin - textWidth, 20); // Top-right corner
-      };
+        doc.text(dateText, pageWidth - CONFIG.layout.margin - textWidth, 20)
+      }
 
-
+      // Add footer with page number and company copyright
       const addFooter = () => {
-        const pageCount = doc.getNumberOfPages();
+        const pageCount = doc.getNumberOfPages()
         for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
-          doc.setDrawColor(...CONFIG.colors.border);
-          doc.setLineWidth(0.5);
-          doc.line(CONFIG.layout.margin, doc.internal.pageSize.height - 15, doc.internal.pageSize.width - CONFIG.layout.margin, doc.internal.pageSize.height - 15);
-          doc.setFontSize(9);
-          applySecondaryColor();
-          doc.text(`© ${CONFIG.company.name}`, CONFIG.layout.margin, doc.internal.pageSize.height - 10);
+          doc.setPage(i)
+          doc.setDrawColor(...CONFIG.colors.border)
+          doc.setLineWidth(0.5)
+          doc.line(
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+            doc.internal.pageSize.width - CONFIG.layout.margin,
+            doc.internal.pageSize.height - 15,
+          )
+          doc.setFontSize(9)
+          applySecondaryColor()
+          doc.text(
+            `© ${CONFIG.company.name}`,
+            CONFIG.layout.margin,
+            doc.internal.pageSize.height - 10,
+          )
 
-          const pageNumber = `Page ${i} of ${pageCount}`;
-          const pageNumberWidth = doc.getTextWidth(pageNumber);
-          doc.text(pageNumber, doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth, doc.internal.pageSize.height - 10);
+          const pageNumber = `Page ${i} of ${pageCount}`
+          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          doc.text(
+            pageNumber,
+            doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
+            doc.internal.pageSize.height - 10,
+          )
         }
-      };
+      }
 
+      // Helper functions to format date and coordinates
       const formatDate = (dateString) => {
-        if (!dateString) return '--';
-
-        const date = new Date(dateString);
-
+        if (!dateString) return '--'
+        const date = new Date(dateString)
         return isNaN(date)
           ? '--'
-          : date.toLocaleString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,  // 24-hour format
-            timeZone: 'UTC' // Adjust as needed
-          }).replace(',', ''); // Removes the comma between date and time
-      };
+          : date
+            .toLocaleString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+              timeZone: 'UTC',
+            })
+            .replace(',', '')
+      }
 
       const formatCoordinates = (coords) => {
-        if (!coords) return '--';
-        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()));
-        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`;
-      };
+        if (!coords) return '--'
+        const [lat, lon] = coords.split(',').map((coord) => parseFloat(coord.trim()))
+        return `${lat?.toFixed(5) ?? '--'}, ${lon?.toFixed(5) ?? '--'}`
+      }
 
       // Main document creation
-      addHeader();
-      doc.setFontSize(24);
-      doc.setFont(CONFIG.fonts.primary, 'bold');
-      doc.text('Travel Summary', CONFIG.layout.margin, 35);
+      addHeader()
+      doc.setFontSize(24)
+      doc.setFont(CONFIG.fonts.primary, 'bold')
+      doc.text('Travel Summary', CONFIG.layout.margin, 35)
 
-      addMetadata();
+      // Use vertical metadata layout
+      addMetadataVertical()
 
-      addGeneratedDate(); // ✅ Only Date Added Here
+      addGeneratedDate()
 
-      // Separate Column Definitions
+      // Table columns for Vehicle Summary
       const tableColumns = [
         'SN',
         'Vehicle',
@@ -1096,8 +1127,9 @@ const ShowSummary = ({
         'End Co-ordinate',
         'Max. Speed (km/h)',
         'Avg. Speed (km/h)',
-      ];
+      ]
 
+      // Table columns for Daywise Summary
       const daywiseSummaryColumn = [
         'SN',
         'Report Date',
@@ -1114,7 +1146,7 @@ const ShowSummary = ({
         'End Location',
         'End Co-ordinate',
         'Ignition Stop',
-      ];
+      ]
 
       // Table Rows for Vehicle Summary
       const tableRows = addressData.map((item, index) => [
@@ -1131,32 +1163,32 @@ const ShowSummary = ({
         typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--',
         typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--',
         item.dayWiseTrips?.reduce((acc, trip) => acc + ` ${trip.workingHours}`, '') || '--',
-      ]);
+      ])
 
-      // Add Vehicle Summary Table
+      // Add Vehicle Summary Table using autoTable
       doc.autoTable({
         startY: 65,
         head: [tableColumns],
         body: tableRows,
         theme: 'grid',
         styles: {
-          fillColor: [255, 255, 255], // White background for body
-          textColor: [0, 0, 0],       // Black text for body
+          fillColor: [255, 255, 255],
+          textColor: [0, 0, 0],
         },
         headStyles: {
-          fillColor: [10, 45, 99],    // Applying #0a2d63 to header
-          textColor: [255, 255, 255], // White text for header
+          fillColor: [10, 45, 99],
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
         },
         alternateRowStyles: {
-          fillColor: [240, 245, 250], // Light gray for alternate rows
+          fillColor: [240, 245, 250],
         },
-      });
+      })
 
-      // Add Daywise Summary Table
+      // Add Daywise Summary Table for each vehicle (if available)
       const addDaywiseSummaryTable = () => {
-        if (!sortedData || sortedData.length === 0) return;
-        let yPosition = doc.lastAutoTable.finalY + 10;
+        if (!sortedData || sortedData.length === 0) return
+        let yPosition = doc.lastAutoTable.finalY + 10
 
         sortedData.forEach((item) => {
           if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return;
@@ -1190,34 +1222,34 @@ const ShowSummary = ({
             body: daywiseRows,
             theme: 'grid',
             styles: {
-              fillColor: [255, 255, 255], // White for body
-              textColor: [0, 0, 0],       // Black for body text
+              fillColor: [255, 255, 255],
+              textColor: [0, 0, 0],
             },
             headStyles: {
-              fillColor: [10, 45, 99],    // #0a2d63 for header
-              textColor: [255, 255, 255], // White header text
+              fillColor: [10, 45, 99],
+              textColor: [255, 255, 255],
               fontStyle: 'bold',
             },
             alternateRowStyles: {
-              fillColor: [240, 245, 250], // Light gray rows
+              fillColor: [240, 245, 250],
             },
-          });
+          })
 
-          yPosition = doc.lastAutoTable.finalY + 10;
-        });
-      };
+          yPosition = doc.lastAutoTable.finalY + 10
+        })
+      }
 
-      addDaywiseSummaryTable();
-      addFooter();
+      addDaywiseSummaryTable()
+      addFooter()
 
-      doc.save(`Travel_Summary_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('PDF downloaded successfully');
+      // Save the PDF
+      doc.save(`Travel_Summary_${new Date().toISOString().split('T')[0]}.pdf`)
+      toast.success('PDF downloaded successfully')
     } catch (error) {
-      console.error('PDF Export Error:', error);
-      toast.error(error.message || 'Failed to export PDF');
+      console.error('PDF Export Error:', error)
+      toast.error(error.message || 'Failed to export PDF')
     }
-  };
-
+  }
 
   const handleItemsPerPageChange = (newItemsPerPage) => {
     setItemsPerPage(newItemsPerPage) // Update rows per page
@@ -1288,6 +1320,8 @@ const ShowSummary = ({
   console.log('REPORTED DATA', reportData)
   return (
     <>
+      <Toaster />
+
       <CCard className="mb-4">
         <CCardBody>
           <CTable hover responsive bordered>
@@ -1649,11 +1683,15 @@ const ShowSummary = ({
                                       </CTableDataCell>
                                       {/**Max Speed */}
                                       <CTableDataCell className="text-center">
-                                        {(trip.maxSpeed !== null && trip.maxSpeed !== undefined) ? trip.maxSpeed.toFixed(2) : 'N/A'}
+                                        {trip.maxSpeed !== null && trip.maxSpeed !== undefined
+                                          ? trip.maxSpeed.toFixed(2)
+                                          : 'N/A'}
                                       </CTableDataCell>
                                       {/**Avg KM */}
                                       <CTableDataCell className="text-center">
-                                        {(trip.avgSpeed !== null && trip.avgSpeed !== undefined) ? trip.avgSpeed.toFixed(2) : 'N/A'}
+                                        {trip.avgSpeed !== null && trip.avgSpeed !== undefined
+                                          ? trip.avgSpeed.toFixed(2)
+                                          : 'N/A'}
                                       </CTableDataCell>
                                       {/**End Location */}
                                       <CTableDataCell className="text-center">
@@ -1807,105 +1845,103 @@ const TravelReport = () => {
 
   // Function to get date range based on selectedPeriod
   const getDateRangeFromPeriod = (selectedPeriod) => {
-    const today = new Date();
-    let fromDate, toDate;
+    const today = new Date()
+    let fromDate, toDate
 
     // Helper function to convert UTC to IST
     const convertToIST = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours() - 5); // Add 5 hours for IST
-      utcDate.setMinutes(utcDate.getMinutes() - 30); // Add 30 minutes for IST
-      return utcDate;
-    };
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours() - 5) // Add 5 hours for IST
+      utcDate.setMinutes(utcDate.getMinutes() - 30) // Add 30 minutes for IST
+      return utcDate
+    }
 
     // Helper function to convert UTC to IST
     const convertToIST1 = (date) => {
-      const utcDate = new Date(date);
-      utcDate.setHours(utcDate.getHours()); // Convert UTC to IST
-      utcDate.setMinutes(utcDate.getMinutes());
-      return utcDate;
-    };
+      const utcDate = new Date(date)
+      utcDate.setHours(utcDate.getHours()) // Convert UTC to IST
+      utcDate.setMinutes(utcDate.getMinutes())
+      return utcDate
+    }
 
     switch (selectedPeriod) {
       case 'Today':
-        fromDate = new Date(today);
-        fromDate.setHours(0, 1, 1, 0); // Start at 00:01:01
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today)
+        fromDate.setHours(0, 1, 1, 0) // Start at 00:01:01
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date(today);
-        toDate.setHours(23, 59, 0, 0); // End at 23:59:00
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date(today)
+        toDate.setHours(23, 59, 0, 0) // End at 23:59:00
+        toDate = convertToIST1(toDate)
+        break
 
       case 'Yesterday':
-        fromDate = new Date(today);
-        fromDate.setDate(today.getDate() - 1);
-        fromDate.setHours(0, 1, 1, 0);
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today)
+        fromDate.setDate(today.getDate() - 1)
+        fromDate.setHours(0, 1, 1, 0)
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date(fromDate);
-        toDate.setHours(23, 59, 0, 0);
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date(fromDate)
+        toDate.setHours(23, 59, 0, 0)
+        toDate = convertToIST1(toDate)
+        break
 
       case 'This Week':
-        fromDate = new Date(today);
-        const dayOfWeek = today.getDay();
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-        fromDate.setDate(today.getDate() - daysSinceMonday);
-        fromDate.setHours(0, 1, 1, 0);
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today)
+        const dayOfWeek = today.getDay()
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+        fromDate.setDate(today.getDate() - daysSinceMonday)
+        fromDate.setHours(0, 1, 1, 0)
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date();
-        toDate.setHours(23, 59, 0, 0);
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date()
+        toDate.setHours(23, 59, 0, 0)
+        toDate = convertToIST1(toDate)
+        break
 
       case 'Previous Week':
-        fromDate = new Date(today);
-        const prevWeekDayOfWeek = today.getDay();
-        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek;
-        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6);
-        fromDate.setHours(0, 1, 1, 0);
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today)
+        const prevWeekDayOfWeek = today.getDay()
+        const daysSinceLastMonday = prevWeekDayOfWeek === 0 ? 7 : prevWeekDayOfWeek
+        fromDate.setDate(today.getDate() - daysSinceLastMonday - 6)
+        fromDate.setHours(0, 1, 1, 0)
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date(fromDate);
-        toDate.setDate(fromDate.getDate() + 6);
-        toDate.setHours(23, 59, 0, 0);
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date(fromDate)
+        toDate.setDate(fromDate.getDate() + 6)
+        toDate.setHours(23, 59, 0, 0)
+        toDate = convertToIST1(toDate)
+        break
 
       case 'This Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        fromDate.setHours(0, 1, 1, 0);
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1)
+        fromDate.setHours(0, 1, 1, 0)
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date();
-        toDate.setHours(23, 59, 0, 0);
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date()
+        toDate.setHours(23, 59, 0, 0)
+        toDate = convertToIST1(toDate)
+        break
 
       case 'Previous Month':
-        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        fromDate.setHours(0, 1, 1, 0);
-        fromDate = convertToIST1(fromDate);
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        fromDate.setHours(0, 1, 1, 0)
+        fromDate = convertToIST1(fromDate)
 
-        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
-        toDate.setHours(23, 59, 0, 0);
-        toDate = convertToIST1(toDate);
-        break;
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0)
+        toDate.setHours(23, 59, 0, 0)
+        toDate = convertToIST1(toDate)
+        break
 
       default:
-        return 'N/A';
+        return 'N/A'
     }
-
 
     // Convert dates to UTC format (YYYY-MM-DDTHH:mm:ss.sssZ)
     // const toUTCString = (date) => date.toISOString();
 
-    return `${fromDate}&to=${toDate}`;
+    return `${fromDate}&to=${toDate}`
   }
-
 
   const getGroups = async (selectedUser = ' ') => {
     setLoading(true)
@@ -1960,13 +1996,13 @@ const TravelReport = () => {
 
   // Function to convert to IST and format as datetime-local value
   const convertToIST = (date) => {
-    const dateObj = new Date(date);
-    const istOffset = 5.5 * 60; // IST is UTC + 5:30
-    dateObj.setMinutes(dateObj.getMinutes() + istOffset);
+    const dateObj = new Date(date)
+    const istOffset = 5.5 * 60 // IST is UTC + 5:30
+    dateObj.setMinutes(dateObj.getMinutes() + istOffset)
 
     // Format the date to datetime-local string (yyyy-MM-ddTHH:mm)
-    return dateObj.toISOString().slice(0, 16);
-  };
+    return dateObj.toISOString().slice(0, 16)
+  }
 
   const handleInputChange = (name, value) => {
     // Convert value to IST before updating state
@@ -1977,15 +2013,15 @@ const TravelReport = () => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }));
+    }))
 
     if (name === 'Columns') {
-      setSelectedColumns(value);
+      setSelectedColumns(value)
     }
-  };
+  }
 
   const handleSubmit = async () => {
-    setStatusLoading(true);
+    setStatusLoading(true)
     try {
       console.log(
         'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK',
@@ -1993,48 +2029,47 @@ const TravelReport = () => {
         formData.FromDate,
         formData.ToDate,
         formData.Periods,
-      );
+      )
 
       // Ensure 'date' is defined correctly
-      let date = '';
+      let date = ''
       if (formData.FromDate && formData.ToDate) {
-        date = `${selectedFromDate}&to=${selectedToDate}`;
+        date = `${selectedFromDate}&to=${selectedToDate}`
       } else {
-        date = getDateRangeFromPeriod(formData.Periods);
+        date = getDateRangeFromPeriod(formData.Periods)
         // Ensure that if the period function returns 'N/A', it doesn't break the API call
         if (date === 'N/A') {
-          throw new Error('Invalid date range');
+          throw new Error('Invalid date range')
         }
       }
 
-      console.log(date, 'DATE HAI YE');
+      console.log(date, 'DATE HAI YE')
 
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/reports/travel-summary-report?deviceIds=${formData.Devices}&from=${date}`,
         { headers: { Authorization: `Bearer ${token}` } },
-      );
+      )
 
       if (response.data) {
-        setApiData(response.data); // Store API response
-        setStatusLoading(false);
+        setApiData(response.data) // Store API response
+        setStatusLoading(false)
       }
     } catch (error) {
-      setStatusLoading(false);
-      toast.error('Failed to fetch data');
+      setStatusLoading(false)
+      toast.error('Failed to fetch data')
       console.log(
         'get data of search in get api check',
-        `${import.meta.env.VITE_API_URL}/reports/travel-summary-report?deviceIds=${formData.Devices}&from=${date}`
-      );
+        `${import.meta.env.VITE_API_URL}/reports/travel-summary-report?deviceIds=${formData.Devices}&from=${date}`,
+      )
     }
-  };
-
-
+  }
 
   // Example of extracting values similar to `selectedGroup`
   const selectedFromDate = formData.FromDate
     ? new Date(
-      new Date(formData.FromDate).setHours(0, 0, 0, 0) + (5 * 60 + 30) * 60000
-    ).toISOString() : ''
+      new Date(formData.FromDate).setHours(0, 0, 0, 0) + (5 * 60 + 30) * 60000,
+    ).toISOString()
+    : ''
   const selectedToDate = formData.ToDate
     ? new Date(
       new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,

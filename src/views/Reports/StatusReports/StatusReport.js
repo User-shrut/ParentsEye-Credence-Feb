@@ -26,6 +26,7 @@ import {
   CPagination,
   CPaginationItem,
 } from '@coreui/react'
+import { Pagination } from 'react-bootstrap'
 import Select from 'react-select'
 import Cookies from 'js-cookie'
 import axios from 'axios'
@@ -1024,6 +1025,11 @@ const ShowStatus = ({
     },
   ]
 
+  // pagination
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+  }
+
   return (
     <>
       {/**TABLE */}
@@ -1278,35 +1284,73 @@ const ShowStatus = ({
             </span>
           </CCol>
           <div className="d-flex justify-content-center">
-            {/* Existing pagination code */}
             {sortedData.length > itemsPerPage && (
-              <CPagination align="end" aria-label="Table pagination">
-                <CPaginationItem
+              <Pagination align="end" aria-label="Table pagination">
+                <Pagination.Prev
                   disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   style={{ cursor: 'pointer' }}
-                >
-                  Previous
-                </CPaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <CPaginationItem
-                    key={page}
-                    active={page === currentPage}
-                    onClick={() => setCurrentPage(page)}
-                    aria-current={page === currentPage ? 'page' : undefined}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {page}
-                  </CPaginationItem>
-                ))}
-                <CPaginationItem
+                />
+
+                {(() => {
+                  const items = []
+                  const maxVisiblePages = 5
+                  const half = Math.floor(maxVisiblePages / 2)
+                  let startPage = Math.max(1, currentPage - half)
+                  let endPage = Math.min(totalPages, currentPage + half)
+
+                  if (totalPages > maxVisiblePages) {
+                    if (currentPage <= half + 1) {
+                      endPage = maxVisiblePages
+                    } else if (currentPage >= totalPages - half) {
+                      startPage = totalPages - maxVisiblePages + 1
+                    }
+                  }
+
+                  // First page
+                  if (startPage > 1) {
+                    items.push(1)
+                    if (startPage > 2) {
+                      items.push('ellipsis-start')
+                    }
+                  }
+
+                  // Middle pages
+                  for (let i = startPage; i <= endPage; i++) {
+                    items.push(i)
+                  }
+
+                  // Last page
+                  if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                      items.push('ellipsis-end')
+                    }
+                    items.push(totalPages)
+                  }
+
+                  return items.map((item, index) => {
+                    if (item === 'ellipsis-start' || item === 'ellipsis-end') {
+                      return <Pagination.Ellipsis key={`${item}-${index}`} disabled />
+                    }
+                    return (
+                      <Pagination.Item
+                        key={item}
+                        active={item === currentPage}
+                        onClick={() => setCurrentPage(item)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {item}
+                      </Pagination.Item>
+                    )
+                  })
+                })()}
+
+                <Pagination.Next
                   disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   style={{ cursor: 'pointer' }}
-                >
-                  Next
-                </CPaginationItem>
-              </CPagination>
+                />
+              </Pagination>
             )}
           </div>
         </CRow>

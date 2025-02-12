@@ -16,7 +16,7 @@ import axios from 'axios'
 import useVehicleTracker from './useVehicleTracker'
 import { useNavigate, useParams } from 'react-router-dom'
 import location from 'src/assets/location.png'
-import { duration } from 'dayjs' // Importing all vehicle icons
+import { duration } from 'dayjs'
 import { Eye, EyeOff } from 'lucide-react'
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 import './IndividualTrack.css'
@@ -38,6 +38,24 @@ import { HiOutlineLogout } from 'react-icons/hi'
 import { MdDashboard } from 'react-icons/md'
 
 const accessToken = Cookies.get('authToken')
+
+// Helper function to determine if a point is inside a polygon
+// point: [lat, lng]
+// vs: array of [lat, lng]
+function pointInPolygon(point, vs) {
+  const x = point[1],
+    y = point[0]
+  let inside = false
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][1],
+      yi = vs[i][0]
+    const xj = vs[j][1],
+      yj = vs[j][0]
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi
+    if (intersect) inside = !inside
+  }
+  return inside
+}
 
 const MapController = ({ individualSalesMan, previousPosition, setPath }) => {
   const map = useMap()
@@ -102,10 +120,12 @@ const IndividualTrack = () => {
   const [address, setAddress] = useState(null)
   const previousPosition = useRef(null) // Ref to store the previous position
   const [path, setPath] = useState([]) // State for polyline path
-  const [geofences, setGeofences] = useState([]) // state for geofence radius
-  const [polygonData, setPolygonData] = useState([]) // state for geofence polygon
+  const [geofences, setGeofences] = useState([]) // state for geofence circle data
+  const [polygonData, setPolygonData] = useState([]) // state for geofence polygon data
   // Toggle state for geofence display
   const [showGeofence, setShowGeofence] = useState(true)
+  // State to track which geofences the vehicle is currently inside
+  const [activeGeofences, setActiveGeofences] = useState([])
 
   // Toggle handler
   const handleToggleGeofence = () => {
@@ -133,7 +153,6 @@ const IndividualTrack = () => {
         } else {
           setAddress(response.data.features[1].place_name_en)
         }
-        // console.log(response.data)
       } catch (error) {
         console.error('Error fetching the address:', error)
         setAddress('Error fetching address')
@@ -149,15 +168,16 @@ const IndividualTrack = () => {
   useEffect(() => {
     const fetchGeofences = async () => {
       try {
-        // Update the endpoint and parameters as per your API
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/geofence/${deviceId}`, {
           headers: {
             Authorization: 'Bearer ' + accessToken,
           },
         })
+
+        // Process circle geofences
         const circleData = (data) => {
           return data
-            .filter((item) => item.area.length == 1 && item.area[0].circle)
+            .filter((item) => item.area.length === 1 && item.area[0].circle)
             .map((item) => {
               const match = item.area[0].circle.match(/Circle\(([\d.]+) ([\d.]+), ([\d.]+)\)/)
               if (match) {
@@ -165,18 +185,19 @@ const IndividualTrack = () => {
                   name: item.name,
                   lat: parseFloat(match[1]), // Extract latitude
                   lng: parseFloat(match[2]), // Extract longitude
-                  radius: parseFloat(match[3]), // Extract radius
+                  radius: parseFloat(match[3]), // Extract radius in meters
                 }
               }
               return null
             })
-            .filter(Boolean) // Remove null values if any parsing fails
+            .filter(Boolean)
         }
 
+        // Process polygon geofences
         const polygon = (data) => {
           return data
             .filter((item) => item.area.length > 1)
-            .map((item, index) => {
+            .map((item) => {
               const coordinates = item.area.map((coord) => [coord.lat, coord.lng])
               if (coordinates) {
                 return {
@@ -200,13 +221,40 @@ const IndividualTrack = () => {
     fetchGeofences()
   }, [deviceId])
 
+  // Check if the vehicle is inside any geofence (circle or polygon)
+  useEffect(() => {
+    if (individualSalesMan) {
+      const currentPoint = [individualSalesMan.latitude, individualSalesMan.longitude]
+      const active = []
+
+      // Check circles
+      geofences.forEach((g) => {
+        const center = [g.lat, g.lng]
+        const distance = L.latLng(currentPoint).distanceTo(L.latLng(center))
+        if (distance <= g.radius) {
+          active.push(g.name)
+        }
+      })
+
+      // Check polygons
+      polygonData.forEach((p) => {
+        if (pointInPolygon(currentPoint, p.coordinates)) {
+          active.push(p.name)
+        }
+      })
+
+      setActiveGeofences(active)
+    }
+  }, [individualSalesMan, geofences, polygonData])
+
+  console.log('Active Geofences:', activeGeofences)
   console.log('SETTING GEOFENCE', geofences)
 
   const navigate = useNavigate()
   const iconImage = (item, category) => useGetVehicleIcon(item, category)
   const vehicleImage = (category, item) => useVehicleImage(category, item)
   const handleClickOnTrack = (vehicle) => {
-    console.log('trcak clicked')
+    console.log('track clicked')
     navigate(`/history/${deviceId}/${category}/${name}`)
   }
   const [isSatelliteView, setIsSatelliteView] = useState(false)
@@ -258,9 +306,8 @@ const IndividualTrack = () => {
               <TileLayer
                 url={
                   isSatelliteView
-                    ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-                    : // Satellite View
-                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
+                    ? 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' // Satellite View
+                    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' // Normal View
                 }
                 attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
               />
@@ -277,15 +324,15 @@ const IndividualTrack = () => {
                 )}
               </button>
 
-              {/* Render Polygon Dynamically */}
+              {/* Render Polygons with dynamic color */}
               {showGeofence &&
                 polygonData.map((polygon, index) => (
                   <Polygon
                     key={index}
                     positions={polygon.coordinates}
                     pathOptions={{
-                      color: '#0a2d63',
-                      fillColor: '#A1E3F9',
+                      color: activeGeofences.includes(polygon.name) ? 'red' : '#0a2d63',
+                      fillColor: activeGeofences.includes(polygon.name) ? 'red' : '#A1E3F9',
                       fillOpacity: 0.3,
                     }}
                   >
@@ -295,26 +342,25 @@ const IndividualTrack = () => {
                   </Polygon>
                 ))}
 
-              {/* Render Circles Dynamically */}
-              {showGeofence
-                ? geofences.map((location, index) => (
-                    <Circle
-                      key={index}
-                      center={[location.lat, location.lng]}
-                      radius={location.radius} // Radius in meters
-                      pathOptions={{
-                        color: '#0a2d63',
-                        fillColor: '#A1E3F9',
-                        fillOpacity: 0.3,
-                      }}
-                    >
-                      <Popup>
-                        <strong>{location.name}</strong> <br />
-                        Radius: {location.radius} m
-                      </Popup>
-                    </Circle>
-                  ))
-                : null}
+              {/* Render Circles with dynamic color */}
+              {showGeofence &&
+                geofences.map((location, index) => (
+                  <Circle
+                    key={index}
+                    center={[location.lat, location.lng]}
+                    radius={location.radius} // Radius in meters
+                    pathOptions={{
+                      color: activeGeofences.includes(location.name) ? 'red' : '#0a2d63',
+                      fillColor: activeGeofences.includes(location.name) ? 'red' : '#A1E3F9',
+                      fillOpacity: 0.3,
+                    }}
+                  >
+                    <Popup>
+                      <strong>{location.name}</strong> <br />
+                      Radius: {location.radius} m
+                    </Popup>
+                  </Circle>
+                ))}
 
               <Draggable bounds="parent">
                 <CCard className="mb-4 parametersContainer shadow" style={{ zIndex: '555' }}>
@@ -325,7 +371,6 @@ const IndividualTrack = () => {
                           {name ? name : 'User Name'}
                         </h6>
                         <p>{address ? `${address}` : 'Address of User'}</p>
-                        <p>{individualSalesMan?.lastUpdate}</p>
                       </div>
                       <div className="col-5">
                         <img
@@ -378,7 +423,7 @@ const IndividualTrack = () => {
                   <Popup>
                     <div className="toolTip">
                       <span style={{ textAlign: 'center', fontSize: '0.9rem' }}>
-                        <strong> {name ? name : 'User Name'}</strong>
+                        <strong>{name ? name : 'User Name'}</strong>
                       </span>
                       <hr
                         style={{
@@ -395,7 +440,7 @@ const IndividualTrack = () => {
                           <strong>
                             <RxLapTimer size={17} color="#FF7A00" />
                           </strong>{' '}
-                          {dayjs(individualSalesMan.lastUpdate).format('YYYY-MM-DD HH:mm')}
+                          {dayjs(individualSalesMan.lastUpdate).format('DD-MM-YYYY HH:mm')}
                         </div>
                         <div
                           style={{
@@ -419,16 +464,16 @@ const IndividualTrack = () => {
                           {(() => {
                             const sp = individualSalesMan.speed
                             const ig = individualSalesMan.attributes.ignition
-                            if (sp < 1 && ig == false) {
-                              return 'Stoped'
+                            if (sp < 1 && ig === false) {
+                              return 'Stopped'
                             }
-                            if (sp < 2 && ig == true) {
+                            if (sp < 2 && ig === true) {
                               return 'Idle'
                             }
-                            if (sp > 2 && sp < 60 && ig == true) {
+                            if (sp > 2 && sp < 60 && ig === true) {
                               return 'Running'
                             }
-                            if (sp > 60 && ig == true) {
+                            if (sp > 60 && ig === true) {
                               return 'Over Speed'
                             } else {
                               return 'Inactive'
@@ -464,7 +509,6 @@ const IndividualTrack = () => {
                           </button>
                         </div>
                       </div>
-                      {/* <strong></strong> {device.lastUpdate} km/h */}
                     </div>
                   </Popup>
                 </ReactLeafletDriftMarker>
@@ -480,7 +524,7 @@ const IndividualTrack = () => {
           </div>
         </div>
       </div>
-      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5" style={{ 'z-index': '1000' }}>
+      <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5" style={{ zIndex: '1000' }}>
         <IconDropdown items={dropdownItems} />
       </div>
     </>
