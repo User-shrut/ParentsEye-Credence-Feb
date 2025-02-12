@@ -308,77 +308,95 @@ const ShowIdeal = ({
   selectedToDate,
   selectedPeriod,
 }) => {
+
   const [sortConfig, setSortConfig] = useState({ key: 'idleStartTime', direction: 'asc' })
   const [dataWithAddresses, setDataWithAddresses] = useState([])
   console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa', selectedUserName)
 
-  // MapTiler API key
-  const apiKey = 'DG2zGt0KduHmgSi2kifd'
+  // Address api code
 
-  // Function to get address from latitude and longitude using MapTiler API
-  const getAddressFromLatLng = async (latitude, longitude) => {
-    const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
+  const addressCache = {};
+
+  const getAddressFromLatLng = async (latitude, longitude, rowId) => {
+    const cacheKey = `${latitude},${longitude}`;
+    if (addressCache[cacheKey]) {
+      return addressCache[cacheKey]; // Return cached result
+    }
+
+    const apiKey = 'CWVeoDxzhkO07kO693u0';
+    const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`;
 
     try {
-      const response = await axios.get(url)
-      console.log('Address API Response:', response.data) // Debugging: Check the API response
-      const address = response.data?.features?.[0]?.place_name || 'Address not found'
-      console.log(`Fetched address for [${latitude}, ${longitude}]:`, address) // Debugging
-      return address
+      const response = await axios.get(url);
+      const features = response.data.features;
+
+      if (features && features.length > 0) {
+        const address = features[0].place_name;
+        addressCache[cacheKey] = address; // Cache the result
+        return address;
+      } else {
+        return 'Address not found';
+      }
     } catch (error) {
-      console.error('Error fetching address:', error)
-      return 'Address not found'
+      console.error('Error fetching address:', error);
+      return 'Address not found';
     }
-  }
+  };
+
+
+
 
   // Function to map over API data and fetch addresses
   const mapDataWithAddress = async () => {
-    if (!apiData || apiData.length === 0) return apiData
+    if (!apiData || apiData.length === 0) return apiData;
 
     const updatedData = await Promise.all(
       apiData.map(async (row) => {
         if (row.idleArray && row.idleArray.length > 0) {
-          // Check idleArray instead of data
           const updatedNestedData = await Promise.all(
             row.idleArray.map(async (nestedRow) => {
-              // Process each idle period in idleArray
-              if (nestedRow.location && !nestedRow.address) {
-                const [latitude, longitude] = nestedRow.location
-                  .split(',')
-                  .map((coord) => coord.trim())
-                const address = await getAddressFromLatLng(latitude, longitude)
+              // Check if latitude and longitude exist and address is not already present
+              if (nestedRow.latitude && nestedRow.longitude && !nestedRow.address) {
+                const latitude = nestedRow.latitude;
+                const longitude = nestedRow.longitude;
+
+                const address = await getAddressFromLatLng(latitude, longitude);
+                console.log("Fetched address:", address);
                 return {
                   ...nestedRow,
                   address,
-                  latitude: parseFloat(latitude),
-                  longitude: parseFloat(longitude),
-                }
+                };
               }
-              return nestedRow
-            }),
-          )
-          return { ...row, idleArray: updatedNestedData } // Update the row's idleArray with addresses
+              return nestedRow;
+            })
+          );
+          return { ...row, idleArray: updatedNestedData };
         }
-        return row
-      }),
-    )
+        return row;
+      })
+    );
 
-    return updatedData
-  }
+    return updatedData;
+  };
+
 
   // Fetch addresses when apiData changes
   useEffect(() => {
     const fetchDataWithAddresses = async () => {
-      const updatedData = await mapDataWithAddress()
-      setDataWithAddresses(updatedData)
-    }
+      const updatedData = await mapDataWithAddress();
+      setDataWithAddresses(updatedData);
+      console.log("updatedddddeded", updatedData)
+    };
 
-    fetchDataWithAddresses()
-  }, [apiData])
+    if (apiData && apiData.length > 0) {
+      fetchDataWithAddresses();
+    }
+  }, [apiData]);
+
 
   // Flatten the data
   const enhancedFlattenedData = useMemo(() => {
-    if (!dataWithAddresses) return []
+    if (!dataWithAddresses) return [];
 
     return dataWithAddresses.flatMap(
       (row, rowIndex) =>
@@ -390,9 +408,9 @@ const ShowIdeal = ({
           rowIndex: rowIndex + 1,
           nestedIndex: nestedIndex + 1,
           durationSeconds: (new Date(idle.idleEndTime) - new Date(idle.idleStartTime)) / 1000,
-        })) || [],
-    )
-  }, [dataWithAddresses, selectedDeviceName])
+        })) || []
+    );
+  }, [dataWithAddresses, selectedDeviceName]);
 
   const columnKeyMap = {
     'Start Time': 'idleStartTime',
@@ -1060,6 +1078,7 @@ const ShowIdeal = ({
   return (
     <>
       <Toaster />
+
       <CTable bordered className="custom-table">
         <CTableHead>
           <CTableRow>
@@ -1080,7 +1099,7 @@ const ShowIdeal = ({
                   color: 'white',
                   cursor: columnKeyMap[column] ? 'pointer' : 'default',
                 }}
-                onClick={() => handleSort(columnKeyMap[column])} // Corrected
+                onClick={() => columnKeyMap[column] && handleSort(columnKeyMap[column])}
               >
                 {column}
                 {sortConfig.key === columnKeyMap[column] && (
@@ -1092,62 +1111,73 @@ const ShowIdeal = ({
         </CTableHead>
 
         <CTableBody>
-          {sortedFlattenedData.length > 0 ? (
+          {statusLoading ? (
+            <CTableRow style={{ position: 'relative' }}>
+              <CTableDataCell
+                colSpan={selectedColumns.length + 3}
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  color: '#6c757d',
+                  fontStyle: 'italic',
+                  padding: '16px',
+                  textAlign: 'center',
+                  border: '1px dashed #dee2e6',
+                  height: '100px',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <Loader />
+                </div>
+              </CTableDataCell>
+            </CTableRow>
+          ) : !statusLoading && sortedFlattenedData.length > 0 ? (
             sortedFlattenedData.map((item, index) => (
               <CTableRow key={`${item.deviceId}-${index}`} className="custom-row">
-                <CTableDataCell>{index + 1}</CTableDataCell> {/* Serial Number */}
-                <CTableDataCell>{item.vehicleName || '--'}</CTableDataCell> {/* Vehicle Name */}
-
+                <CTableDataCell>{index + 1}</CTableDataCell>
+                <CTableDataCell>{item.vehicleName || '--'}</CTableDataCell>
                 <CTableDataCell style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   <img
                     src={idels}
                     alt="Vehicle Status"
-                    title='Idel'
+                    title="Idle"
                     style={{ width: '40px', height: '40px', objectFit: 'contain' }}
                   />
                 </CTableDataCell>
-
                 {selectedColumns.map((column, colIndex) => (
                   <CTableDataCell key={colIndex}>
                     {(() => {
                       switch (column) {
                         case 'Start Time':
                           return item.idleStartTime
-                            ? new Date(item.idleStartTime).toLocaleString('en-GB', {
-                              timeZone: 'UTC',
-                              hour12: false,
-                            })
-                            : '--'
-
+                            ? new Date(item.idleStartTime).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })
+                            : '--';
                         case 'End Time':
                           return item.idleEndTime
-                            ? new Date(item.idleEndTime).toLocaleString('en-GB', {
-                              timeZone: 'UTC',
-                              hour12: false,
-                            })
-                            : '--'
-
+                            ? new Date(item.idleEndTime).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })
+                            : '--';
                         case 'Duration':
-                          return item.duration || '--'
-
+                          return item.duration || '--';
                         case 'Location':
-                          return item.address || 'No Address Found...'
-
+                          return item.address || 'No Address Found...';
                         case 'Co-ordinates':
                           return item.latitude && item.longitude
                             ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
-                            : '--'
-
+                            : '--';
                         case 'Vehicle Status':
-                          return item.speed === 0 ? 'Idle' : 'Moving'
-
+                          return item.speed !== undefined && item.speed === 0 ? 'Idle' : 'Moving';
                         case 'Total Duration':
                           return item.durationSeconds
                             ? new Date(item.durationSeconds * 1000).toISOString().substr(11, 8)
-                            : '--'
-
+                            : '--';
                         default:
-                          return '--'
+                          return '--';
                       }
                     })()}
                   </CTableDataCell>
@@ -1155,22 +1185,23 @@ const ShowIdeal = ({
               </CTableRow>
             ))
           ) : (
-            <CTableRow>
-              <CTableDataCell
-                colSpan={selectedColumns.length + 2}
-                style={{ textAlign: 'center', fontStyle: 'italic' }}
-              >
-                No data available
-              </CTableDataCell>
-            </CTableRow>
+            !statusLoading && (
+              <CTableRow>
+                <CTableDataCell colSpan={selectedColumns.length + 3} style={{ textAlign: 'center', fontStyle: 'italic' }}>
+                  No data available
+                </CTableDataCell>
+              </CTableRow>
+            )
           )}
         </CTableBody>
+
       </CTable>
 
       <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5">
         <IconDropdown items={dropdownItems} />
       </div>
     </>
+
   )
 }
 
@@ -1285,7 +1316,7 @@ const Ideal = () => {
         console.log('yaha tak thik hai')
 
         // After setting the users, find the selected user based on formData.User
-        const selectedUser = usersData.find((user) => user.userId === formData.User)
+        const selectedUser = usersData.find((user) => user.userId === formData.User);
         const selectedUserName = selectedUser ? selectedUser.username : ''
         setSelectedUserName(selectedUserName)
         console.log('Selected User:', selectedUserName)
@@ -1351,11 +1382,11 @@ const Ideal = () => {
       console.log('All Idles reports')
 
       if (response.status == 200) {
+        setApiData(response.data.data)
+        setStatusLoading(false)
         console.log(response.data.data)
         console.log('done in all')
         console.log(response.data.data)
-        setApiData(response.data.data)
-        setStatusLoading(false)
       }
 
       // Assuming the data returned is what you want to display in the table

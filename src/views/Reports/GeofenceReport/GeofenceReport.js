@@ -332,17 +332,22 @@ const ShowGeofence = ({
   // Address convertor
 
   const getAddressFromLatLng = async (latitude, longitude) => {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+    const apiKey = 'CWVeoDxzhkO07kO693u0';
+    const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`; // ✅ MapTiler URL
 
     try {
-      const response = await axios.get(url)
-      const address = response.data?.display_name || 'Address not found'
-      return address
+      const response = await axios.get(url);
+
+      // ✅ Extract the address from MapTiler's API response
+      const address = response.data?.features?.[0]?.place_name || 'Address not found';
+
+      return address;
     } catch (error) {
-      console.error('Error fetching address: ', error.message)
-      return 'Address not found'
+      console.error('Error fetching address: ', error.message);
+      return 'Address not found';
     }
-  }
+  };
+
 
   // ###################
 
@@ -492,10 +497,9 @@ const ShowGeofence = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${
-            selectedFromDate && selectedToDate
-              ? `${selectedFromDate} - ${selectedToDate}`
-              : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${selectedFromDate && selectedToDate
+            ? `${selectedFromDate} - ${selectedToDate}`
+            : getDateRangeFromPeriod(selectedPeriod)
           }`,
         ])
         worksheet.addRow([`Generated: ${new Date().toLocaleString()}`])
@@ -972,21 +976,21 @@ const ShowGeofence = ({
                 </CTableDataCell>
                 {selectedColumns.length > 0
                   ? selectedColumns.map((col, colIndex) => (
-                      <CTableDataCell
-                        key={colIndex}
-                        style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#eeeeefc2' }}
-                      >
-                        {renderColumnData(data, col)}
-                      </CTableDataCell>
-                    ))
+                    <CTableDataCell
+                      key={colIndex}
+                      style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#eeeeefc2' }}
+                    >
+                      {renderColumnData(data, col)}
+                    </CTableDataCell>
+                  ))
                   : columns.map((col, colIndex) => (
-                      <CTableDataCell
-                        key={colIndex}
-                        style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#eeeeefc2' }}
-                      >
-                        {renderColumnData(data, col)}
-                      </CTableDataCell>
-                    ))}
+                    <CTableDataCell
+                      key={colIndex}
+                      style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#eeeeefc2' }}
+                    >
+                      {renderColumnData(data, col)}
+                    </CTableDataCell>
+                  ))}
               </CTableRow>
             ))
           ) : (

@@ -348,70 +348,66 @@ const ShowStatus = ({
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState('asc')
-  const [addressData, setAddressData] = useState({})
   console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa', selectedUserName)
+
+  const [addressData, setAddressData] = useState({})
+
   const [newAddressData, setnewAddressData] = useState()
   // Function to get address based on latitude and longitude using Nominatim API
   const getAddress = async (latitude, longitude) => {
     try {
-      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your actual MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0'; // Replace with your actual MapTiler API key
       const response = await axios.get(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
-      )
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
+      );
 
-      if (response.data && response.data.features && response.data.features.length > 0) {
-        const address = response.data.features[0].place_name
-        console.log('Fetched address:', address) // Debugging: log the address
-        return address // Return place_name from the features array
+      if (response.data?.features?.length > 0) {
+        const address = response.data.features[0].place_name;
+        return address;
       } else {
-        console.error('Error fetching address: No data found')
-        return 'Address not available'
+        return 'Address not available';
       }
     } catch (error) {
-      console.error('Error:', error.message)
-      return 'Address not available'
+      console.error('Error:', error.message);
+      return 'Address not available';
     }
-  }
+  };
 
   useEffect(() => {
     const fetchAddresses = async () => {
-      // Fetch all addresses concurrently
-      const promises = apiData.data.map(async (data) => {
-        // Split the startLocation and endLocation strings into latitudes and longitudes
-        const [startLat, startLon] = data.startLocation
-          ? data.startLocation.split(',').map((coord) => coord.trim())
-          : [null, null]
-        const [endLat, endLon] = data.endLocation
-          ? data.endLocation.split(',').map((coord) => coord.trim())
-          : [null, null]
-        // Fetch the start and end addresses only if coordinates are valid
-        const startAddress =
-          startLat && startLon ? await getAddress(startLat, startLon) : 'Invalid start location'
-        const endAddress =
-          endLat && endLon ? await getAddress(endLat, endLon) : 'Invalid end location'
-        // Store the addresses in the addressData state
+      const promises = apiData.data.map(async (item, index) => {
+        const [startLat, startLon] = item.startLocation
+          ? item.startLocation.split(',').map((coord) => coord.trim())
+          : [null, null];
+
+        const [endLat, endLon] = item.endLocation
+          ? item.endLocation.split(',').map((coord) => coord.trim())
+          : [null, null];
+
+        const startAddress = startLat && startLon
+          ? await getAddress(startLat, startLon)
+          : 'Invalid start location';
+
+        const endAddress = endLat && endLon
+          ? await getAddress(endLat, endLon)
+          : 'Invalid end location';
+
         return {
-          ouid: data.ouid,
-          startAddress: startAddress || 'Address not found',
-          endAddress: endAddress || 'Address not found',
-        }
-      })
-      // Wait for all promises to resolve
-      const results = await Promise.all(promises)
-      // Update the addressData state with the fetched addresses
-      results.forEach((result) => {
-        setnewAddressData({
-          startAddress: result.startAddress,
-          endAddress: result.endAddress,
-        })
-      })
-      console.log('Updated addressData:', newAddressData) // Debugging: log addressData
-      setAddressData(newAddressData)
-    }
+          id: index, // Unique ID based on index
+          startAddress,
+          endAddress,
+        };
+      });
+
+      const results = await Promise.all(promises);
+      setAddressData(results);
+    };
+
     if (apiData?.data?.length > 0) {
-      fetchAddresses()
+      fetchAddresses();
     }
-  }, [apiData])
+  }, [apiData]);
+
   if (newAddressData) {
     console.log(newAddressData)
   }
@@ -606,10 +602,9 @@ const ShowStatus = ({
           `Group: ${selectedGroupName || 'N/A'}`,
         ])
         worksheet.addRow([
-          `Date Range: ${
-            selectedFromDate && selectedToDate
-              ? `${selectedFromDate} - ${selectedToDate}`
-              : getDateRangeFromPeriod(selectedPeriod)
+          `Date Range: ${selectedFromDate && selectedToDate
+            ? `${selectedFromDate} - ${selectedToDate}`
+            : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
         ])
@@ -837,14 +832,14 @@ const ShowStatus = ({
         return isNaN(date)
           ? '--'
           : date
-              .toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              .replace(',', '')
+            .toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            .replace(',', '')
       }
 
       const formatCoordinates = (coords) => {
@@ -1192,7 +1187,9 @@ const ShowStatus = ({
                           '--'
                         )
                       ) : column === 'Start Address' ? (
-                        newAddressData?.startAddress || 'Fetching...'
+                        // Displaying Start Address based on the current row
+                        addressData[rowIndex]?.startAddress || 'Fetching...'
+
                       ) : column === 'End Date Time' ? (
                         row.endDateTime ? (
                           new Date(row.endDateTime).toLocaleString('en-GB', {
@@ -1209,20 +1206,21 @@ const ShowStatus = ({
                       ) : column === 'Maximum Speed' ? (
                         row.maxSpeed + ' km'
                       ) : column === 'End Address' ? (
-                        newAddressData?.endAddress || 'Fetching...'
+                        // Displaying End Address based on the current row
+                        addressData[rowIndex]?.endAddress || 'Fetching...'
                       ) : column === 'Vehicle Status' ? (
                         row.vehicleStatus
                       ) : column === 'Duration' ? (
                         row.time
                       ) : // : column === 'Average Speed'
-                      //   ? row.averageSpeed
-                      column === 'Start Coordinates' ? (
-                        `${parseFloat(row.startLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.startLocation.split(',')[1]).toFixed(5)}`
-                      ) : column === 'End Coordinates' ? (
-                        `${parseFloat(row.endLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.endLocation.split(',')[1]).toFixed(5)}`
-                      ) : (
-                        '--'
-                      )}
+                        //   ? row.averageSpeed
+                        column === 'Start Coordinates' ? (
+                          `${parseFloat(row.startLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.startLocation.split(',')[1]).toFixed(5)}`
+                        ) : column === 'End Coordinates' ? (
+                          `${parseFloat(row.endLocation.split(',')[0]).toFixed(5)}, ${parseFloat(row.endLocation.split(',')[1]).toFixed(5)}`
+                        ) : (
+                          '--'
+                        )}
                     </CTableDataCell>
                   </>
                 ))}
@@ -1474,8 +1472,8 @@ const Status = () => {
 
     const toDate = formData.ToDate
       ? new Date(
-          new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
-        ).toISOString()
+        new Date(formData.ToDate).setHours(23, 59, 59, 999) + (5 * 60 + 30) * 60000,
+      ).toISOString()
       : ''
 
     const body = {

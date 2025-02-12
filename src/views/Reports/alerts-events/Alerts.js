@@ -174,17 +174,19 @@ const Alerts = () => {
 
   // Function to get address from latitude and longitude
   const getAddressFromLatLng = async (latitude, longitude) => {
-    // const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+    const apiKey = 'CWVeoDxzhkO07kO693u0';
+    // const url = `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`;
 
     try {
-      const response = await axios.get(url)
-      const address = response.data?.display_name || 'Address not found'
-      return address
+      const response = await axios.get(url);
+      const address = response.data?.features?.[0]?.place_name || 'Address not found'; // ✅ Updated to match MapTiler's response structure
+      return address;
     } catch (error) {
-      console.error('Error fetching address: ', error)
-      return 'Address not found'
+      console.error('Error fetching address: ', error);
+      return 'Address not found';
     }
-  }
+  };
+
 
   // Filter data whenever filterType or searchQuery changes
   useEffect(() => {

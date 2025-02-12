@@ -347,42 +347,60 @@ const TripTable = ({
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
   const [addressData, setAddressData] = useState({})
   console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa', selectedUserName)
+
+
   // Function to get address based on latitude and longitude using Nominatim API
   const getAddress = async (latitude, longitude) => {
     try {
-      const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your actual MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0';
       const response = await axios.get(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
-      )
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
+      );
 
-      if (response.data && response.data.features && response.data.features.length > 0) {
-        const address = response.data.features[0].place_name // MapTiler's address field
-        console.log('Fetched address:', address) // Debugging: log the address
-        return address // Return place_name from MapTiler response
+      if (response.data?.features?.length > 0) {
+        const address = response.data.features[0].place_name;
+        console.log('Fetched address:', address);
+        return address;
       } else {
-        console.error('Error fetching address: No data found')
-        return 'Address not available'
+        console.error('Error fetching address: No data found');
+        return 'Address not available';
       }
     } catch (error) {
-      console.error('Error:', error.message)
-      return 'Address not available'
+      console.error('Error:', error.message);
+      return 'Address not available';
     }
-  }
+  };
+
+
   useEffect(() => {
     const fetchAddresses = async () => {
-      const newAddressData = {}
-      for (const trip of apiData.finalTrip) {
-        const startAddress = await getAddress(trip.startLatitude, trip.startLongitude)
-        const endAddress = await getAddress(trip.endLatitude, trip.endLongitude)
-        newAddressData[trip.deviceId] = { startAddress, endAddress }
-      }
-      setAddressData(newAddressData)
-    }
+      const newAddressData = {};
+
+      const promises = apiData.finalTrip.map(async (trip) => {
+        const tripKey = `${trip.deviceId}-${trip.startTime}`; // Unique key for each trip
+
+        if (!addressData[tripKey]) {
+          const [startAddress, endAddress] = await Promise.all([
+            getAddress(trip.startLatitude, trip.startLongitude),
+            getAddress(trip.endLatitude, trip.endLongitude)
+          ]);
+
+          newAddressData[tripKey] = { startAddress, endAddress };
+        } else {
+          newAddressData[tripKey] = addressData[tripKey]; // Use cached data if available
+        }
+      });
+
+      await Promise.all(promises);
+      setAddressData((prev) => ({ ...prev, ...newAddressData }));
+    };
 
     if (apiData?.finalTrip?.length > 0) {
-      fetchAddresses()
+      fetchAddresses();
     }
-  }, [apiData])
+  }, [apiData]);
+
+
 
   const columnKeyMap = {
     'Start Time': 'startTime',
@@ -453,7 +471,6 @@ const TripTable = ({
   }, [apiData, sortConfig])
 
   // Function to export table data to Excel
-  // Updated function to export table data to Excel with dynamic columns
   const exportToExcel = async () => {
     try {
       // Validate that there is data
@@ -1251,13 +1268,15 @@ const TripTable = ({
                         case 'Duration':
                           return row.duration
                         case 'Start Address':
-                          return addressData[row.deviceId]?.startAddress || 'Fetching...'
+                          const startKey = `${row.deviceId}-${row.startTime}`;
+                          return addressData[startKey]?.startAddress || 'Fetching...';
                         case 'Start Co-ordinates':
                           return row.startLatitude && row.startLongitude
                             ? `${row.startLatitude}, ${row.startLongitude}`
                             : 'Fetching Co-ordinates...'
                         case 'End Address':
-                          return addressData[row.deviceId]?.endAddress || 'Fetching...'
+                          const endKey = `${row.deviceId}-${row.startTime}`;
+                          return addressData[endKey]?.endAddress || 'Fetching...';
                         case 'End Co-ordinates':
                           return row.endLatitude && row.endLongitude
                             ? `${row.endLatitude}, ${row.endLongitude}`
@@ -1481,11 +1500,9 @@ const Trips = () => {
       // console.log(response.data.deviceDataByTrips[0]);
 
       if (response.status == 200) {
-        console.log(response.data.finalTrip)
-        // console.log('done in all')
-        // console.log(response.data)
         setApiData(response.data)
         setStatusLoading(false)
+        console.log(response.data.finalTrip)
       }
 
       // Assuming the data returned is what you want to display in the table

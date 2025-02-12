@@ -316,7 +316,6 @@ const ShowSummary = ({
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState('asc')
-  const [addressData, setAddressData] = useState({})
   console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa', selectedUserName)
   const [newAddressData, setnewAddressData] = useState()
 
@@ -364,70 +363,63 @@ const ShowSummary = ({
       dayWiseTrips: vehicle.dayWiseTrips || [], // Adjust based on your API structure
     })) || []
 
+  const [addressData, setAddressData] = useState([]);
+
+  // Address converter fetch location
+
   const getAddress = async (latitude, longitude) => {
     try {
-      const apiKey = 'CWVeoDxzhkO07kO693u0' // Replace with your actual MapTiler API key
+      const apiKey = 'CWVeoDxzhkO07kO693u0'; // Replace with your actual MapTiler API key
       const response = await axios.get(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`,
-      )
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${apiKey}`
+      );
 
-      if (response.data && response.data.features && response.data.features.length > 0) {
-        const address = response.data.features[0].place_name
-        console.log('Fetched address:', address) // Debugging: log the address
-        return address // Return place_name from the features array
+      if (response.data?.features?.length > 0) {
+        const address = response.data.features[0].place_name;
+        return address;
       } else {
-        console.error('Error fetching address: No data found')
-        return 'Address not available'
+        return 'Address not available';
       }
     } catch (error) {
-      console.error('Error:', error.message)
-      return 'Address not available'
+      console.error('Error:', error.message);
+      return 'Address not available';
     }
-  }
+  };
+
 
   useEffect(() => {
     const fetchAddresses = async () => {
-      // Fetch all addresses concurrently
-      const promises = apiData.reportData.map(async (data) => {
-        // Split the startLocation and endLocation strings into latitudes and longitudes
-        const [startLat, startLon] = data.startLocation
-          ? data.startLocation.split(',').map((coord) => coord.trim())
-          : [null, null]
-        const [endLat, endLon] = data.endLocation
-          ? data.endLocation.split(',').map((coord) => coord.trim())
-          : [null, null]
-        // Fetch the start and end addresses only if coordinates are valid
-        const startAddress =
-          startLat && startLon ? await getAddress(startLat, startLon) : 'Invalid start location'
-        const endAddress =
-          endLat && endLon ? await getAddress(endLat, endLon) : 'Invalid end location'
-        // Store the addresses in the addressData state
-        return {
-          ouid: data.ouid,
-          startAddress: startAddress || 'Address not found',
-          endAddress: endAddress || 'Address not found',
-        }
-      })
-      // Wait for all promises to resolve
-      const results = await Promise.all(promises)
-      // Update the addressData state with the fetched addresses
-      results.forEach((result) => {
-        setnewAddressData({
-          startAddress: result.startAddress,
-          endAddress: result.endAddress,
-        })
-      })
-      console.log('Updated addressData:', newAddressData) // Debugging: log addressData
-      setAddressData(newAddressData)
-    }
-    if (apiData?.reportData?.length > 0) {
-      fetchAddresses()
-    }
-  }, [apiData])
+      const promises = apiData.reportData.map(async (vehicle) => {
+        // Fetch start and end addresses for the vehicle
+        const startAddress = await getAddress(vehicle.startLat, vehicle.startLong);
+        const endAddress = await getAddress(vehicle.endLat, vehicle.endLong);
 
-  if (newAddressData) {
-    console.log(newAddressData)
-  }
+        // Fetch addresses for dayWiseTrips
+        const tripsWithAddresses = await Promise.all(
+          vehicle.dayWiseTrips.map(async (trip) => {
+            const tripStartAddress = await getAddress(trip.startLatitude, trip.startLongitude);
+            const tripEndAddress = await getAddress(trip.endLatitude, trip.endLongitude);
+            return { ...trip, startAddress: tripStartAddress, endAddress: tripEndAddress };
+          })
+        );
+
+        return { ...vehicle, startAddress, endAddress, dayWiseTrips: tripsWithAddresses };
+      });
+
+      const updatedData = await Promise.all(promises);
+      setAddressData(updatedData); // Update state with the addresses
+    };
+
+    if (apiData?.reportData?.length > 0) {
+      fetchAddresses();
+    }
+  }, [apiData]);
+
+
+  // if (newAddressData) {
+  //   console.log(newAddressData)
+  // }
+
   const handleSort = (column) => {
     const isAsc = sortBy === column && sortOrder === 'asc'
     setSortOrder(isAsc ? 'desc' : 'asc')
@@ -664,11 +656,13 @@ const ShowSummary = ({
           { header: 'SN', width: 8 },
           { header: 'Vehicle Number', width: 25 },
           { header: 'Start Address', width: 20 },
+          { header: 'Start Co-ordinate', width: 20 },
           { header: 'Total Distance', width: 25 },
           { header: 'Running Time', width: 25 },
           { header: 'Idle Time', width: 25 },
           { header: 'Stop Time', width: 25 },
           { header: 'End Address', width: 35 },
+          { header: 'End Co-ordinate', width: 20 },
           { header: 'Maximum Speed', width: 20 },
           { header: 'Average Speed', width: 20 },
         ],
@@ -677,6 +671,7 @@ const ShowSummary = ({
           { header: 'Report Date', width: 25 },
           { header: 'Ignition Start', width: 25 },
           { header: 'Start Location', width: 25 },
+          { header: 'Start Co-ordinate', width: 25 },
           { header: 'Distance', width: 25 },
           { header: 'Running', width: 25 },
           { header: 'Idle', width: 25 },
@@ -685,6 +680,7 @@ const ShowSummary = ({
           { header: 'Max. Speed(km/h)', width: 25 },
           { header: 'Avg. Speed(km/h)', width: 25 },
           { header: 'End Location', width: 25 },
+          { header: 'End Co-ordinate', width: 25 },
           { header: 'Ignition Stop', width: 25 },
         ],
         company: {
@@ -795,11 +791,13 @@ const ShowSummary = ({
             index + 1,
             item.name || '--', // Replacing selectedDeviceName with item.name for consistency
             newAddressData?.startAddress || '--', // Same as PDF
+            formatCoordinates(`${item.startLat}, ${item.startLong}`),
             typeof item.distance === 'string' ? `${item.distance} km` : '--', // Adjusted to string check like PDF
             item.running || '--', // Added to match PDF
             item.idle || '--',    // Added to match PDF
             item.stop || '--',    // Added to match PDF
             newAddressData?.endAddress || '--', // Same as PDF
+            formatCoordinates(`${item.endLat}, ${item.endLong}`),
             typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--', // Consistent formatting
             typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--', // Added to match PDF
 
@@ -864,6 +862,7 @@ const ShowSummary = ({
             index + 1,
             trip.date || '--',
             formatExcelDate(trip.startTime),
+            trip.startAddress || "--",
             formatCoordinates(`${trip.startLatitude}, ${trip.startLongitude}`),
             trip.distance || '--',
             trip.runningTime || '--',
@@ -872,6 +871,7 @@ const ShowSummary = ({
             trip.workingHours || '--',
             typeof trip.maxSpeed === 'number' ? `${trip.maxSpeed.toFixed(2)} km/h` : '--',
             typeof trip.avgSpeed === 'number' ? `${trip.avgSpeed.toFixed(2)} km/h` : '--',
+            trip.endAddress || '--',
             formatCoordinates(`${trip.endLatitude}, ${trip.endLongitude}`),
             formatExcelDate(trip.endTime),
           ])
@@ -1087,11 +1087,13 @@ const ShowSummary = ({
         'SN',
         'Vehicle',
         'Start Address',
+        'Start Co-ordinate',
         'Total Distance',
         'Running',
         'Idle',
         'Stop',
         'End Address',
+        'End Co-ordinate',
         'Max. Speed (km/h)',
         'Avg. Speed (km/h)',
       ];
@@ -1101,6 +1103,7 @@ const ShowSummary = ({
         'Report Date',
         'Ignition Start',
         'Start Location',
+        'Start Co-ordinate',
         'Distance',
         'Running',
         'Idle',
@@ -1109,19 +1112,22 @@ const ShowSummary = ({
         'Max. Speed (km/h)',
         'Avg. Speed (km/h)',
         'End Location',
+        'End Co-ordinate',
         'Ignition Stop',
       ];
 
       // Table Rows for Vehicle Summary
-      const tableRows = sortedData.map((item, index) => [
+      const tableRows = addressData.map((item, index) => [
         index + 1,
         item.name || '--',
-        newAddressData?.startAddress || '--',
+        addressData?.startAddress || '--', // ✅ Corrected
+        formatCoordinates(`${item.startLat}, ${item.startLong}`),
         typeof item.distance === 'string' ? `${item.distance} km` : '--',
         item.running || '--',
         item.idle || '--',
         item.stop || '--',
-        newAddressData?.endAddress || '--',
+        addressData?.endAddress || '--',   // ✅ Corrected
+        formatCoordinates(`${item.endLat}, ${item.endLong}`),
         typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--',
         typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--',
         item.dayWiseTrips?.reduce((acc, trip) => acc + ` ${trip.workingHours}`, '') || '--',
@@ -1152,7 +1158,7 @@ const ShowSummary = ({
         if (!sortedData || sortedData.length === 0) return;
         let yPosition = doc.lastAutoTable.finalY + 10;
 
-        sortedData.forEach((item, vehicleIndex) => {
+        sortedData.forEach((item) => {
           if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return;
           doc.setFontSize(12);
           doc.setFont(CONFIG.fonts.primary, 'bold');
@@ -1163,6 +1169,7 @@ const ShowSummary = ({
             index + 1,
             trip.date || '--',
             formatDate(trip.startTime) || '--',
+            trip.startAddress || '--', // ✅ Correct usage
             formatCoordinates(`${trip.startLatitude}, ${trip.startLongitude}`),
             trip.distance || '--',
             trip.runningTime || '--',
@@ -1171,9 +1178,11 @@ const ShowSummary = ({
             trip.workingHours || '--',
             `${trip.maxSpeed?.toFixed(2) ?? '--'} km/h`,
             `${trip.avgSpeed?.toFixed(2) ?? '--'} km/h`,
+            trip.endAddress || '--',   // ✅ Correct usage
             formatCoordinates(`${trip.endLatitude}, ${trip.endLongitude}`),
             formatDate(trip.endTime) || '--',
           ]);
+
 
           doc.autoTable({
             startY: yPosition,
@@ -1310,6 +1319,12 @@ const ShowSummary = ({
                   className="text-center"
                   style={{ background: '#0a2d63', color: 'white' }}
                 >
+                  Start Co-ordinate
+                </CTableHeaderCell>
+                <CTableHeaderCell
+                  className="text-center"
+                  style={{ background: '#0a2d63', color: 'white' }}
+                >
                   Total Distance
                 </CTableHeaderCell>
                 <CTableHeaderCell
@@ -1335,6 +1350,12 @@ const ShowSummary = ({
                   style={{ background: '#0a2d63', color: 'white' }}
                 >
                   End Address
+                </CTableHeaderCell>
+                <CTableHeaderCell
+                  className="text-center"
+                  style={{ background: '#0a2d63', color: 'white' }}
+                >
+                  End Co-ordinate
                 </CTableHeaderCell>
                 <CTableHeaderCell
                   className="text-center"
@@ -1378,7 +1399,7 @@ const ShowSummary = ({
                   </CTableDataCell>
                 </CTableRow>
               ) : (
-                reportData.map((vehicle, index) => (
+                addressData.map((vehicle, index) => (
                   <React.Fragment key={vehicle.name}>
                     <CTableRow>
                       <CTableDataCell className="text-center">
@@ -1406,6 +1427,9 @@ const ShowSummary = ({
                       <CTableDataCell className="text-center">{index + 1}</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.name}</CTableDataCell>
                       <CTableDataCell className="text-center">
+                        {vehicle.startAddress || 'Loading Address...'}
+                      </CTableDataCell>
+                      <CTableDataCell className="text-center">
                         {`${vehicle.startLat} ${vehicle.startLong}`}
                       </CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.distance} KM</CTableDataCell>
@@ -1413,7 +1437,10 @@ const ShowSummary = ({
                       <CTableDataCell className="text-center">{vehicle.idle}</CTableDataCell>
                       <CTableDataCell className="text-center">{vehicle.stop}</CTableDataCell>
                       <CTableDataCell className="text-center">
-                        {`${vehicle.endLat} ${vehicle.endLog}`}
+                        {vehicle.endAddress || 'Loading Address...'}
+                      </CTableDataCell>
+                      <CTableDataCell className="text-center">
+                        {`${vehicle.endLat} ${vehicle.endLong}`}
                       </CTableDataCell>
                       <CTableDataCell className="text-center">
                         {(vehicle.maxSpeed !== null && vehicle.maxSpeed !== undefined) ? vehicle.maxSpeed.toFixed(2) : 'N/A'} km/h
@@ -1465,6 +1492,16 @@ const ShowSummary = ({
                                       }}
                                     >
                                       Start Location
+                                    </CTableHeaderCell>
+                                    <CTableHeaderCell
+                                      className="text-center"
+                                      style={{
+                                        background: '#0a2d63',
+                                        color: 'white',
+                                        minWidth: '120px',
+                                      }}
+                                    >
+                                      Start Co-ordinate
                                     </CTableHeaderCell>
                                     <CTableHeaderCell
                                       className="text-center"
@@ -1554,6 +1591,16 @@ const ShowSummary = ({
                                         minWidth: '120px',
                                       }}
                                     >
+                                      End Co-ordinate
+                                    </CTableHeaderCell>
+                                    <CTableHeaderCell
+                                      className="text-center"
+                                      style={{
+                                        background: '#0a2d63',
+                                        color: 'white',
+                                        minWidth: '120px',
+                                      }}
+                                    >
                                       Ignition Stop
                                     </CTableHeaderCell>
                                   </CTableRow>
@@ -1574,6 +1621,9 @@ const ShowSummary = ({
                                         {formatDateTime(trip.startTime)}
                                       </CTableDataCell>
                                       {/**Start Locations */}
+                                      <CTableDataCell className="text-center">
+                                        {trip.startAddress}
+                                      </CTableDataCell>
                                       <CTableDataCell className="text-center">
                                         {`${trip.startLatitude}, ${trip.startLongitude}`}
                                       </CTableDataCell>
@@ -1606,6 +1656,9 @@ const ShowSummary = ({
                                         {(trip.avgSpeed !== null && trip.avgSpeed !== undefined) ? trip.avgSpeed.toFixed(2) : 'N/A'}
                                       </CTableDataCell>
                                       {/**End Location */}
+                                      <CTableDataCell className="text-center">
+                                        {trip.endAddress}
+                                      </CTableDataCell>
                                       <CTableDataCell className="text-center">
                                         {`${trip.endLatitude}, ${trip.endLongitude}`}
                                       </CTableDataCell>
@@ -1680,11 +1733,13 @@ const TravelReport = () => {
   const [columns] = useState([
     'Vehicle',
     'Start Address',
+    'Start Co-ordinate',
     'Total Distance',
     'Running',
     'Idle',
     'Stop',
     'End Address',
+    'End Co-ordinate',
     'Max. Speed (km/h)',
     'Avg. Speed (km/h)',
   ])
@@ -1692,6 +1747,7 @@ const TravelReport = () => {
     'Report Date',
     'Ignition Start',
     'Start Location',
+    'Start Co-ordinate',
     'Distance',
     'Running',
     'Idle',
@@ -1700,6 +1756,7 @@ const TravelReport = () => {
     'Max. Speed (km/h)',
     'Avg. Speed (km/h)',
     'End Location',
+    'End Co-ordinate',
     'Ignition Stop',
   ])
   const [selectedColumns, setSelectedColumns] = useState([])
