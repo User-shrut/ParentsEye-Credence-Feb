@@ -15,40 +15,41 @@ const Login = () => {
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!credentials.username || !credentials.password) {
-      toast.error('Please enter both username and password')
-      return
+    if (!credentials?.username || !credentials?.password) {
+      toast.error('Please enter both username and password');
+      return;
     }
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/auth/login`
+      const apiUrl = `${import.meta.env.VITE_API_URL}/auth/login`;
 
-      const response = await axios.post(apiUrl, credentials)
+      const response = await axios.post(apiUrl, credentials);
 
-      const { token } = response.data
+      if (response.data?.token) {
+        const { token } = response.data;
 
-      if (token) {
-        Cookies.set('crdntl', JSON.stringify(credentials))
         const cookieOptions = {
-          secure: false, // Change to true if using HTTPS
-        }
+          secure: window.location.protocol === 'https:', // Set secure for HTTPS
+        };
 
         if (rememberMe) {
-          cookieOptions.expires = 30 // Expires in 30 days
+          cookieOptions.expires = 30; // Expires in 30 days
         }
 
-        Cookies.set('authToken', token, cookieOptions)
-        navigate('/dashboard')
+        Cookies.set('crdntl', JSON.stringify(credentials), cookieOptions);
+        Cookies.set('authToken', token, cookieOptions);
+        navigate('/dashboard');
       } else {
-        alert(response.data.message)
+        toast.error(response.data?.message || 'Login failed');
       }
     } catch (error) {
-      console.error('Login error:', error)
-      toast.error('Invalid credentials')
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.message || 'Invalid credentials');
     }
-  }
+  };
+
 
   return (
     <>
