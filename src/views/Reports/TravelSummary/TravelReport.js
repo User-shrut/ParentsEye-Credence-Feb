@@ -918,7 +918,7 @@ const ShowSummary = ({
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       })
-      const filename = `Status_Report_${new Date().toISOString().split('T')[0]}.xlsx`
+      const filename = `Travels_Report_${new Date().toISOString().split('T')[0]}.xlsx`
       saveAs(blob, filename)
       toast.success('Excel file downloaded successfully')
     } catch (error) {
