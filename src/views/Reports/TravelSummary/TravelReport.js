@@ -1485,7 +1485,7 @@ const ShowSummary = ({
                       </CTableDataCell>
                     </CTableRow>
                     <CTableRow>
-                      <CTableDataCell colSpan={12} className="p-0">
+                      <CTableDataCell colSpan={13} className="p-0">
                         <CCollapse visible={expandedRows.includes(vehicle.name)}>
                           <CCard className="m-3">
                             <CCardBody>
