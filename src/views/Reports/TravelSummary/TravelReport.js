@@ -407,6 +407,7 @@ const ShowSummary = ({
 
       const updatedData = await Promise.all(promises);
       setAddressData(updatedData); // Update state with the addresses
+      setnewAddressData(updatedData);
     };
 
     if (apiData?.reportData?.length > 0) {
@@ -415,9 +416,9 @@ const ShowSummary = ({
   }, [apiData]);
 
 
-  // if (newAddressData) {
-  //   console.log(newAddressData)
-  // }
+  if (newAddressData) {
+    console.log("adressss new wala", newAddressData)
+  }
 
   const handleSort = (column) => {
     const isAsc = sortBy === column && sortOrder === 'asc'
@@ -789,17 +790,17 @@ const ShowSummary = ({
         })
 
         // Add data rows
-        sortedData.forEach((item, index) => {
+        addressData.forEach((item, index) => {
           const rowData = [
             index + 1,
             item.name || '--', // Replacing selectedDeviceName with item.name for consistency
-            newAddressData?.startAddress || '--', // Same as PDF
+            item.startAddress || '--', // Same as PDF
             formatCoordinates(`${item.startLat}, ${item.startLong}`),
             typeof item.distance === 'string' ? `${item.distance} km` : '--', // Adjusted to string check like PDF
             item.running || '--', // Added to match PDF
             item.idle || '--', // Added to match PDF
             item.stop || '--', // Added to match PDF
-            newAddressData?.endAddress || '--', // Same as PDF
+            item.endAddress || '--', // Same as PDF
             formatCoordinates(`${item.endLat}, ${item.endLong}`),
             typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--', // Consistent formatting
             typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--', // Added to match PDF
@@ -827,7 +828,7 @@ const ShowSummary = ({
       // Add day-wise summary
       // Add day-wise summary
       const addDaywiseSummary = () => {
-        sortedData.forEach((item, vehicleIndex) => {
+        addressData.forEach((item, vehicleIndex) => {
           if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return
 
           // Title row for the day-wise summary for the current vehicle
@@ -1152,13 +1153,13 @@ const ShowSummary = ({
       const tableRows = addressData.map((item, index) => [
         index + 1,
         item.name || '--',
-        addressData?.startAddress || '--', // ✅ Corrected
+        item.startAddress || '--', // ✅ Corrected
         formatCoordinates(`${item.startLat}, ${item.startLong}`),
         typeof item.distance === 'string' ? `${item.distance} km` : '--',
         item.running || '--',
         item.idle || '--',
         item.stop || '--',
-        addressData?.endAddress || '--',   // ✅ Corrected
+        item.endAddress || '--',   // ✅ Corrected
         formatCoordinates(`${item.endLat}, ${item.endLong}`),
         typeof item.maxSpeed === 'number' ? `${item.maxSpeed.toFixed(2)} km/h` : '--',
         typeof item.avgSpeed === 'number' ? `${item.avgSpeed.toFixed(2)} km/h` : '--',
@@ -1190,7 +1191,7 @@ const ShowSummary = ({
         if (!sortedData || sortedData.length === 0) return
         let yPosition = doc.lastAutoTable.finalY + 10
 
-        sortedData.forEach((item) => {
+        addressData.forEach((item) => {
           if (!item.dayWiseTrips || item.dayWiseTrips.length === 0) return;
           doc.setFontSize(12);
           doc.setFont(CONFIG.fonts.primary, 'bold');
