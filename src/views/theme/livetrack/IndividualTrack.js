@@ -486,12 +486,13 @@ const IndividualTrack = () => {
                 🎯
               </button>
 
-              <div
-                className="toggle-geofence-view"
+              <button
+                className="btn toggle-geofence-view"
                 onClick={() => setEnableAddGeofence(() => !enableAddGeofence)}
+                title={enableAddGeofence ? 'Disable Add Geofence' : 'Enable Add Geofence'}
               >
                 <BsFillGeoFill size={12} />
-              </div>
+              </button>
               <TileLayer
                 url={
                   isSatelliteView
