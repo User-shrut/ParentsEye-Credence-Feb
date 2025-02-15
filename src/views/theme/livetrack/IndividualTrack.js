@@ -507,7 +507,10 @@ const IndividualTrack = () => {
                 <>
                   <ClickHandler onClick={handleMapClick} />
                   {clickedPosition && (
-                    <Marker position={clickedPosition}>
+                    <Marker position={clickedPosition}
+                      eventHandlers={{
+                        click: () => setAutoFocusEnabled(false), // Disable autofocus on marker click
+                      }}>
                       <Popup style={popupStyle}>
                         <div className="row justify-content-center">
                           <div className="col-12" style={{ maxWidth: '400px' }}>
@@ -532,7 +535,7 @@ const IndividualTrack = () => {
                                     value={geofenceType}
                                     style={{ fontSize: '15px' }}
                                   >
-                                    <option value="" disabled>
+                                    <option value="" selected disabled>
                                       Select geofence type
                                     </option>
                                     {PlaceType.map((item, index) => (
@@ -559,7 +562,10 @@ const IndividualTrack = () => {
                                 </div>
 
                                 <button
-                                  onClick={handleAddGeofence}
+                                  onClick={() => {
+                                    handleAddGeofence();
+                                    setAutoFocusEnabled(true); // Enable autofocus after geofence submission
+                                  }}
                                   className="btn btn-primary w-100"
                                 >
                                   Add Geofence
@@ -799,7 +805,7 @@ const IndividualTrack = () => {
             </MapContainer>
           </div>
         </div>
-      </div>
+      </div >
       <div className="position-fixed bottom-0 end-0 mb-5 m-3 z-5" style={{ zIndex: '1000' }}>
         <IconDropdown items={dropdownItems} />
       </div>
