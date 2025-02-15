@@ -84,10 +84,10 @@ const AppHeaderDropdown = () => {
               ? decodedToken.user.username.slice(0, 12)
               : decodedToken?.username && decodedToken.username.slice(0, 12)}
           </CDropdownItem>
-          <CDropdownItem type="button" onClick={handleHelpSupportClick}>
+          {/* <CDropdownItem type="button" onClick={handleHelpSupportClick}>
             <BiSupport className="me-3 fs-5" />
             Help & Support
-          </CDropdownItem>
+          </CDropdownItem> */}
           <CDropdownItem type="button" onClick={logoutFunc}>
             <CgLogOut className="me-3 fs-5" />
             Logout
