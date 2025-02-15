@@ -8,8 +8,10 @@ import {
   Polyline,
   Polygon,
   Circle,
+  useMapEvents,
 } from 'react-leaflet'
-import L from 'leaflet'
+import { BsFillGeoFill } from 'react-icons/bs'
+import L, { latLng } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { CCard, CCardBody, CCardHeader } from '@coreui/react'
 import axios from 'axios'
@@ -36,12 +38,12 @@ import Cookies from 'js-cookie'
 import IconDropdown from '../../../components/ButtonDropdown'
 import { HiOutlineLogout } from 'react-icons/hi'
 import { MdDashboard } from 'react-icons/md'
+import { Select, Slider } from '@mui/material'
+import zIndex from '@mui/material/styles/zIndex'
+import toast, { Toaster } from 'react-hot-toast'
 
 const accessToken = Cookies.get('authToken')
 
-// Helper function to determine if a point is inside a polygon
-// point: [lat, lng]
-// vs: array of [lat, lng]
 function pointInPolygon(point, vs) {
   const x = point[1],
     y = point[0]
@@ -57,43 +59,60 @@ function pointInPolygon(point, vs) {
   return inside
 }
 
-const MapController = ({ individualSalesMan, previousPosition, setPath }) => {
+function interpolatePoints(start, end, steps) {
+  const interpolated = []
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps
+    interpolated.push([start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t])
+  }
+  return interpolated
+}
+
+// Updated MapController.jsx
+const MapController = ({ individualSalesMan, previousPosition, polylineRef, autoFocusEnabled }) => {
   const map = useMap()
   const animationRef = useRef(null)
 
+  // Easing function: easeInOutQuad
+  const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t)
+
   useEffect(() => {
-    if (individualSalesMan && map) {
+    if (individualSalesMan && map && autoFocusEnabled) {
       const { latitude, longitude } = individualSalesMan
       const targetPosition = [latitude, longitude]
 
-      // Update the path with the new position
-      setPath((prevPath) => [...prevPath, targetPosition])
-
-      if (previousPosition) {
-        const { latitude: prevLat, longitude: prevLon } = previousPosition
-        const start = [prevLat, prevLon]
-        const end = targetPosition
-        const duration = 50000 // Total animation duration in milliseconds
-
+      // If we have a previous position, animate from there to the new position.
+      if (previousPosition.current) {
+        const { latitude: prevLat, longitude: prevLon } = previousPosition.current
+        const duration = 2000 // duration in milliseconds for smooth transition
         let startTime
 
         const animateMarker = (timestamp) => {
           if (!startTime) startTime = timestamp
-
           const elapsedTime = timestamp - startTime
-          const progress = Math.min(elapsedTime / duration, 1) // Calculate progress between 0 and 1
+          const progress = Math.min(elapsedTime / duration, 1)
+          const easedProgress = easeInOutQuad(progress)
 
-          // Calculate intermediate positions
-          const newLat = prevLat + (latitude - prevLat) * progress
-          const newLon = prevLon + (longitude - prevLon) * progress
+          // Calculate the new marker position
+          const newLat = prevLat + (latitude - prevLat) * easedProgress
+          const newLon = prevLon + (longitude - prevLon) * easedProgress
 
+          // Update polyline in real-time using ref
+          if (polylineRef.current) {
+            const currentPath = polylineRef.current.getLatLngs()
+            currentPath.push([newLat, newLon])
+            polylineRef.current.setLatLngs(currentPath)
+          }
+
+          // Optionally update the map view as the marker moves
           map.setView([newLat, newLon], map.getZoom(), { animate: true })
 
           if (progress < 1) {
-            animationRef.current = requestAnimationFrame(animateMarker) // Continue animation
+            animationRef.current = requestAnimationFrame(animateMarker)
           } else {
-            // Final position
+            // Ensure we finish at the target position and update the ref
             map.setView(targetPosition, 16, { animate: true })
+            previousPosition.current = individualSalesMan
           }
         }
 
@@ -101,19 +120,27 @@ const MapController = ({ individualSalesMan, previousPosition, setPath }) => {
 
         return () => {
           if (animationRef.current) {
-            cancelAnimationFrame(animationRef.current) // Clean up animation
+            cancelAnimationFrame(animationRef.current)
           }
         }
       } else {
+        // If there is no previous position, simply add the current position
+        if (polylineRef.current) {
+          const currentPath = polylineRef.current.getLatLngs()
+          currentPath.push(targetPosition)
+          polylineRef.current.setLatLngs(currentPath)
+        }
         map.setView(targetPosition, 16, { animate: true })
+        previousPosition.current = individualSalesMan
       }
     }
-  }, [individualSalesMan, map, previousPosition, setPath])
+  }, [individualSalesMan, map, autoFocusEnabled, previousPosition, polylineRef])
 
   return null
 }
 
 const IndividualTrack = () => {
+  const [autoFocusEnabled, setAutoFocusEnabled] = useState(true)
   const { deviceId, category, name } = useParams()
   const { vehicleData, loading, error } = useVehicleTracker(deviceId)
   const [individualSalesMan, setIndividualSalesMan] = useState(null)
@@ -126,6 +153,102 @@ const IndividualTrack = () => {
   const [showGeofence, setShowGeofence] = useState(true)
   // State to track which geofences the vehicle is currently inside
   const [activeGeofences, setActiveGeofences] = useState([])
+  const [clickedPosition, setClickedPosition] = useState(null)
+  const [formData, setFormData] = useState({})
+  const [clickMap, setClickMap] = useState(false)
+  const [radiusSlider, setRadiusSlider] = useState(0)
+  const [geofenceName, setGeofencesName] = useState('')
+  const [geofenceType, setGeofencesType] = useState()
+  // Add this state at the top of the component
+  const [enableAddGeofence, setEnableAddGeofence] = useState(false)
+  const polylineRef = useRef(null) // Ref for polyline instance
+
+  const PlaceType = [
+    { value: 'ATM', label: 'ATM' },
+    { value: 'Airport', label: 'Airport' },
+    { value: 'Bank', label: 'Bank' },
+    { value: 'Beach', label: 'Beach' },
+    { value: 'Bus_Stop', label: 'Bus Stop' },
+    { value: 'Restaurant', label: 'Restaurant' },
+    { value: 'Dairy', label: 'Dairy' },
+    { value: 'District', label: 'District' },
+    { value: 'Facility', label: 'Facility' },
+    { value: 'Factory', label: 'Factory' },
+    { value: 'Fuel_Station', label: 'Fuel Station' },
+    { value: 'Highway_point', label: 'Highway Point' },
+    { value: 'Home', label: 'Home' },
+    { value: 'Hospital', label: 'Hospital' },
+    { value: 'Hotel', label: 'Hotel' },
+    { value: 'Mosque', label: 'Mosque' },
+    { value: 'Office', label: 'Office' },
+    { value: 'Other', label: 'Other' },
+    { value: 'Police_Station', label: 'Police Station' },
+    { value: 'Post_Office', label: 'Post Office' },
+    { value: 'Railway_Station', label: 'Railway Station' },
+    { value: 'Recycle_Station', label: 'Recycle Station' },
+    { value: 'School', label: 'School' },
+    { value: 'Traffic_Signal', label: 'Traffic Signal' },
+    { value: 'State_Border', label: 'State Border' },
+    { value: 'Sub_Division', label: 'Sub Division' },
+    { value: 'Temple', label: 'Temple' },
+    { value: 'Theater', label: 'Theater' },
+    { value: 'Theme_Park', label: 'Theme Park' },
+    { value: 'Toll_Gate', label: 'Toll Gate' },
+    { value: 'Tunnel', label: 'Tunnel' },
+    { value: 'University', label: 'University' },
+    { value: 'Way_Bridge', label: 'Way Bridge' },
+    { value: 'Sensative_Points', label: 'Sensitive Points' },
+    { value: 'Dumping_Yard', label: 'Dumping Yard' },
+    { value: 'Mine', label: 'Mine' },
+    { value: 'No_POI_Report', label: 'No POI Report' },
+    { value: 'Entry_Restriction', label: 'Entry Restriction' },
+    { value: 'Tyre_Shop', label: 'Tyre Shop' },
+    { value: 'Workshop', label: 'Workshop' },
+    { value: 'Yard', label: 'Yard' },
+    { value: 'Parking_Place', label: 'Parking Place' },
+    { value: 'Driver_Home', label: 'Driver Home' },
+    { value: 'Customer', label: 'Customer' },
+    { value: 'Puspakom', label: 'Puspakom' },
+    { value: 'Exit_Restriction', label: 'Exit Restriction' },
+    { value: 'Gurudwara', label: 'Gurudwara' },
+    { value: 'Church', label: 'Church' },
+    { value: 'Distributor', label: 'Distributor' },
+    { value: 'State', label: 'State' },
+    { value: 'WaterFall', label: 'WaterFall' },
+    { value: 'Depot', label: 'Depot' },
+    { value: 'Terminal', label: 'Terminal' },
+    { value: 'Port', label: 'Port' },
+  ]
+
+  const popupStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+  }
+
+  const cardStyle = {
+    width: '400px',
+    maxWidth: '100%',
+    padding: '24px',
+    border: 'none',
+  }
+
+  const formGroupStyle = {
+    marginBottom: '1rem',
+  }
+
+  const sliderContainerStyle = {
+    marginBottom: '1rem',
+  }
+
+  const sliderLabelStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.5rem',
+  }
 
   // Toggle handler
   const handleToggleGeofence = () => {
@@ -144,7 +267,7 @@ const IndividualTrack = () => {
   useEffect(() => {
     const fetchAddress = async () => {
       try {
-        const apiKey = 'DG2zGt0KduHmgSi2kifd' // Replace with your actual MapTiler API key
+        const apiKey = 'huWGT6bXG3aRcdvLhkca' // Replace with your actual MapTiler API key
         const response = await axios.get(
           `https://api.maptiler.com/geocoding/${individualSalesMan?.longitude},${individualSalesMan?.latitude}.json?key=${apiKey}`,
         )
@@ -219,7 +342,7 @@ const IndividualTrack = () => {
     }
 
     fetchGeofences()
-  }, [deviceId])
+  }, [deviceId, geofences])
 
   // Check if the vehicle is inside any geofence (circle or polygon)
   useEffect(() => {
@@ -285,8 +408,59 @@ const IndividualTrack = () => {
     },
   ]
 
+  // Component to handle map click events
+  function ClickHandler({ onClick }) {
+    useMapEvents({
+      click(e) {
+        onClick(e.latlng)
+        setClickMap(true)
+      },
+    })
+    return null
+  }
+
+  // New function: Only sets the clicked position
+  const handleMapClick = (latlng) => {
+    console.log('Map clicked at:', latlng)
+    setClickedPosition(latlng)
+    // Optionally set a flag to show the popup form if needed
+    setClickMap(true)
+  }
+
+  const handleAddGeofence = async () => {
+    if (!clickedPosition) return
+
+    const formData = {
+      name: geofenceName,
+      type: geofenceType,
+      area: [{ circle: `Circle(${clickedPosition.lat} ${clickedPosition.lng}, ${radiusSlider})` }],
+      deviceIds: [deviceId],
+    }
+
+    console.log('Form Data:', formData)
+    try {
+      const accessToken = Cookies.get('authToken')
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/geofence`, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      toast.success('Geofence added successfully')
+
+      // Reset form values after successful creation
+      setGeofencesName('')
+      setGeofencesType('')
+      setRadiusSlider(0)
+      setClickedPosition(null)
+      setClickMap(false) // Hide the popup after adding the geofence
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
   return (
     <>
+      <Toaster />
       <div className="row gutter-0">
         <div className="col-12 position-relative">
           <div className="individualMap position-relative border border-5 ">
@@ -303,6 +477,21 @@ const IndividualTrack = () => {
               <div className="toggle-map-view" onClick={toggleMapView}>
                 <FaSatellite />
               </div>
+              <button
+                title={autoFocusEnabled ? 'Disable auto-focus' : 'Enable auto-focus'}
+                onClick={() => setAutoFocusEnabled(!autoFocusEnabled)}
+                className="toggle-auto-focus-view btn"
+                style={{ backgroundColor: autoFocusEnabled ? '#1976d2' : '#666' }}
+              >
+                🎯
+              </button>
+
+              <div
+                className="toggle-geofence-view"
+                onClick={() => setEnableAddGeofence(() => !enableAddGeofence)}
+              >
+                <BsFillGeoFill size={12} />
+              </div>
               <TileLayer
                 url={
                   isSatelliteView
@@ -311,6 +500,90 @@ const IndividualTrack = () => {
                 }
                 attribution="&copy; Credence Tracker, HB Gadget Solutions Nagpur"
               />
+
+              {/* Attach our click handler to the map */}
+              {enableAddGeofence && (
+                <>
+                  <ClickHandler onClick={handleMapClick} />
+                  {clickedPosition && (
+                    <Marker position={clickedPosition}>
+                      <Popup style={popupStyle}>
+                        <div className="row justify-content-center">
+                          <div className="col-12" style={{ maxWidth: '400px' }}>
+                            {clickMap && (
+                              <div className="card" style={cardStyle}>
+                                <div style={formGroupStyle}>
+                                  <label className="form-label">Geofence Name</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    value={geofenceName}
+                                    onChange={(e) => setGeofencesName(e.target.value)}
+                                    placeholder="Enter geofence name"
+                                  />
+                                </div>
+
+                                <div style={formGroupStyle}>
+                                  <label className="form-label">Geofence Type</label>
+                                  <select
+                                    className="form-select"
+                                    onChange={(e) => setGeofencesType(e.target.value)}
+                                    value={geofenceType}
+                                    style={{ fontSize: '15px' }}
+                                  >
+                                    <option value="" disabled>
+                                      Select geofence type
+                                    </option>
+                                    {PlaceType.map((item, index) => (
+                                      <option key={index} value={item.value}>
+                                        {item.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div style={sliderContainerStyle}>
+                                  <div style={sliderLabelStyle}>
+                                    <label className="form-label mb-0">Radius</label>
+                                    <span className="text-muted">{radiusSlider}m</span>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    className="form-range"
+                                    min="0"
+                                    max="200"
+                                    value={radiusSlider / 2}
+                                    onChange={(e) => setRadiusSlider(Number(e.target.value) * 2)}
+                                  />
+                                </div>
+
+                                <button
+                                  onClick={handleAddGeofence}
+                                  className="btn btn-primary w-100"
+                                >
+                                  Add Geofence
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  )}
+                </>
+              )}
+
+              {clickedPosition && (
+                <Circle
+                  center={[clickedPosition.lat, clickedPosition.lng]}
+                  radius={radiusSlider}
+                  pathOptions={{
+                    color: '#0a2d63', // Or apply dynamic logic if needed
+                    fillColor: '#A1E3F9',
+                    fillOpacity: 0.3,
+                  }}
+                />
+              )}
 
               <button
                 title={showGeofence ? 'Hide Geofence' : 'View Geofence'}
@@ -353,11 +626,12 @@ const IndividualTrack = () => {
                       color: activeGeofences.includes(location.name) ? 'red' : '#0a2d63',
                       fillColor: activeGeofences.includes(location.name) ? 'red' : '#A1E3F9',
                       fillOpacity: 0.3,
+                      weight: 1,
                     }}
                   >
                     <Popup>
                       <strong>{location.name}</strong> <br />
-                      Radius: {location.radius} m
+                      Radius: {location.radius}
                     </Popup>
                   </Circle>
                 ))}
@@ -387,7 +661,7 @@ const IndividualTrack = () => {
                         <p className="p-0 m-0">Ignition</p>
                       </div>
                       <div className="col-2 text-center attribute shadow">
-                        <strong>{`${Math.round(individualSalesMan?.speed * 1.6).toFixed(2)}`}</strong>
+                        <strong>{`${Math.round(individualSalesMan?.speed).toFixed(2)}`}</strong>
                         <small> km/h</small>
                         <br />
                         <p className="p-0 m-0">Speed</p>
@@ -454,7 +728,7 @@ const IndividualTrack = () => {
                             <strong>
                               <IoMdSpeedometer size={17} color="#FF7A00" />
                             </strong>{' '}
-                            {(individualSalesMan?.speed * 1.6).toFixed(2)} km/h{' '}
+                            {(individualSalesMan?.speed).toFixed(2)} km/h{' '}
                           </div>
                         </div>
                         <div>
@@ -514,11 +788,12 @@ const IndividualTrack = () => {
                 </ReactLeafletDriftMarker>
               )}
               {/* Draw polyline based on path */}
-              <Polyline positions={path} color="blue" />
+              <Polyline ref={polylineRef} positions={path} color="blue" weight={3} />
               <MapController
                 individualSalesMan={individualSalesMan}
-                previousPosition={previousPosition.current}
-                setPath={setPath}
+                previousPosition={previousPosition}
+                polylineRef={polylineRef}
+                autoFocusEnabled={autoFocusEnabled}
               />
             </MapContainer>
           </div>

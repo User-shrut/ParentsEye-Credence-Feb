@@ -60,12 +60,16 @@ const useVehicleTracker = (deviceId) => {
 
     setTimeout(() => {
       // Listen for the vehicleData event.
-      socket.emit('deviceId', 6788)
+      socket.emit('deviceId', Number(deviceId))
       console.log('DEVICE ID', Number(deviceId))
       socket.on('single device data', (data) => {
         console.log('Received vehicle data:', data)
         setVehicleData([data])
       })
+      // socket.on('testing live track', (data) => {
+      //   console.log('Received vehicle data:', data)
+      //   setVehicleData([data])
+      // })
     }, 3000)
 
     // Listen for any connection errors.
