@@ -1158,7 +1158,16 @@ const Users = () => {
 
       // Calculate column widths dynamically based on content
       const availableWidth = doc.internal.pageSize.width - 2 * CONFIG.layout.margin
-      const columnWidths = new Array(tableColumns.length).fill(availableWidth / tableColumns.length)
+
+      // Set a fixed width for the first column (minimized width)
+      const firstColWidth = 10 // in mm, adjust this value if needed
+
+      // Calculate width for the remaining columns
+      const remainingColumns = tableColumns.length - 1
+      const otherColsWidth = (availableWidth - firstColWidth) / remainingColumns
+
+      // Define column widths: first column gets the minimized width and the rest share the remaining space
+      const columnWidths = [firstColWidth, ...new Array(remainingColumns).fill(otherColsWidth)]
 
       // Generate table with dynamic width for columns
       doc.autoTable({

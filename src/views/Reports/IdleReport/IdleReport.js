@@ -550,7 +550,9 @@ const ShowIdeal = ({
           width = 35
         } else if (col === 'Co-ordinates') {
           width = 25
-        } else if (col === 'Start Time' || col === 'End Time') {
+        } else if (col === 'Start Time') {
+          width = 25
+        } else if (col === 'End Time') {
           width = 25
         }
         return { header: col, width }
@@ -659,6 +661,22 @@ const ShowIdeal = ({
           selectedColumns.forEach((column) => {
             let cellValue = '--'
             switch (column) {
+              case 'Start Time': {
+                if (item.idleStartTime) {
+                  const formattedDate = new Date(item.idleStartTime).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  });
+                  cellValue = formattedDate;
+                } else {
+                  cellValue = '--';
+                }
+                break
+              }
               case 'Duration': {
                 // Convert seconds into HH:MM:SS
                 if (item.durationSeconds != null) {
@@ -671,8 +689,9 @@ const ShowIdeal = ({
                 break
               }
               case 'Co-ordinates': {
-                // Assuming item.location contains coordinate string or you may adjust as needed
-                cellValue = item.location ? item.location.toString() : '--'
+                cellValue = item.latitude && item.longitude
+                  ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
+                  : '--';
                 break
               }
               case 'Start Time': {
@@ -680,7 +699,19 @@ const ShowIdeal = ({
                 break
               }
               case 'End Time': {
-                cellValue = formatExcelDate(item.departureTime)
+                if (item.idleEndTime) {
+                  const formattedDate = new Date(item.idleEndTime).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  });
+                  cellValue = formattedDate;
+                } else {
+                  cellValue = '--';
+                }
                 break
               }
               default: {
@@ -744,17 +775,17 @@ const ShowIdeal = ({
     try {
       // Validate data before proceeding
       if (!Array.isArray(sortedFlattenedData) || sortedFlattenedData.length === 0) {
-        throw new Error('No data available for PDF export')
+        throw new Error('No data available for PDF export');
       }
 
       // Constants and configuration
       const CONFIG = {
         colors: {
-          primary: [10, 45, 99],
-          secondary: [70, 70, 70],
-          accent: [0, 112, 201],
-          border: [220, 220, 220],
-          background: [249, 250, 251],
+          primary: [10, 45, 99],  // Company primary color
+          secondary: [70, 70, 70],  // Secondary color for text
+          accent: [0, 112, 201],  // Accent color for highlights
+          border: [220, 220, 220],  // Border color
+          background: [249, 250, 251],  // Background color
         },
         company: {
           name: 'Credence Tracker',
@@ -769,107 +800,106 @@ const ShowIdeal = ({
           primary: 'helvetica',
           secondary: 'courier',
         },
-      }
+      };
 
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
-      })
+      });
 
-      // Helper functions
+      // Helper functions for color application
       const applyPrimaryColor = () => {
-        doc.setFillColor(...CONFIG.colors.primary)
-        doc.setTextColor(...CONFIG.colors.primary)
-      }
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.setTextColor(...CONFIG.colors.primary);
+      };
 
       const applySecondaryColor = () => {
-        doc.setTextColor(...CONFIG.colors.secondary)
-      }
+        doc.setTextColor(...CONFIG.colors.secondary);
+      };
 
       const addHeader = () => {
         // Company logo and name
-        doc.setFillColor(...CONFIG.colors.primary)
-        doc.rect(
-          CONFIG.company.logo.x,
-          CONFIG.company.logo.y,
-          CONFIG.company.logo.size,
-          CONFIG.company.logo.size,
-          'F',
-        )
-        doc.setFont(CONFIG.fonts.primary, 'bold')
-        doc.setFontSize(16)
-        doc.text(CONFIG.company.name, 28, 21)
+        doc.setFillColor(...CONFIG.colors.primary);
+        doc.rect(CONFIG.company.logo.x, CONFIG.company.logo.y, CONFIG.company.logo.size, CONFIG.company.logo.size, 'F');
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+        doc.setFontSize(16);
+        doc.text(CONFIG.company.name, 28, 21);
 
         // Header line
-        doc.setDrawColor(...CONFIG.colors.primary)
-        doc.setLineWidth(0.5)
-        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25)
-      }
+        doc.setDrawColor(...CONFIG.colors.primary);
+        doc.setLineWidth(0.5);
+        doc.line(CONFIG.layout.margin, 25, doc.internal.pageSize.width - CONFIG.layout.margin, 25);
+      };
 
       const addMetadata = () => {
         const metadata = [
           { label: 'User:', value: decodedToken.username || 'N/A' },
           { label: 'Selected User:', value: selectedUserName || 'N/A' },
           { label: 'Group:', value: selectedGroupName || 'N/A' },
-          { label: 'Date Range:', value: `${selectedFromDate} To ${selectedToDate}` },
+          {
+            label: 'Date Range:', value: selectedFromDate && selectedToDate
+              ? `${selectedFromDate} - ${selectedToDate}`
+              : getDateRangeFromPeriod(selectedPeriod)
+          },
           { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
-        ]
+        ];
 
-        doc.setFontSize(10)
-        doc.setFont(CONFIG.fonts.primary, 'bold')
 
-        let yPosition = 45
-        const xPosition = CONFIG.layout.margin
-        const lineHeight = CONFIG.layout.lineHeight
+        doc.setFontSize(10);
+        doc.setFont(CONFIG.fonts.primary, 'bold');
+
+        let yPosition = 45;
+        const xPosition = CONFIG.layout.margin;
+        const lineHeight = CONFIG.layout.lineHeight;
 
         metadata.forEach((item) => {
-          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition)
-          yPosition += lineHeight
-        })
-      }
+          doc.text(`${item.label} ${item.value.toString()}`, xPosition, yPosition);
+          yPosition += lineHeight;
+        });
+      };
 
       const addFooter = () => {
-        const pageCount = doc.getNumberOfPages()
+        const pageCount = doc.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i)
+          doc.setPage(i);
 
           // Footer line
-          doc.setDrawColor(...CONFIG.colors.border)
-          doc.setLineWidth(0.5)
+          doc.setDrawColor(...CONFIG.colors.border);
+          doc.setLineWidth(0.5);
           doc.line(
             CONFIG.layout.margin,
             doc.internal.pageSize.height - 15,
             doc.internal.pageSize.width - CONFIG.layout.margin,
-            doc.internal.pageSize.height - 15,
-          )
+            doc.internal.pageSize.height - 15
+          );
 
           // Copyright text
-          doc.setFontSize(9)
-          applySecondaryColor()
+          doc.setFontSize(9);
+          applySecondaryColor();
           doc.text(
             `© ${CONFIG.company.name}`,
             CONFIG.layout.margin,
-            doc.internal.pageSize.height - 10,
-          )
+            doc.internal.pageSize.height - 10
+          );
 
           // Page number
-          const pageNumber = `Page ${i} of ${pageCount}`
-          const pageNumberWidth = doc.getTextWidth(pageNumber)
+          const pageNumber = `Page ${i} of ${pageCount}`;
+          const pageNumberWidth = doc.getTextWidth(pageNumber);
           doc.text(
             pageNumber,
             doc.internal.pageSize.width - CONFIG.layout.margin - pageNumberWidth,
-            doc.internal.pageSize.height - 10,
-          )
+            doc.internal.pageSize.height - 10
+          );
         }
-      }
+      };
 
-      // Helper function to format dates (subtracting 5 hours 30 minutes, similar to your UI)
+      // Helper function to format dates
       const formatDateTime = (dateString) => {
-        if (!dateString) return '--'
-        const date = new Date(dateString)
-        if (isNaN(date)) return '--'
-        date.setHours(date.getHours() - 5, date.getMinutes() - 30)
+        if (!dateString) return '--';
+        const date = new Date(dateString);
+        if (isNaN(date)) return '--';
+        date.setHours(date.getHours() - 5, date.getMinutes() - 30);
         return date.toLocaleString('en-GB', {
           year: 'numeric',
           month: '2-digit',
@@ -877,97 +907,120 @@ const ShowIdeal = ({
           hour: '2-digit',
           minute: '2-digit',
           hour12: false,
-        })
-      }
+        });
+      };
 
       // Build dynamic table columns
-      const pdfColumns = ['SN', 'Vehicle Name', ...selectedColumns]
+      const pdfColumns = ['SN', 'Vehicle Name', ...selectedColumns];
 
       // Build table rows from sortedFlattenedData
       const tableRows = sortedFlattenedData.map((item, index) => {
-        const rowData = []
+        const rowData = [];
         // Fixed first column: serial number
-        rowData.push(index + 1)
+        rowData.push(index + 1);
         // Fixed second column: Vehicle Name
-        rowData.push(item.vehicleName || '--')
+        rowData.push(item.vehicleName || '--');
 
         // Dynamic columns based on selectedColumns array
         selectedColumns.forEach((column) => {
-          let cellValue = '--'
+          let cellValue = '--';
           switch (column) {
-            case 'Duration':
-              if (item.durationSeconds != null) {
-                cellValue = new Date(item.durationSeconds * 1000).toISOString().substr(11, 8)
-              }
-              break
-            case 'Location':
-              cellValue = item.address || item.location || '--'
-              break
-            case 'Co-ordinates':
-              // Assuming item.location holds a coordinate string, otherwise adjust accordingly
-              cellValue = item.location ? item.location.toString() : '--'
-              break
             case 'Start Time':
-              cellValue = formatDateTime(item.arrivalTime)
-              break
+              if (item.idleStartTime) {
+                const formattedDate = new Date(item.idleStartTime).toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                });
+                cellValue = formattedDate;
+              } else {
+                cellValue = '--';
+              }
+              break;
+            case 'Duration':
+              cellValue = item.duration || '--';
+              break;
+            case 'Location':
+              cellValue = item.address || item.location || '--';
+              break;
+            case 'Co-ordinates':
+              cellValue = item.latitude && item.longitude
+                ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
+                : '--';
+              break;
+
             case 'End Time':
-              cellValue = formatDateTime(item.departureTime)
-              break
-
+              if (item.idleEndTime) {
+                const formattedDate = new Date(item.idleEndTime).toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                });
+                cellValue = formattedDate;
+              } else {
+                cellValue = '--';
+              }
+              break;
             default:
-              cellValue = '--'
+              cellValue = '--';
           }
-          rowData.push(cellValue)
-        })
+          rowData.push(cellValue);
+        });
 
-        return rowData
-      })
+        return rowData;
+      });
 
       // Optional: Define dynamic column styles (set widths, etc.)
-      // For autoTable the columnStyles property uses zero-based indexes.
-      // The first two columns (SN and Vehicle Name) are fixed.
-      const dynamicColumnStyles = {}
-      dynamicColumnStyles[0] = { cellWidth: 10 }
-      dynamicColumnStyles[1] = { cellWidth: 22 }
+      const dynamicColumnStyles = {};
+      dynamicColumnStyles[0] = { cellWidth: 20 };
+      dynamicColumnStyles[1] = { cellWidth: 70 };
       selectedColumns.forEach((col, i) => {
-        // Column index = i + 2 because the first two are fixed.
-        const colIndex = i + 2
-        if (col === 'Duration') {
-          dynamicColumnStyles[colIndex] = { cellWidth: 22 }
+        const colIndex = i + 2;
+        if (col === 'Start Time') {
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
         } else if (col === 'Location') {
-          dynamicColumnStyles[colIndex] = { cellWidth: 35 }
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
         } else if (col === 'Co-ordinates') {
-          dynamicColumnStyles[colIndex] = { cellWidth: 25 }
-        } else if (col === 'Start Time' || col === 'End Time') {
-          dynamicColumnStyles[colIndex] = { cellWidth: 25 }
-        } else {
-          dynamicColumnStyles[colIndex] = { cellWidth: 20 }
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
+        } else if (col === 'Duration') {
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
+        } else if (col === 'End Time') {
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
         }
-      })
+        else {
+          dynamicColumnStyles[colIndex] = { cellWidth: 35 };
+        }
+      });
 
       // Main document creation
-      addHeader()
+      addHeader();
 
       // Title and generated date
-      doc.setFontSize(24)
-      doc.setFont(CONFIG.fonts.primary, 'bold')
-      doc.text('Idle Report', CONFIG.layout.margin, 35)
+      doc.setFontSize(24);
+      doc.setFont(CONFIG.fonts.primary, 'bold');
+      doc.text('Idle Report', CONFIG.layout.margin, 35);
 
       const currentDate = new Date().toLocaleDateString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-      })
-      const dateText = `Generated: ${currentDate}`
-      applySecondaryColor()
-      doc.setFontSize(10)
+      });
+      const dateText = `Generated: ${currentDate}`;
+      applySecondaryColor();
+      doc.setFontSize(10);
       doc.text(
         dateText,
         doc.internal.pageSize.width - CONFIG.layout.margin - doc.getTextWidth(dateText),
-        21,
-      )
+        21
+      );
 
-      addMetadata()
+      addMetadata();
 
       // Generate table using autoTable with dynamic header and rows
       doc.autoTable({
@@ -976,8 +1029,8 @@ const ShowIdeal = ({
         body: tableRows,
         theme: 'grid',
         styles: {
-          fontSize: 8,
-          cellPadding: 2,
+          fontSize: 10,
+          cellPadding: 4,
           halign: 'center',
           lineColor: CONFIG.colors.border,
           lineWidth: 0.1,
@@ -995,25 +1048,26 @@ const ShowIdeal = ({
         didDrawPage: (data) => {
           // Add header on subsequent pages if needed
           if (doc.getCurrentPageInfo().pageNumber > 1) {
-            doc.setFontSize(15)
-            doc.setFont(CONFIG.fonts.primary, 'bold')
-            doc.text('Idle Report', CONFIG.layout.margin, 10)
+            doc.setFontSize(15);
+            doc.setFont(CONFIG.fonts.primary, 'bold');
+            doc.text('Idle Report', CONFIG.layout.margin, 10);
           }
         },
-      })
+      });
 
-      addFooter()
+      addFooter();
 
       // Save PDF
-      const filename = `Idle_Report_${new Date().toISOString().split('T')[0]}.pdf`
-      doc.save(filename)
-      toast.success('PDF downloaded successfully')
+      const filename = `Idle_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+      toast.success('PDF downloaded successfully');
     } catch (error) {
-      console.error('PDF Export Error:', error)
-      toast.error(error.message || 'Failed to export PDF')
+      console.error('PDF Export Error:', error);
+      toast.error(error.message || 'Failed to export PDF');
     }
-  }
+  };
 
+  // Handel buttons
   const handleLogout = () => {
     Cookies.remove('authToken')
     window.location.href = '/login'

@@ -559,7 +559,7 @@ const TripTable = ({
         ])
         worksheet.addRow([
           `Date Range: ${selectedFromDate && selectedToDate
-            ? `${selectedFromDate} - ${selectedToDate}`
+            ? `${new Date(selectedFromDate).toLocaleDateString('en-GB')} - ${new Date(selectedToDate).toLocaleDateString('en-GB')}`
             : getDateRangeFromPeriod(selectedPeriod)
           }`,
           `Selected Vehicle: ${selectedDeviceName || '--'}`,
@@ -822,7 +822,7 @@ const TripTable = ({
             label: 'Date Range:',
             value:
               selectedFromDate && selectedToDate
-                ? `${selectedFromDate} To ${selectedToDate}`
+                ? `${new Date(selectedFromDate).toLocaleDateString()} To ${new Date(selectedToDate).toLocaleDateString()}`
                 : '--',
           },
           { label: 'Vehicle:', value: selectedDeviceName || 'N/A' },
