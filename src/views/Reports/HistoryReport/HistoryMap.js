@@ -551,17 +551,24 @@ const HistoryMap = ({
   const [totalDistance, setTotalDistance] = useState(0)
 
   useEffect(() => {
-    if (positions.length > 0) {
+    if (positions.length > 1 && currentPositionIndex > 0) {
       let accumulatedDistance = 0
-      // Loop through all the positions up to the current position index
-      for (let i = 0; i <= currentPositionIndex; i++) {
-        const currentPosition = positions[i]?.attributes?.distance
-        if (currentPosition && currentPosition > 0) {
-          accumulatedDistance += currentPosition
+      // Ensure we do not exceed the last valid index
+      const lastIndex = Math.min(currentPositionIndex, positions.length - 1)
+      // Loop from index 1 to lastIndex (inclusive)
+      for (let i = 1; i <= lastIndex; i++) {
+        const prev = positions[i - 1]
+        const current = positions[i]
+        // Check if both previous and current positions exist
+        if (prev && current) {
+          accumulatedDistance += haversineDistance(
+            prev.latitude,
+            prev.longitude,
+            current.latitude,
+            current.longitude,
+          )
         }
       }
-
-      // Set the total distance
       setTotalDistance(accumulatedDistance)
     }
   }, [currentPositionIndex, positions])
@@ -760,7 +767,7 @@ const HistoryMap = ({
               <div className="divide fixedWidth">
                 <div className="bolder">Distance: </div>
                 <div className="lighter">
-                  {fetch && positions ? `${(totalDistance / 1000).toFixed(2)} Km` : '0 Km'}
+                  {fetch && positions ? `${totalDistance.toFixed(2)} Km` : '0 Km'}
                 </div>
               </div>
 
