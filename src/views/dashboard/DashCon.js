@@ -117,6 +117,7 @@ import Select from 'react-select'
 import { getUsers, getGroups, getDevices, getTimeDifference } from './dashApi.js'
 import zIndex from '@mui/material/styles/zIndex.js'
 import StatusButtons from './StatusButtons.js'
+import VehicleCategory from './VehicleCategory.jsx'
 
 const Dashboard = () => {
   const dispatch = useDispatch()
@@ -839,34 +840,7 @@ const Dashboard = () => {
               </CRow>
               {/* <hr />
               <br /> */}
-
-              {/* <div className="tableNav"> */}
-              {/* <StatusButtons /> */}
-
-              {/* <CHeaderNav className="ms-2 p-0 me-2">
-                  <form
-                    className="d-flex searchBar"
-                    role="search"
-                    style={{ right: '0px' }}
-                    onSubmit={(e) => e.preventDefault()} // Prevent page refresh
-                  >
-                    <input
-                      className="form-control input"
-                      type="text"
-                      placeholder="Search vehicles by name"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      aria-label="Search"
-                    />
-                    <button className="btn btn-outline searchBtn" type="submit">
-                      <IoMdSearch className="searchIcon" style={{ color: '#fff' }} />
-                    </button>
-                  </form>
-                </CHeaderNav> */}
-              {/* </div> */}
-
               {/**************************************************************************************************************** */}
-
               {/**TABLE */}
               <CRow>
                 <CCol xs>
@@ -877,19 +851,7 @@ const Dashboard = () => {
                           className="d-flex flex-row flex-wrap justify-content-between"
                           ref={mapRef}
                         >
-                          {/* <CHeaderToggler
-                    onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
-                    style={{ marginInlineStart: '-10px' }}
-                  >
-                    <CIcon icon={cilMenu} size="lg" />
-                  </CHeaderToggler> */}
-
                           {/* First Filter - Status */}
-                          {/* <div> */}
-                          {/* User Select */}
-
-                          {/* <div className="filterOfGroupUser"> */}
-
                           <CHeaderNav className="ms-1 p-0 me-3">
                             <Select
                               className="z-3"
@@ -939,60 +901,9 @@ const Dashboard = () => {
                           {/* </div> */}
 
                           {/* Filtered Vehicles */}
-                          {/* </div> */}
-
-                          {/* <CHeaderNav className="ms-1 p-0 me-3">
-                      <select
-                        className="form-select header-inputs"
-                        aria-label="Default select example"
-                        value={filter1}
-                        onChange={(e) => setFilter1(e.target.value)}
-                      >
-                        <option selected>Status</option>
-                        <option value="all">All</option>
-                        <option value="running">Running</option>
-                        <option value="idle">Idle</option>
-                        <option value="stopped">Stop</option>
-                        <option value="overspeed">OverSpeed</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </CHeaderNav> */}
-
                           {/* Second Filter - Category */}
-                          <CHeaderNav className="ms-2 p-0 me-3">
-                            {/* <Select
-                              className="z-3"
-                              aria-label="Default select example"
-                              value={filter1}
-                              onChange={(e) => setFilter1(e.target.value)}
-                              placeholder="Select By Category"
-                              options={[
-                                { value: 'car', label: 'Car' },
-                                { value: 'bus', label: 'Bus' },
-                                { value: 'motorcycle', label: 'Bike' },
-                                { value: 'truck', label: 'Truck' },
-                                { value: 'tractor', label: 'Tractor' },
-                                { value: 'crane', label: 'Crane' },
-                                { value: 'jcb', label: 'JCB' },
-                              ]}
-                            /> */}
-                            <select
-                              className="form-select header-inputs"
-                              aria-label="Default select example"
-                              value={filter1}
-                              onChange={(e) => setFilter1(e.target.value)}
-                            >
-                              <option disabled>Select by Category</option>
-                              <option selected>All</option>
-                              <option value="car">Car</option>
-                              <option value="bus">Bus</option>
-                              <option value="motorcycle">Bike</option>
-                              <option value="truck">Truck</option>
-                              <option value="tractor">Tracktor</option>
-                              <option value="crean">Crean</option>
-                              <option value="jcb">JCB</option>
-                            </select>
-                          </CHeaderNav>
+
+                          <VehicleCategory filter1={filter1} setFilter1={setFilter1} />
 
                           <CHeaderNav className="ms-2 p-0 me-3">
                             <TableColumnVisibility />
