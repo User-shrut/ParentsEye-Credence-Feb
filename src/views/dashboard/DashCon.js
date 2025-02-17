@@ -233,18 +233,16 @@ const Dashboard = () => {
         return 'bus'
       case 'truck':
         return 'truck'
-      case 'motorcycle':
-        return 'motorcycle' // Adjusted to match the imageMap key
       case 'bike':
-        return 'bike'
-      case 'BIKE':
         return 'bike'
       case 'auto':
         return 'auto'
       case 'tractor':
-        return 'crane'
+        return 'tractor'
       case 'jcb':
         return 'jcb'
+      case 'crane':
+        return 'crane'
       default:
         return 'car' // Default case
     }
@@ -408,53 +406,26 @@ const Dashboard = () => {
 
   useEffect(() => {
     switch (filter1) {
-      case 'stopped':
-        dispatch(filterStoppedVehicles())
-        break
-      case 'idle':
-        dispatch(filterIdleVehicles())
-        break
-      case 'running':
-        dispatch(filterRunningVehicles())
-        break
-      case 'overspeed':
-        dispatch(filterOverspeedVehicles())
-        break
-      case 'inactive':
-        dispatch(filterInactiveVehicles())
-        break
       case 'car':
-        dispatch(filterByCategory({ cat: 'car', data: filteredVehicles }))
+        dispatch(filterByCategory('car'))
         break
       case 'bus':
-        dispatch(filterByCategory({ cat: 'bus', data: filteredVehicles }))
+        dispatch(filterByCategory('bus'))
         break
       case 'truck':
-        dispatch(filterByCategory({ cat: 'truck', data: filteredVehicles }))
+        dispatch(filterByCategory('truck'))
         break
-      case 'tracktor':
-        dispatch(filterByCategory({ cat: 'tracktor', data: filteredVehicles }))
+      case 'tractor':
+        dispatch(filterByCategory('tractor'))
         break
       case 'jcb':
-        dispatch(filterByCategory({ cat: 'jcb', data: filteredVehicles }))
+        dispatch(filterByCategory('jcb'))
         break
-      case 'crean':
-        dispatch(filterByCategory({ cat: 'crean', data: filteredVehicles }))
-        break
-      case 'motorcycle':
-        dispatch(filterByCategory({ cat: 'motorcycle', data: filteredVehicles }))
+      case 'crane':
+        dispatch(filterByCategory('crane'))
         break
       case 'bike':
-        dispatch(filterByCategory({ cat: 'bike', data: filteredVehicles }))
-        break
-      case 'geofence_1':
-        dispatch(filterByGeofence(1))
-        break
-      case 'group_1':
-        dispatch(filterByGroup(1))
-        break
-      case 'vehicle_MH31FC7099':
-        dispatch(filterBySingleVehicle('MH31FC7099'))
+        dispatch(filterByCategory('bike'))
         break
       default:
         dispatch(filterAllVehicles())
@@ -840,7 +811,9 @@ const Dashboard = () => {
               </CRow>
               {/* <hr />
               <br /> */}
+
               {/**************************************************************************************************************** */}
+
               {/**TABLE */}
               <CRow>
                 <CCol xs>

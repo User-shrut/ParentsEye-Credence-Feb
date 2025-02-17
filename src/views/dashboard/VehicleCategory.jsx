@@ -16,10 +16,10 @@ function VehicleCategory({ filter1, setFilter1 }) {
           <option selected>All</option>
           <option value="car">Car</option>
           <option value="bus">Bus</option>
-          <option value="motorcycle">Bike</option>
+          <option value="bike">Bike</option>
           <option value="truck">Truck</option>
           <option value="tractor">Tracktor</option>
-          <option value="crean">Crean</option>
+          <option value="crane">Crane</option>
           <option value="jcb">JCB</option>
         </select>
       </CHeaderNav>

@@ -153,17 +153,20 @@ const liveFeaturesSlice = createSlice({
     },
     filterByCategory(state, action) {
       state.loading = true
-      const { cat, data } = action.payload
-
-      // Directly filter the data based on the category
-
-      // Update the active filter for consistency
-      state.activeFilter = (vehicles) => data.filter((vehicle) => vehicle.category === cat)
-
+      const cat = action.payload // Expecting just the category string
+      console.log('LIVE TRACKING SLICE', cat)
+      if (cat === 'all') {
+        state.activeFilter = (vehicles) => vehicles
+      } else {
+        state.activeFilter = (vehicles) =>
+          vehicles.filter(
+            (vehicle) => vehicle.category && vehicle.category.toLowerCase() === cat.toLowerCase(),
+          )
+      }
       state.filteredVehicles = state.activeFilter(state.vehicles)
-
       state.loading = false
     },
+
     filterByGroup(state, action) {
       state.loading = true
       state.activeFilter = (vehicles) =>
@@ -231,7 +234,7 @@ export const initializeSocket = (credentials) => (dispatch) => {
   try {
     // convertedCredentialsIntoObject = JSON.parse(credentials)
     // Device show has per user
-    convertedCredentialsIntoObject = credentials;
+    convertedCredentialsIntoObject = credentials
     console.log('Converted credentials:', convertedCredentialsIntoObject)
   } catch (error) {
     console.error('Failed to parse credentials:', error.message)
