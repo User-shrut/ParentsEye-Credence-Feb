@@ -226,7 +226,8 @@ const Dashboard = () => {
   const [expandedRow, setExpandedRow] = useState(null)
 
   const getCategory = (category) => {
-    switch (category) {
+    const cat = (category || '').toLowerCase()
+    switch (cat) {
       case 'car':
         return 'car'
       case 'bus':
@@ -244,9 +245,10 @@ const Dashboard = () => {
       case 'crane':
         return 'crane'
       default:
-        return 'car' // Default case
+        return 'car'
     }
   }
+
   const selectImage = (category, item) => {
     const cate = getCategory(category)
     let image
