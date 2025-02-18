@@ -116,7 +116,7 @@ const supervisor = () => {
 
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/read-supervisors`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/read-supervisors`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -125,7 +125,7 @@ const supervisor = () => {
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/read-supervisors`,
+          `${import.meta.env.VITE_SCHOOL_API}/read-supervisors`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -134,7 +134,7 @@ const supervisor = () => {
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/read-supervisors`,
+          `${import.meta.env.VITE_BRANCH_API}/read-supervisors`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -381,11 +381,11 @@ const supervisor = () => {
       // Define the API endpoint and token
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-supervisor`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-supervisor`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete-supervisor`
+          ? `${import.meta.env.VITE_SCHOOL_API}/delete-supervisor`
           :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/delete-supervisor`
+          ? `${import.meta.env.VITE_BRANCH_API}/delete-supervisor`
           :`http://63.142.251.13:4000/branchgroupuser/deleteSupervisorByBranchGroupUser`
 
       const token = localStorage.getItem("token");
@@ -678,7 +678,7 @@ const supervisor = () => {
       let response;
       if (role == 1) {
         response = await fetch(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/update-supervisor/${updatedData.supervisorId}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/update-supervisor/${updatedData.supervisorId}`,
           {
             method: "PUT",
             headers: {
@@ -690,7 +690,7 @@ const supervisor = () => {
         );
       } else if (role == 2) {
         response = await fetch(
-          `${process.env.REACT_APP_SCHOOL_API}/update-supervisor/${updatedData.id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/update-supervisor/${updatedData.id}`,
           {
             method: "PUT",
             headers: {
@@ -714,7 +714,7 @@ const supervisor = () => {
         );
       } else {
         response = await fetch(
-          `${process.env.REACT_APP_BRANCH_API}/update-supervisor/${updatedData.id}`,
+          `${import.meta.env.VITE_BRANCH_API}/update-supervisor/${updatedData.id}`,
           {
             method: "PUT",
             headers: {
@@ -826,7 +826,7 @@ const supervisor = () => {
         try {
           const token = localStorage.getItem("token");
           const response = await axios.get(
-            `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
+            `${import.meta.env.VITE_SUPER_ADMIN_API}/getschools`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -853,7 +853,7 @@ const supervisor = () => {
           setLoading(false);
         }
       } else if (role == 2) {
-        const apiUrl = `${process.env.REACT_APP_SCHOOL_API}/branches`;
+        const apiUrl = `${import.meta.env.VITE_SCHOOL_API}/branches`;
         const token = localStorage.getItem("token");
 
         const response = await axios.get(apiUrl, {
@@ -900,11 +900,11 @@ const supervisor = () => {
         const token = localStorage.getItem("token");
         const apiUrl =
           role == 1
-            ? `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`
+            ? `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`
             : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
+            ? `${import.meta.env.VITE_SCHOOL_API}/read-devices`
             :role==3
-            ? `${process.env.REACT_APP_BRANCH_API}/read-devices`
+            ? `${import.meta.env.VITE_BRANCH_API}/read-devices`
              :`${process.env.REACT_APP_USERBRANCH}/getdevicebranchgroupuser`
 
         const response = await axios.get(apiUrl, {
@@ -986,7 +986,7 @@ const supervisor = () => {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus-supervisor/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -996,7 +996,7 @@ const supervisor = () => {
         );
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus-supervisor/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -1006,7 +1006,7 @@ const supervisor = () => {
         );
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus-supervisor/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -1051,7 +1051,7 @@ const supervisor = () => {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus-supervisor/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -1061,7 +1061,7 @@ const supervisor = () => {
         );
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus-supervisor/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -1071,7 +1071,7 @@ const supervisor = () => {
         );
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus-supervisor/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus-supervisor/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -1150,7 +1150,7 @@ const supervisor = () => {
   };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         Supervisor Detail List
       </h1>
       <div>

@@ -772,7 +772,7 @@ const handleFilterChange = (event) => {
 };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
       Add Devices      </h1>
       <div>
         <div

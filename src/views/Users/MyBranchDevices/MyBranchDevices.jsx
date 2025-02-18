@@ -80,7 +80,7 @@ export const MyBranchDevices = () => {
   //   setLoading(true);
   //   try {
   //     const token = localStorage.getItem("token");
-  //     const apiUrl = `${process.env.REACT_APP_BRANCH_API}/read-devices`;
+  //     const apiUrl = `${import.meta.env.VITE_BRANCH_API}/read-devices`;
   
   //     // Fetch data from the API
   //     const response = await axios.get(apiUrl, {
@@ -155,7 +155,7 @@ export const MyBranchDevices = () => {
     try {
    
       const token = localStorage.getItem("token");
-       const apiUrl = `${process.env.REACT_APP_BRANCH_API}/read-devices`;
+       const apiUrl = `${import.meta.env.VITE_BRANCH_API}/read-devices`;
       const response = await axios.get(
         apiUrl,
         {
@@ -394,10 +394,10 @@ export const MyBranchDevices = () => {
       // Define the API endpoint and token
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-device`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-device`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete-device`
-          : `${process.env.REACT_APP_BRANCH_API}/delete-device`;
+          ? `${import.meta.env.VITE_SCHOOL_API}/delete-device`
+          : `${import.meta.env.VITE_BRANCH_API}/delete-device`;
 
       const token = localStorage.getItem("token");
       // Send delete requests for each selected ID
@@ -599,7 +599,7 @@ export const MyBranchDevices = () => {
   // }, [data]);
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
        My Branch Devices List
       </h1>
       <div>

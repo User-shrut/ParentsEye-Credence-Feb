@@ -86,7 +86,7 @@ const ReadDevices = () => {
       if (role == 1) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ const ReadDevices = () => {
       } else if (role == 2) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/read-devices`,
+          `${import.meta.env.VITE_SCHOOL_API}/read-devices`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -106,7 +106,7 @@ const ReadDevices = () => {
       } else if (role == 3) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/read-devices`,
+          `${import.meta.env.VITE_BRANCH_API}/read-devices`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -397,11 +397,11 @@ const ReadDevices = () => {
       // Define the API endpoint and token
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-device`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-device`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete-device`
+          ? `${import.meta.env.VITE_SCHOOL_API}/delete-device`
           :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/delete-device`
+          ? `${import.meta.env.VITE_BRANCH_API}/delete-device`
           :`http://63.142.251.13:4000/branchgroupuser/deletedevicebybranchgroup`;
 
       const token = localStorage.getItem("token");
@@ -596,7 +596,7 @@ const ReadDevices = () => {
   // }, [data]);
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
        Assign devices List
       </h1>
       <div>

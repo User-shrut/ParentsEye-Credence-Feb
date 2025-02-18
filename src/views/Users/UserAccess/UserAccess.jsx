@@ -125,7 +125,7 @@ const UserAccess = () => {
       } else if (role == 2) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/read-children`,
+          `${import.meta.env.VITE_SCHOOL_API}/read-children`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -135,7 +135,7 @@ const UserAccess = () => {
       } else if (role == 3) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/read-children`,
+          `${import.meta.env.VITE_BRANCH_API}/read-children`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -370,8 +370,8 @@ const UserAccess = () => {
         role == 1
           ? `http://63.142.251.13:4000/superadmin/branchgroup`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete/child`
-          : `${process.env.REACT_APP_BRANCH_API}/delete/child`;
+          ? `${import.meta.env.VITE_SCHOOL_API}/delete/child`
+          : `${import.meta.env.VITE_BRANCH_API}/delete/child`;
 
       const token = localStorage.getItem("token");
       // Send delete requests for each selected ID
@@ -500,7 +500,7 @@ const handleFileUpload = (event) => {
   //   const apiUrl =
   //     role == 1
   //       ? `http://63.142.251.13:4000/superadmin/branchgroup`
-  //       : role == 2 ? `${process.env.REACT_APP_SCHOOL_API}/update-child` : `${process.env.REACT_APP_BRANCH_API}/update-child`
+  //       : role == 2 ? `${import.meta.env.VITE_SCHOOL_API}/update-child` : `${import.meta.env.VITE_BRANCH_API}/update-child`
 
   //   // Prepare the updated data
   //   const updatedData = {
@@ -626,8 +626,8 @@ const handleEditClick = (selectedRowData) => {
 //     role == 1
 //       ? `http://63.142.251.13:4000/superadmin/branchgroup`
 //       : role === 2
-//       ? `${process.env.REACT_APP_SCHOOL_API}/update-child`
-//       : `${process.env.REACT_APP_BRANCH_API}/update-child`;
+//       ? `${import.meta.env.VITE_SCHOOL_API}/update-child`
+//       : `${import.meta.env.VITE_BRANCH_API}/update-child`;
 
 //   const updatedData = {
 //     ...formData,
@@ -670,8 +670,8 @@ const handleEditSubmit = async () => {
     role == 1
       ? `http://63.142.251.13:4000/superadmin/branchgroup`
       : role === 2
-      ? `${process.env.REACT_APP_SCHOOL_API}/update-child`
-      : `${process.env.REACT_APP_BRANCH_API}/update-child`;
+      ? `${import.meta.env.VITE_SCHOOL_API}/update-child`
+      : `${import.meta.env.VITE_BRANCH_API}/update-child`;
 
   // Ensure `branchName` is in the correct format for the API
   const updatedData = {
@@ -920,7 +920,7 @@ const handleInputChange = (e) => {
         try {
           const token = localStorage.getItem("token");
           const response = await axios.get(
-            `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
+            `${import.meta.env.VITE_SUPER_ADMIN_API}/getschools`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -943,7 +943,7 @@ const handleInputChange = (e) => {
         try {
           const token = localStorage.getItem("token");
           const response = await axios.get(
-            `${process.env.REACT_APP_SCHOOL_API}/branches`,
+            `${import.meta.env.VITE_SCHOOL_API}/branches`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -963,10 +963,10 @@ const handleInputChange = (e) => {
         const token = localStorage.getItem("token");
         const apiUrl =
           role == 1
-            ? `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`
+            ? `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`
             : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
-            : `${process.env.REACT_APP_BRANCH_API}/read-devices`;
+            ? `${import.meta.env.VITE_SCHOOL_API}/read-devices`
+            : `${import.meta.env.VITE_BRANCH_API}/read-devices`;
     
         const response = await axios.get(apiUrl, {
           headers: {
@@ -1026,15 +1026,15 @@ const handleInputChange = (e) => {
     
     //     // Fetch data based on role
     //     if (role == 1) {
-    //       response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`, {
+    //       response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`, {
     //         headers: { Authorization: `Bearer ${token}` },
     //       });
     //     } else if (role == 2) {
-    //       response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/geofences`, {
+    //       response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/geofences`, {
     //         headers: { Authorization: `Bearer ${token}` },
     //       });
     //     } else if (role == 3) {
-    //       response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/geofences`, {
+    //       response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/geofences`, {
     //         headers: { Authorization: `Bearer ${token}` },
     //       });
     //     }
@@ -1099,15 +1099,15 @@ const handleInputChange = (e) => {
   
           // Fetch data based on role
           if (role == 1) {
-              response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`, {
+              response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`, {
                   headers: { Authorization: `Bearer ${token}` },
               });
           } else if (role == 2) {
-              response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/geofences`, {
+              response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/geofences`, {
                   headers: { Authorization: `Bearer ${token}` },
               });
           } else if (role == 3) {
-              response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/geofences`, {
+              response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/geofences`, {
                   headers: { Authorization: `Bearer ${token}` },
               });
           }
@@ -1190,7 +1190,7 @@ const handleInputChange = (e) => {
   };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         User Access{" "}
       </h1>
       <div>

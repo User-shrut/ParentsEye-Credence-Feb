@@ -100,7 +100,7 @@ const style = {
       let response;
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/read-drivers`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/read-drivers`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ const style = {
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/read-drivers`,
+          `${import.meta.env.VITE_SCHOOL_API}/read-drivers`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -118,7 +118,7 @@ const style = {
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/read-drivers`,
+          `${import.meta.env.VITE_BRANCH_API}/read-drivers`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -372,11 +372,11 @@ const style = {
       // Define the API endpoint and token
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-driver`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-driver`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete-driver`
+          ? `${import.meta.env.VITE_SCHOOL_API}/delete-driver`
           :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/delete-driver`
+          ? `${import.meta.env.VITE_BRANCH_API}/delete-driver`
            :`http://63.142.251.13:4000/branchgroupuser/deletedriverdata`
       const token = localStorage.getItem("token");
       // Send delete requests for each selected ID
@@ -609,11 +609,11 @@ const style = {
     try {
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/update-driver/${selectedRow.driverId}`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/update-driver/${selectedRow.driverId}`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/update-driver/${selectedRow.id}`
+          ? `${import.meta.env.VITE_SCHOOL_API}/update-driver/${selectedRow.id}`
           :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/update-driver/${selectedRow.id}`
+          ? `${import.meta.env.VITE_BRANCH_API}/update-driver/${selectedRow.id}`
           :`${process.env.REACT_APP_USERBRANCH}/updatedriverdata/${selectedRow.id}`
       const token = localStorage.getItem("token");
       // Prepare the updated data
@@ -726,7 +726,7 @@ const style = {
         try {
           const token = localStorage.getItem("token");
           const response = await axios.get(
-            `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
+            `${import.meta.env.VITE_SUPER_ADMIN_API}/getschools`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -753,7 +753,7 @@ const style = {
           setLoading(false);
         }
       } else if (role == 2) {
-        const apiUrl = `${process.env.REACT_APP_SCHOOL_API}/branches`;
+        const apiUrl = `${import.meta.env.VITE_SCHOOL_API}/branches`;
         const token = localStorage.getItem("token");
 
         const response = await axios.get(apiUrl, {
@@ -796,11 +796,11 @@ const style = {
         const token = localStorage.getItem("token");
         const apiUrl =
           role == 1
-            ? `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`
+            ? `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`
             : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
+            ? `${import.meta.env.VITE_SCHOOL_API}/read-devices`
             :role==3
-            ? `${process.env.REACT_APP_BRANCH_API}/read-devices`
+            ? `${import.meta.env.VITE_BRANCH_API}/read-devices`
             :`${process.env.REACT_APP_USERBRANCH}/getdevicebranchgroupuser`
 
         const response = await axios.get(apiUrl, {
@@ -879,7 +879,7 @@ const style = {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus-driver/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -889,7 +889,7 @@ const style = {
         );
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus-driver/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -899,7 +899,7 @@ const style = {
         );
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus-driver/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -943,7 +943,7 @@ const style = {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus-driver/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -953,7 +953,7 @@ const style = {
         );
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus-driver/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -963,7 +963,7 @@ const style = {
         );
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus-driver/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus-driver/${_id}`,
           { action: "reject" },
           {
             headers: {
@@ -1042,7 +1042,7 @@ const style = {
   };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         Driver Detail List
       </h1>
       <div>

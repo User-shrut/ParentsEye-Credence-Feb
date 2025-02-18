@@ -121,19 +121,19 @@ const Parent = () => {
       const token = localStorage.getItem('token')
       let response
       if (role == 1) {
-        response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/read-parents`, {
+        response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/read-parents`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       } else if (role == 2) {
-        response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/read-parents`, {
+        response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/read-parents`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       } else if (role == 3) {
-        response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/read-parents`, {
+        response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/read-parents`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -387,11 +387,11 @@ const Parent = () => {
       // Define the API endpoint and token
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-parent`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-parent`
           : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/delete-parent`
+            ? `${import.meta.env.VITE_SCHOOL_API}/delete-parent`
             : role == 3
-              ? `${process.env.REACT_APP_BRANCH_API}/delete-parent`
+              ? `${import.meta.env.VITE_BRANCH_API}/delete-parent`
               : `http://63.142.251.13:4000/branchgroupuser/deleteparentbybranchgroup`
       const token = localStorage.getItem('token')
       // Send delete requests for each selected ID
@@ -628,11 +628,11 @@ const Parent = () => {
     // Define the API URL and authentication token
     const apiUrl =
       role == 1
-        ? `${process.env.REACT_APP_SUPER_ADMIN_API}/update-parent`
+        ? `${import.meta.env.VITE_SUPER_ADMIN_API}/update-parent`
         : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/update-parent`
+          ? `${import.meta.env.VITE_SCHOOL_API}/update-parent`
           : role == 3
-            ? `${process.env.REACT_APP_BRANCH_API}/update-parent`
+            ? `${import.meta.env.VITE_BRANCH_API}/update-parent`
             : `${process.env.REACT_APP_USERBRANCH}/updateparentbybranchgroup`
     const token = localStorage.getItem('token')
     // Prepare the updated data
@@ -766,7 +766,7 @@ const Parent = () => {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus/${_id}`,
           { action: 'approve' },
           {
             headers: {
@@ -776,7 +776,7 @@ const Parent = () => {
         )
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus/${_id}`,
           { action: 'approve' },
           {
             headers: {
@@ -786,7 +786,7 @@ const Parent = () => {
         )
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus/${_id}`,
           { action: 'approve' },
           {
             headers: {
@@ -832,7 +832,7 @@ const Parent = () => {
 
       if (role == 1) {
         response = await axios.post(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/registerStatus/${_id}`,
           { action: 'reject' },
           {
             headers: {
@@ -842,7 +842,7 @@ const Parent = () => {
         )
       } else if (role == 2) {
         response = await axios.post(
-          `${process.env.REACT_APP_SCHOOL_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/registerStatus/${_id}`,
           { action: 'reject' },
           {
             headers: {
@@ -852,7 +852,7 @@ const Parent = () => {
         )
       } else if (role == 3) {
         response = await axios.post(
-          `${process.env.REACT_APP_BRANCH_API}/registerStatus/${_id}`,
+          `${import.meta.env.VITE_BRANCH_API}/registerStatus/${_id}`,
           { action: 'reject' },
           {
             headers: {
@@ -900,7 +900,7 @@ const Parent = () => {
       if (role == 1) {
         try {
           const token = localStorage.getItem('token')
-          const response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`, {
+          const response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/getschools`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -920,7 +920,7 @@ const Parent = () => {
         // Fetch branches for role 2 (School Admin)
         try {
           const token = localStorage.getItem('token')
-          const response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/branches`, {
+          const response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/branches`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -959,11 +959,11 @@ const Parent = () => {
         const token = localStorage.getItem('token')
         const apiUrl =
           role == 1
-            ? `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`
+            ? `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`
             : role == 2
-              ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
+              ? `${import.meta.env.VITE_SCHOOL_API}/read-devices`
               : role == 3
-                ? `${process.env.REACT_APP_BRANCH_API}/read-devices`
+                ? `${import.meta.env.VITE_BRANCH_API}/read-devices`
                 : `${process.env.REACT_APP_USERBRANCH}/getdevicebranchgroupuser`
         const response = await axios.get(apiUrl, {
           headers: {
@@ -1036,15 +1036,15 @@ const Parent = () => {
 
         // Fetch data based on role
         if (role == 1) {
-          response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`, {
+          response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`, {
             headers: { Authorization: `Bearer ${token}` },
           })
         } else if (role == 2) {
-          response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/geofences`, {
+          response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/geofences`, {
             headers: { Authorization: `Bearer ${token}` },
           })
         } else if (role == 3) {
-          response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/geofences`, {
+          response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/geofences`, {
             headers: { Authorization: `Bearer ${token}` },
           })
         } else if (role == 4) {
@@ -1141,7 +1141,7 @@ const Parent = () => {
 
   return (
     <>
-      <h1 style={{ textAlign: 'center', marginTop: '80px' }}>Parent Detail List</h1>
+      <h1 style={{ textAlign: 'center', marginTop: '20px' }}>Parent Detail List</h1>
       <div>
         <div
           style={{

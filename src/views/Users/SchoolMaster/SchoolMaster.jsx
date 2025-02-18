@@ -89,7 +89,7 @@ const schoolmaster = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
+        `${import.meta.env.VITE_SUPER_ADMIN_API}/getschools`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -297,7 +297,7 @@ const schoolmaster = () => {
       );
       if (!userConfirmed) return;
 
-      const apiUrl = `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-school`;
+      const apiUrl = `${import.meta.env.VITE_SUPER_ADMIN_API}/delete-school`;
       const token = localStorage.getItem("token");
 
       // Send DELETE requests
@@ -394,7 +394,7 @@ const schoolmaster = () => {
     // Define the API URL and authentication token
 
     try {
-      const apiUrl = `${process.env.REACT_APP_SUPER_ADMIN_API}/edit-school/${selectedRow._id}`;
+      const apiUrl = `${import.meta.env.VITE_SUPER_ADMIN_API}/edit-school/${selectedRow._id}`;
 
       const token = localStorage.getItem("token");
       // Prepare the updated data
@@ -455,7 +455,7 @@ const schoolmaster = () => {
 
       // POST request to the server
       const response = await fetch(
-        `${process.env.REACT_APP_SUPER_ADMIN_API}/school-register`,
+        `${import.meta.env.VITE_SUPER_ADMIN_API}/school-register`,
         {
           method: "POST",
           headers: {
@@ -516,7 +516,7 @@ const schoolmaster = () => {
   };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>School Master</h1>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>School Master</h1>
       <div>
         <div
           style={{
