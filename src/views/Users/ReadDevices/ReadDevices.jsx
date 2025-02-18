@@ -25,11 +25,11 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 import Export from "../../Export";
 
 //import { TextField } from '@mui/material';
@@ -49,9 +49,8 @@ const style = {
   flexDirection: "column",
   padding: "1rem",
 };
-
-export const ReadDevices = () => {
-  const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
+const ReadDevices = () => {
+  // const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
   const role = localStorage.getItem("role");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -78,79 +77,7 @@ export const ReadDevices = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // const fetchData = async (startDate = "", endDate = "") => {
-  //   setLoading(true);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const apiUrl = `${process.env.REACT_APP_BRANCH_API}/read-devices`;
-  
-  //     // Fetch data from the API
-  //     const response = await axios.get(apiUrl, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  
-  //     console.log("fetch data branch devices", response.data);
-  
-  //     // Ensure response.data is properly structured
-  //     if (response?.data && Array.isArray(response.data)) {
-  //       // Flatten the array of devices
-  //       const allData = response.data.flatMap((item) => {
-  //         if (Array.isArray(item.devices)) {
-  //           return item.devices.map((device) => ({
-  //             deviceId: device.deviceId,
-  //             deviceName: device.deviceName,
-  //             isSelected: false, // Default selection state
-  //           }));
-  //         }
-  //         return []; // Return empty array if item.devices is not an array
-  //       });
-  
-  //       // Filtering logic if startDate or endDate is provided
-  //       const filteredData = (startDate || endDate)
-  //         ? allData.filter((row) => {
-  //             const registrationDate = new Date(); // Placeholder for actual registration date logic
-  //             const start = parseDate(startDate);
-  //             const end = parseDate(endDate);
-  
-  //             return (
-  //               (!startDate || registrationDate >= start) &&
-  //               (!endDate || registrationDate <= end)
-  //             );
-  //           })
-  //         : allData;
-  
-  //       const reversedData = filteredData.reverse(); // Reverse for most recent first
-  
-  //       // Set filtered and original rows with isSelected as false by default
-  //       setFilteredRows(
-  //         reversedData.map((row) => ({ ...row, isSelected: false }))
-  //       );
-  //       setOriginalRows(allData.map((row) => ({ ...row, isSelected: false })));
-  
-  //       // Set the total number of responses
-  //       setTotalResponses(reversedData.length);
-  
-  //       console.log(`Data fetched between ${startDate} and ${endDate}:`, filteredData);
-  //     } else {
-  //       console.error("Expected an array but got:", response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  
-  
-  
-  // Helper function for parsing dates
-  // const parseDate = (dateStr) => {
-  //   if (!dateStr) return null;
-  //   const [month, day, year] = dateStr.split('/').map(Number); // Assuming MM/DD/YYYY format
-  //   return new Date(year, month - 1, day);
-  // };
+
   
   const fetchData = async (startDate = "", endDate = "") => {
     setLoading(true);
@@ -201,43 +128,7 @@ export const ReadDevices = () => {
       console.log("fetch data", response.data); // Log the entire response data
       // fetchgeofencepoint();
       if (response?.data) {
-      //   const allData = role == 1
-      //     ? response.data.data.flatMap((school) =>
-      //         school.branches.flatMap((branch) =>
-      //           Array.isArray(branch.devices) && branch.devices.length > 0
-      //             ? branch.devices.map((device) => ({
-      //                 ...device,
-      //                 schoolName: school.schoolName,
-      //                 branchName: branch.branchName,
-      //               }))
-      //             : []
-      //         )
-      //       )
-      //       :role==4
-      //       ?response.data.data.branches.flatMap((branch)=>
-      //  Array.isArray(branch.devices)&& branch.devices.length>0?
-      //         branch.devices.map((device)=>({
-      //           ...device,
-      //           branchName:branch.branchName,
-      //         }))
-      //         :[]
-      //       )
-      //       : role ==2
-      //       ? response.data.branches.flatMap((branch) =>
-      //           Array.isArray(branch.devices) && branch.devices.length > 0
-      //             ? branch.devices.map((device) => ({
-      //                 ...device,
-      //                 branchName: branch.branchName,
-      //               }))
-      //             : []
-      //         )
-      //         :role == 3
-      //         ? response.data.devices.map((device) => ({
-      //             ...device,
-      //             schoolName: response.data.schoolName,
-      //             branchName: response.data.branchName,
-      //           }))
-      //         : []
+     
       const allData =
       role == 1
         ? response.data.data.flatMap((school) =>
@@ -306,7 +197,7 @@ export const ReadDevices = () => {
           reversedData.map((row) => ({ ...row, isSelected: false }))
         );
         setOriginalRows(allData.map((row) => ({ ...row, isSelected: false })));
-        setTotalResponses(reversedData.length);
+        // setTotalResponses(reversedData.length);
         // Log the date range and filtered data
         console.log(`Data fetched between ${startDate} and ${endDate}:`);
         console.log(filteredData);
@@ -1137,3 +1028,4 @@ export const ReadDevices = () => {
     </>
   );
 };
+export default ReadDevices

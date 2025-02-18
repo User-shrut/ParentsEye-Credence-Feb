@@ -25,11 +25,11 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 import InputAdornment from "@mui/material/InputAdornment"; // Add this import
 import SchoolIcon from '@mui/icons-material/School';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -55,8 +55,8 @@ const style = {
 const orangeBtn ={ backgroundColor: "rgb(255, 165, 0)"}
 
 
-const SchoolMaster = () => {
-  const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
+const schoolmaster = () => {
+  // const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -83,167 +83,7 @@ const SchoolMaster = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // const fetchData = async (startDate = "", endDate = "") => {
-  //   setLoading(true);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     console.log("fetch data", response.data); // Log the entire response data
-
-  //     if (Array.isArray(response.data.schools)) {
-  //       const allData = response.data.schools;
-
-  //       // Apply local date filtering if dates are provided
-  //       const filteredData =
-  //         startDate || endDate
-  //           ? allData.filter((row) => {
-  //               const registrationDate = parseDate(
-  //                 row.formattedRegistrationDate
-  //               );
-  //               const start = parseDate(startDate);
-  //               const end = parseDate(endDate);
-
-  //               return (
-  //                 (!startDate || registrationDate >= start) &&
-  //                 (!endDate || registrationDate <= end)
-  //               );
-  //             })
-  //           : allData; // If no date range, use all data
-  //       const reversedData = filteredData.reverse();
-  //       // Log the date range and filtered data
-  //       console.log(`Data fetched between ${startDate} and ${endDate}:`);
-  //       console.log(filteredData);
-  //       setFilteredRows(
-  //         reversedData.map((row) => ({ ...row, isSelected: false }))
-  //       );
-  //       setOriginalRows(allData.map((row) => ({ ...row, isSelected: false })));
-  //       setTotalResponses(reversedData.length);
-  //     } else {
-  //       console.error("Expected an array but got:", response.data.supervisors);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   } finally {
-  //     setLoading(false); // Set loading to false after fetching completes
-  //   }
-  // };
-  // const transformData = (schools) => {
-  //   if (!Array.isArray(schools)) {
-  //     console.error("Expected schools to be an array, but got:", schools);
-  //     return [];
-  //   }
-
-  //   return schools.flatMap((school) =>
-  //     Array.isArray(school.branches)
-  //       ? school.branches.flatMap((branch) =>
-  //           Array.isArray(branch.devices)
-  //             ? branch.devices.map((device) => ({
-  //                 schoolName: school.schoolName,
-  //                 branchName: branch.branchName,
-  //                 username: school.username,
-  //                 mobileNo: school.mobileNo,
-  //                 email: school.email,
-  //                 password: school.password,
-  //                 deviceId: device.deviceId,
-  //                 deviceName: device.deviceName,
-  //               }))
-  //             : []
-  //         )
-  //       : []
-  //   );
-  // };
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     console.log(response.data)
-
-  //     const { schools } = response.data;
-
-  //     if (Array.isArray(schools)) {
-  //       const transformedData = transformData(schools);
-
-  //       setFilteredRows(transformedData.map((row) => ({ ...row, isSelected: false })));
-  //       setOriginalRows(transformedData.map((row) => ({ ...row, isSelected: false })));
-  //       setTotalResponses(transformedData.length);
-  //     } else {
-  //       console.error("Expected an array but got:", schools);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   } finally {
-  //     setLoading(false); // Set loading to false after fetching completes
-  //   }
-  // };
-  // const fetchData = async (startDate = "", endDate = "") => {
-  //   setLoading(true);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_SUPER_ADMIN_API}/getschools`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     console.log("fetch data", response.data); // Log the entire response data
-
-  //     if (Array.isArray(response.data.schools)) {
-  //       const allData = response.data.schools;
-
-  //       // Apply local date filtering if dates are provided
-  //       const filteredData =
-  //         startDate || endDate
-  //           ? allData.filter((row) => {
-  //               const registrationDate = parseDate(
-  //                 row.formattedRegistrationDate
-  //               );
-  //               const start = parseDate(startDate);
-  //               const end = parseDate(endDate);
-
-  //               return (
-  //                 (!startDate || registrationDate >= start) &&
-  //                 (!endDate || registrationDate <= end)
-  //               );
-  //             })
-  //           : allData; // If no date range, use all data
-  //       const reversedData = filteredData.reverse();
-  //       // Log the date range and filtered data
-  //       console.log(`Data fetched between ${startDate} and ${endDate}:`);
-  //       console.log(filteredData);
-  //       setFilteredRows(
-  //         reversedData.map((row) => ({ ...row, isSelected: false }))
-  //       );
-  //       setOriginalRows(allData.map((row) => ({ ...row, isSelected: false })));
-  //       setTotalResponses(reversedData.length);
-  //     } else {
-  //       console.error("Expected an array but got:", response.data.supervisors);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   } finally {
-  //     setLoading(false); // Set loading to false after fetching completes
-  //   }
-  // };
+ 
   const fetchData = async (startDate = "", endDate = "") => {
     setLoading(true);
     try {
@@ -439,73 +279,7 @@ const SchoolMaster = () => {
     }
   };
 
-  // const handleDeleteSelected = async () => {
-  //   // Log filteredRows to check its structure
-  //   console.log("Filtered rows:", filteredRows);
-
-  //   // Get selected row IDs
-  //   const selectedIds = filteredRows
-  //     .filter((row) => row.isSelected)
-  //     .map((row) => {
-  //       // Log each row to check its structure
-  //       console.log("Processing row:", row);
-  //       return row._id; // Ensure id exists and is not undefined
-  //     });
-
-  //   console.log("Selected IDs:", selectedIds);
-
-  //   if (selectedIds.length === 0) {
-  //     alert("No rows selected for deletion.");
-  //     return;
-  //   }
-  //   const userConfirmed = window.confirm(
-  //     `Are you sure you want to delete ${selectedIds.length} record(s)?`
-  //   );
-
-  //   if (!userConfirmed) {
-  //     // If the user clicks "Cancel", exit the function
-  //     return;
-  //   }
-  //   try {
-  //     // Define the API endpoint and token
-  //     const apiUrl =
-  //       `${process.env.REACT_APP_SUPER_ADMIN_API}/delete-school`;
-  //     const token = localStorage.getItem('token');
-  //     // Send delete requests for each selected ID
-  //     const deleteRequests = selectedIds.map((id) =>
-  //       fetch(`${apiUrl}/${id}`, {
-  //         method: "DELETE",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //       }).then((response) => {
-  //         if (!response.ok) {
-  //           throw new Error(
-  //             `Error deleting record with ID ${id}: ${response.statusText}`
-  //           );
-  //         }
-  //         return response.json();
-  //       })
-  //     );
-
-  //     // Wait for all delete requests to complete
-  //     await Promise.all(deleteRequests);
-
-  //     // Filter out deleted rows
-  //     const newFilteredRows = filteredRows.filter((row) => !row.isSelected);
-
-  //     // Update state
-  //     setFilteredRows(newFilteredRows);
-  //     setSelectAll(false);
-
-  //     alert("Selected records deleted successfully.");
-  //   } catch (error) {
-  //     console.error("Error during deletion:", error);
-  //     alert("Failed to delete selected records.");
-  //   }
-  //   fetchData();
-  // };
+  
   const handleDeleteSelected = async () => {
     try {
       // Get selected row IDs
@@ -709,27 +483,7 @@ const SchoolMaster = () => {
       alert("unable to create record");
     }
   };
-  // const handleAccessClick = async (id) => {
-  //   const token = localStorage.getItem("token");
-  //   try {
-  //     const response = await axios.put(
-  //       `http://63.142.251.13:4000/superadmin/updateAccess/${id}`, // Pass row._id in the URL
-  //       {
-  //         fullAccess: false, // Payload
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`, // Token for authorization
-  //         },
-  //       }
-  //     );
-  //     alert("access given");
-  //     console.log("Access updated successfully", response.data);
-  //   } catch (error) {
-  //     console.error("Error updating access", error);
-  //     alert("access false");
-  //   }
-  // };
+  
   const handleAccessClick = async (id, currentFullAccess) => {
     const token = localStorage.getItem("token");
     try {
@@ -846,14 +600,7 @@ const SchoolMaster = () => {
           >
             Add
           </Button>
-          {/* <Button
-            variant="contained"
-            onClick={() => setImportModalOpen(true)}
-            sx={{ backgroundColor: "rgb(255, 165, 0)", marginRight: "10px" }}
-            startIcon={<CloudUploadIcon />}
-          >
-            Import
-          </Button> */}
+         
           <Export orangeBtn={orangeBtn} columnVisibility={columnVisibility} COLUMNS={COLUMNS} filteredRows={filteredRows} pdfTitle={"SCHOOL MASTER"} pdfFilename={"SchoolMaster.pdf"} excelFilename={"SchoolMaster.xlsx"}/>
 
         </div>
@@ -1304,4 +1051,4 @@ const SchoolMaster = () => {
   );
 };
 
-export default SchoolMaster;
+export default schoolmaster;
