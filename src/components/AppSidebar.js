@@ -86,9 +86,9 @@ const AppSidebar = () => {
     <CSidebar
       className="border-end"
       // style={{marginTop:"5%"}}
-      style={{ backgroundColor: '#0a2d63' }}
+      style={{ backgroundColor: '#f4d24A' }}
       fontcolor="rgb(0,0,0)"
-      colorScheme="dark"
+      colorScheme="light"
       position="fixed"
       unfoldable={sidebarShow}
       visible={sidebarShow}
