@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import { IoLocationOutline } from 'react-icons/io5'
-import { BsFillSignStopFill, BsWindowFullscreen } from 'react-icons/bs'
+import { BsFillSignStopFill, BsGeo, BsWindowFullscreen } from 'react-icons/bs'
 import { BsChatDots } from 'react-icons/bs'
 import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRoute, FaStopwatch, FaUserAlt } from 'react-icons/fa'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
-import { TbReport } from 'react-icons/tb'
+import { TbReport, TbSchool } from 'react-icons/tb'
 import { BiLogOutCircle } from 'react-icons/bi'
 import { FaCarOn, FaUserGroup } from 'react-icons/fa6'
 import { GrHostMaintenance, GrUserWorker } from 'react-icons/gr'
@@ -17,7 +17,7 @@ import { GiPathDistance } from 'react-icons/gi'
 import { TbReportAnalytics } from 'react-icons/tb'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import { RiPinDistanceFill } from 'react-icons/ri'
-import { PiMapPinAreaFill } from 'react-icons/pi'
+import { PiMapPinAreaFill, PiStudentBold } from 'react-icons/pi'
 import { BiSupport } from 'react-icons/bi'
 import { TicketCheck } from 'lucide-react'
 import { icon } from 'leaflet'
@@ -383,6 +383,49 @@ const _nav = (role, decodedToken) => {
             },
           ],
         },
+
+        // Parent Eyess navigation
+        // School Parnet Eyes
+
+        {
+          component: CNavGroup,
+          name: 'School',
+
+          icon: (
+            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
+              <TbSchool color="#FFFFFF" style={{ marginRight: '15px', fontSize: '30px' }} />
+            </div>
+          ),
+          items: [
+            {
+              component: CNavItem,
+              name: 'StudentDetail',
+              to: '/studentdetail',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <PiStudentBold style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Geofence',
+              to: '/schoolgeofence',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BsGeo style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+          ]
+        }
+
+
+
       ]
       : [
         {

@@ -26,10 +26,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from "../../ParentContext/TotalResponsesContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
-import Export from "../../Export";
+import Export from "../../ParentExport/Export";
 import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
 
 
@@ -43,7 +43,7 @@ import {
 import { MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 //import { TextField } from '@mui/material';
-import { Autocomplete,Popper } from "@mui/material";
+import { Autocomplete, Popper } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment"; // Add this import
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import CakeIcon from '@mui/icons-material/Cake';
@@ -114,13 +114,13 @@ export const StudentDetail = () => {
   const [branches, setBranches] = useState();
   const [buses, setBuses] = useState();
 
-  
+
   const fetchData = async (startDate = "", endDate = "") => {
     setLoading(true);
     try {
       let response;
       const token = localStorage.getItem("token");
-  
+
       if (role == 1) {
         response = await axios.get(
           `${process.env.REACT_APP_SUPER_ADMIN_API}/read-children`,
@@ -149,67 +149,67 @@ export const StudentDetail = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-     
+
       }
-  
+
       console.log("fetch data", response.data);
-  const myarr=[];
+      const myarr = [];
       if (response?.data) {
         const allData =
           role == 1
             ? response.data.data.flatMap((school) =>
-                school.branches.flatMap((branch) =>
-                  Array.isArray(branch.children) && branch.children.length > 0
-                    ? branch.children.map((child) => ({
-                        ...child,
-                        schoolName: school.schoolName,
-                        branchName: branch.branchName,
-                      }))
-                    : []
-                )
+              school.branches.flatMap((branch) =>
+                Array.isArray(branch.children) && branch.children.length > 0
+                  ? branch.children.map((child) => ({
+                    ...child,
+                    schoolName: school.schoolName,
+                    branchName: branch.branchName,
+                  }))
+                  : []
               )
+            )
             : role == 2
-            ? response?.data.branches.flatMap((branch) =>
+              ? response?.data.branches.flatMap((branch) =>
                 Array.isArray(branch.children) && branch.children.length > 0
                   ? branch.children
                   : []
               )
-            : role == 3
-            ? response?.data.data
-            : role == 4
-            ? response?.data.updatedChildData.map((child) => ({
-                ...child,
-                schoolName: child.schoolId?.schoolName || "N/A",
-                branchName: child.branchId?.branchName || "N/A",
-                parentName: child.parentId?.parentName || "N/A",
-                 email:child.parentId?.email || "N/A",
-                 password:child.parentId?.password || "N/A",
-                formattedRegistrationDate: formatDate(child.registrationDate),
-            
-              }))
-            : [];
-  
+              : role == 3
+                ? response?.data.data
+                : role == 4
+                  ? response?.data.updatedChildData.map((child) => ({
+                    ...child,
+                    schoolName: child.schoolId?.schoolName || "N/A",
+                    branchName: child.branchId?.branchName || "N/A",
+                    parentName: child.parentId?.parentName || "N/A",
+                    email: child.parentId?.email || "N/A",
+                    password: child.parentId?.password || "N/A",
+                    formattedRegistrationDate: formatDate(child.registrationDate),
+
+                  }))
+                  : [];
+
         console.log("Processed allData:", allData);
-  
+
         const filteredData =
           startDate || endDate
             ? allData.filter((row) => {
-                const registrationDate = parseDate(
-                  row.formattedRegistrationDate
-                );
-                const start = parseDate(startDate);
-                const end = parseDate(endDate);
-  
-                return (
-                  (!startDate || registrationDate >= start) &&
-                  (!endDate || registrationDate <= end)
-                );
-              })
+              const registrationDate = parseDate(
+                row.formattedRegistrationDate
+              );
+              const start = parseDate(startDate);
+              const end = parseDate(endDate);
+
+              return (
+                (!startDate || registrationDate >= start) &&
+                (!endDate || registrationDate <= end)
+              );
+            })
             : allData;
-  
+
         const reversedData = filteredData.reverse();
         console.log(`Data fetched between ${startDate} and ${endDate}:`, filteredData);
-  
+
         setFilteredRows(
           reversedData.map((row) => ({ ...row, isSelected: false }))
         );
@@ -224,7 +224,7 @@ export const StudentDetail = () => {
       setLoading(false);
     }
   };
-  
+
   // Helper function to parse dates
   function formatDate(date) {
     const d = new Date(date);
@@ -233,13 +233,13 @@ export const StudentDetail = () => {
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
   }
-  
+
   function parseDate(dateString) {
     const [day, month, year] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
   }
-  
-  
+
+
 
   const handleApplyDateRange = () => {
     const startDate = document.getElementById("startDate").value;
@@ -257,7 +257,7 @@ export const StudentDetail = () => {
     }
   };
 
-  
+
 
   useEffect(() => {
     fetchData();
@@ -276,7 +276,7 @@ export const StudentDetail = () => {
     setRowsPerPage(newRowsPerPage === -1 ? sortedData.length : newRowsPerPage); // Set to all rows if -1
     setPage(0); // Reset to the first page
   };
-  
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -364,7 +364,7 @@ export const StudentDetail = () => {
       .map((row) => {
         // Log each row to check its structure
         console.log("Processing row:", row);
-        if(role==4){
+        if (role == 4) {
           return row._id;
         }
         return row.childId; // Ensure id exists and is not undefined
@@ -391,10 +391,10 @@ export const StudentDetail = () => {
         role == 1
           ? `${process.env.REACT_APP_SUPER_ADMIN_API}/delete/child`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/delete/child`
-          : role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/delete/child`
-          : `http://63.142.251.13:4000/branchgroupuser/deletechildbybranchgroup`;
+            ? `${process.env.REACT_APP_SCHOOL_API}/delete/child`
+            : role == 3
+              ? `${process.env.REACT_APP_BRANCH_API}/delete/child`
+              : `http://63.142.251.13:4000/branchgroupuser/deletechildbybranchgroup`;
 
       const token = localStorage.getItem("token");
       // Send delete requests for each selected ID
@@ -489,12 +489,12 @@ export const StudentDetail = () => {
   const handleModalClose = () => {
     setEditModalOpen(false);
     setAddModalOpen(false);
-    if(role==1){
+    if (role == 1) {
       setBranches();
     }
     if (role != 3) {
       setBuses(undefined);  // assuming you're resetting buses state to an empty array or some other value
-  }
+    }
     setImportModalOpen(false);
     setModalOpen(false);
     setFormData({});
@@ -511,10 +511,10 @@ export const StudentDetail = () => {
       role == 1
         ? `${process.env.REACT_APP_SUPER_ADMIN_API}/update-child`
         : role == 2
-        ? `${process.env.REACT_APP_SCHOOL_API}/update-child`
-        :role==3
-        ? `${process.env.REACT_APP_BRANCH_API}/update-child`
-        :`http://63.142.251.13:4000/branchgroupuser/updatechildbybranchgroup`
+          ? `${process.env.REACT_APP_SCHOOL_API}/update-child`
+          : role == 3
+            ? `${process.env.REACT_APP_BRANCH_API}/update-child`
+            : `http://63.142.251.13:4000/branchgroupuser/updatechildbybranchgroup`
 
     // Prepare the updated data
     const updatedData = {
@@ -524,7 +524,7 @@ export const StudentDetail = () => {
 
     try {
       // Perform the PUT request
-      const response = await fetch(role==4?`${apiUrl}/${updatedData._id}`:`${apiUrl}/${updatedData.childId}`, {
+      const response = await fetch(role == 4 ? `${apiUrl}/${updatedData._id}` : `${apiUrl}/${updatedData.childId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -580,13 +580,13 @@ export const StudentDetail = () => {
           // id: filteredRows.length + 1,
           // isSelected: false,
         };
-      } else if(role==4){
-        newRow={
+      } else if (role == 4) {
+        newRow = {
           ...formData,
-          schoolName:decoded.schoolName,
+          schoolName: decoded.schoolName,
         }
       }
-      
+
       else {
         newRow = {
           ...formData,
@@ -632,7 +632,7 @@ export const StudentDetail = () => {
     }
   };
 
-  
+
   const handleBusChange = (e) => {
     const { value } = e.target;
 
@@ -680,7 +680,7 @@ export const StudentDetail = () => {
       if (geofencesForSelectedDevice.length === 0) {
         console.error("No geofences found for this deviceId");
       }
-    }else if (role == 4) {
+    } else if (role == 4) {
       // Handling for role 3
       geofencesForSelectedDevice = pickupPointsData[selectedBus.deviceId] || [];
 
@@ -760,7 +760,7 @@ export const StudentDetail = () => {
       // Adjust the age if the birthday hasn't occurred this year yet
       const calculatedAge =
         monthDifference < 0 ||
-        (monthDifference === 0 && new Date().getDate() < birthDate.getDate())
+          (monthDifference === 0 && new Date().getDate() < birthDate.getDate())
           ? age - 1
           : age;
 
@@ -777,12 +777,12 @@ export const StudentDetail = () => {
       }));
     }
   };
-//! 1st use effect
-const [allDevices, setAllDevices] = useState([]);
+  //! 1st use effect
+  const [allDevices, setAllDevices] = useState([]);
 
   useEffect(() => {
     // Trigger the "onChange" behavior programmatically if a school is pre-selected
-    if (formData.schoolName && role ==1) {
+    if (formData.schoolName && role == 1) {
       const event = {
         target: {
           name: "schoolName",
@@ -803,87 +803,87 @@ const [allDevices, setAllDevices] = useState([]);
       handleInputChange(event); // Trigger fetching buses when branchName changes
     }
   }, [formData.branchName, allDevices]);
-  
 
-//! 2st use effect
- /*  useEffect(() => {
-    // Trigger the onChange when schoolName changes or on initial load
-    if (formData.schoolName) {
-      const event = {
-        target: {
-          name: "schoolName",
-          value: formData.schoolName,
-        },
-      };
-      handleInputChange(event); // Populate branches based on the selected school
-    }
-  }, [formData.schoolName, schools]); // Trigger when schoolName or schools list changes
 
-  useEffect(() => {
-    // Ensure the branchName is valid for the newly populated branches list
-    if (formData.branchName && Array.isArray(branches) && branches.length > 0) {
-      const selectedBranch = branches.find(
-        (branch) => branch.branchName === formData.branchName
+  //! 2st use effect
+  /*  useEffect(() => {
+     // Trigger the onChange when schoolName changes or on initial load
+     if (formData.schoolName) {
+       const event = {
+         target: {
+           name: "schoolName",
+           value: formData.schoolName,
+         },
+       };
+       handleInputChange(event); // Populate branches based on the selected school
+     }
+   }, [formData.schoolName, schools]); // Trigger when schoolName or schools list changes
+ 
+   useEffect(() => {
+     // Ensure the branchName is valid for the newly populated branches list
+     if (formData.branchName && Array.isArray(branches) && branches.length > 0) {
+       const selectedBranch = branches.find(
+         (branch) => branch.branchName === formData.branchName
+       );
+   
+       if (selectedBranch) {
+         setFormData((prevData) => ({
+           ...prevData,
+           branchName: selectedBranch.branchName, // Set branchName to the selected branch if found
+         }));
+       } else {
+         setFormData((prevData) => ({
+           ...prevData,
+           branchName: "", // Clear branch if it doesn't exist in the new branch list
+         }));
+       }
+     }
+   }, [branches, formData.branchName]); // Trigger when branches or branchName changes
+    // Trigger when branches or branchName changes */
+  //! 3st use effect
+  /* useEffect(() => {
+    if (formData.schoolName && role === 1) {
+      // Find the selected school
+      const selectedSchool = schools.find(
+        (school) => school.schoolName === formData.schoolName
       );
   
-      if (selectedBranch) {
+      if (selectedSchool) {
+        // Update branches based on the selected school
+        const updatedBranches = selectedSchool.branches.map((branch) => ({
+          branchName: branch.branchName,
+          branchId: branch.branchId,
+        }));
+        setBranches(updatedBranches);
+  
+        // Validate or set default branchName
+        const validBranch = updatedBranches.find(
+          (branch) => branch.branchName === formData.branchName
+        );
+  
         setFormData((prevData) => ({
           ...prevData,
-          branchName: selectedBranch.branchName, // Set branchName to the selected branch if found
+          branchName: validBranch
+            ? formData.branchName
+            : updatedBranches[0]?.branchName || "",
         }));
       } else {
+        // Reset branches and branchName if no valid school is found
+        setBranches([]);
         setFormData((prevData) => ({
           ...prevData,
-          branchName: "", // Clear branch if it doesn't exist in the new branch list
+          branchName: "",
         }));
       }
     }
-  }, [branches, formData.branchName]); // Trigger when branches or branchName changes
-   // Trigger when branches or branchName changes */
-//! 3st use effect
-/* useEffect(() => {
-  if (formData.schoolName && role === 1) {
-    // Find the selected school
-    const selectedSchool = schools.find(
-      (school) => school.schoolName === formData.schoolName
-    );
+  }, [formData.schoolName, schools, role]); */
+  useEffect(() => {
+    console.log("Selected School:", formData.schoolName);
+    console.log("Available Branches:", branches);
+    console.log("Selected Branch:", formData.branchName);
+  }, [formData.schoolName, branches, formData.branchName]);
 
-    if (selectedSchool) {
-      // Update branches based on the selected school
-      const updatedBranches = selectedSchool.branches.map((branch) => ({
-        branchName: branch.branchName,
-        branchId: branch.branchId,
-      }));
-      setBranches(updatedBranches);
 
-      // Validate or set default branchName
-      const validBranch = updatedBranches.find(
-        (branch) => branch.branchName === formData.branchName
-      );
-
-      setFormData((prevData) => ({
-        ...prevData,
-        branchName: validBranch
-          ? formData.branchName
-          : updatedBranches[0]?.branchName || "",
-      }));
-    } else {
-      // Reset branches and branchName if no valid school is found
-      setBranches([]);
-      setFormData((prevData) => ({
-        ...prevData,
-        branchName: "",
-      }));
-    }
-  }
-}, [formData.schoolName, schools, role]); */
-useEffect(() => {
-  console.log("Selected School:", formData.schoolName);
-  console.log("Available Branches:", branches);
-  console.log("Selected Branch:", formData.branchName);
-}, [formData.schoolName, branches, formData.branchName]);
-
-  
 
   const handleSelectChange = (event) => {
     setFormData({
@@ -947,32 +947,32 @@ useEffect(() => {
           );
           console.log("Branch data fetched:", response.data);
           setBranches(response.data.school.branches);
-          console.log("my response",branches)
+          console.log("my response", branches)
         }
-        
+
         catch (error) {
           console.error("Error fetching branches:", error);
         }
-      }else if(role==4){
+      } else if (role == 4) {
         try {
-          const token=localStorage.getItem("token");
-          const response=await axios.get(`http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`,{
-            headers:{
-              Authorization:`Bearer ${token}`
+          const token = localStorage.getItem("token");
+          const response = await axios.get(`http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`, {
+            headers: {
+              Authorization: `Bearer ${token}`
             }
           })
-         const branchname= response.data.data.flatMap((newdata)=>
-          Array.isArray(newdata.branches)&&(newdata.branches.length)>0?
-            newdata.branches.map((item)=>(
-             {branchName:item.branchName}
-            )
-          ):[]
+          const branchname = response.data.data.flatMap((newdata) =>
+            Array.isArray(newdata.branches) && (newdata.branches.length) > 0 ?
+              newdata.branches.map((item) => (
+                { branchName: item.branchName }
+              )
+              ) : []
 
-        )
-        console.log("mybranch:",branchname)
-        setBranches(branchname)
+          )
+          console.log("mybranch:", branchname)
+          setBranches(branchname)
         } catch (error) {
-          console.log("error while fetching branch:",error)
+          console.log("error while fetching branch:", error)
         }
       }
     };
@@ -984,10 +984,10 @@ useEffect(() => {
           role == 1
             ? `${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`
             : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
-            :role==3
-            ? `${process.env.REACT_APP_BRANCH_API}/read-devices`
-            :`http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`
+              ? `${process.env.REACT_APP_SCHOOL_API}/read-devices`
+              : role == 3
+                ? `${process.env.REACT_APP_BRANCH_API}/read-devices`
+                : `http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`
 
         const response = await axios.get(apiUrl, {
           headers: {
@@ -1001,10 +1001,10 @@ useEffect(() => {
             school.branches.flatMap((branch) =>
               Array.isArray(branch.devices) && branch.devices.length > 0
                 ? branch.devices.map((device) => ({
-                    ...device,
-                    schoolName: school.schoolName,
-                    branchName: branch.branchName,
-                  }))
+                  ...device,
+                  schoolName: school.schoolName,
+                  branchName: branch.branchName,
+                }))
                 : []
             )
           );
@@ -1012,10 +1012,10 @@ useEffect(() => {
           allData = response?.data.branches.flatMap((branch) =>
             Array.isArray(branch.devices) && branch.devices.length > 0
               ? branch.devices.map((device) => ({
-                  ...device,
-                  branchName: branch.branchName,
-                  schoolName: response.data.schoolName,
-                }))
+                ...device,
+                branchName: branch.branchName,
+                schoolName: response.data.schoolName,
+              }))
               : []
           );
         } else if (role == 3) {
@@ -1024,39 +1024,39 @@ useEffect(() => {
 
           allData = Array.isArray(response.data.devices)
             ? response.data.devices.map((device) => ({
-                ...device,
-                branchName,
-                schoolName,
-              }))
+              ...device,
+              branchName,
+              schoolName,
+            }))
             : [];
         }
-      //   else if(role==4){
-      //     allData=response.data.data.flatMap((item)=>
-      //     Array.isArray(item.branches)&&item.branches>0?
-      //   item.branches.flatMap((devicearray)=>(
-      //     Array.isArray(devicearray.devices)&& devicearray.length>0?
-      //     devicearray.devices.map((device)=>({
-      //       ...device
-      //     })):[]
-      //   )):[]
-      // )
-      //   }
-      else if (role == 4) {
-        allData = response.data.data.flatMap((school) =>
+        //   else if(role==4){
+        //     allData=response.data.data.flatMap((item)=>
+        //     Array.isArray(item.branches)&&item.branches>0?
+        //   item.branches.flatMap((devicearray)=>(
+        //     Array.isArray(devicearray.devices)&& devicearray.length>0?
+        //     devicearray.devices.map((device)=>({
+        //       ...device
+        //     })):[]
+        //   )):[]
+        // )
+        //   }
+        else if (role == 4) {
+          allData = response.data.data.flatMap((school) =>
             Array.isArray(school.branches) && school.branches.length > 0
-                ? school.branches.flatMap((branch) =>
-                      Array.isArray(branch.devices) && branch.devices.length > 0
-                          ? branch.devices.map((device) => ({
-                                ...device,
-                                branchName: branch.branchName,
-                                schoolName: school.schoolName,
-                            }))
-                          : []
-                  )
-                : []
-        );
-    }
-    
+              ? school.branches.flatMap((branch) =>
+                Array.isArray(branch.devices) && branch.devices.length > 0
+                  ? branch.devices.map((device) => ({
+                    ...device,
+                    branchName: branch.branchName,
+                    schoolName: school.schoolName,
+                  }))
+                  : []
+              )
+              : []
+          );
+        }
+
         setAllDevices(allData); // Store all devices
         setBuses(allData); // Set initial buses as well
         console.log("filter devices according to branch", allData);
@@ -1065,7 +1065,7 @@ useEffect(() => {
       }
     };
 
-    
+
 
     const fetchGeofence = async (startDate = "", endDate = "") => {
       // setLoading(true);
@@ -1095,7 +1095,7 @@ useEffect(() => {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-        }else if (role == 4) {
+        } else if (role == 4) {
           response = await axios.get(
             `http://63.142.251.13:4000/branchgroupuser/getgeofence`,
             {
@@ -1103,7 +1103,7 @@ useEffect(() => {
             }
           );
         }
-console.log("my geofences",response.data)
+        console.log("my geofences", response.data)
         if (response?.data) {
           let fetchedData = {};
 
@@ -1150,9 +1150,9 @@ console.log("my geofences",response.data)
                 schoolName: geofence.schoolName,
               });
             });
-          }if (role == 4) {
+          } if (role == 4) {
             // const fetchedData = {}; // Initialize an empty object to store the data
-          
+
             response.data.branches.forEach((branch) => {
               if (branch.geofences) {
                 branch.geofences.forEach((geofence) => {
@@ -1167,14 +1167,14 @@ console.log("my geofences",response.data)
                 });
               }
             });
-          
+
             console.log("Fetched Data:", fetchedData);
-          
+
             // Use fetchedData as needed in your application
           }
-          
-        
-          
+
+
+
 
           console.log("role is:", role);
           console.log("geofences are IS:", fetchedData);
@@ -1190,7 +1190,7 @@ console.log("my geofences",response.data)
     fetchSchool();
     fetchGeofence();
   }, [role]);
- 
+
   const sampleData = [
     [
       "childName",
@@ -1267,56 +1267,56 @@ console.log("my geofences",response.data)
             marginBottom: "10px",
           }}
         >
-       
-           <TextField
-    label="Search"
-    variant="outlined"
-    value={filterText}
-    onChange={handleFilterChange}
-    sx={{
-      marginRight: "10px",
-      width: "200px", // Smaller width
-      '& .MuiOutlinedInput-root': {
-        height: '36px', // Set a fixed height to reduce it
-        padding: '0px', // Reduce padding to shrink height
-      },
-      '& .MuiInputLabel-root': {
-        top: '-6px', // Adjust label position
-        fontSize: '14px', // Slightly smaller label font
-      }
-    }}
-    InputProps={{
-      startAdornment: (
-        <SearchIcon
-          style={{
-            cursor: "pointer",
-            marginLeft: "10px",
-            marginRight: "5px",
-          }}
-        />
-      ),
-    }}
-  />
-        
+
+          <TextField
+            label="Search"
+            variant="outlined"
+            value={filterText}
+            onChange={handleFilterChange}
+            sx={{
+              marginRight: "10px",
+              width: "200px", // Smaller width
+              '& .MuiOutlinedInput-root': {
+                height: '36px', // Set a fixed height to reduce it
+                padding: '0px', // Reduce padding to shrink height
+              },
+              '& .MuiInputLabel-root': {
+                top: '-6px', // Adjust label position
+                fontSize: '14px', // Slightly smaller label font
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <SearchIcon
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: "10px",
+                    marginRight: "5px",
+                  }}
+                />
+              ),
+            }}
+          />
+
           <Button
-  onClick={() => setModalOpen(true)}
-  sx={{
-    backgroundColor: "rgb(85, 85, 85)",
-    color: "white",
-    fontWeight: "bold",
-    marginRight: "10px",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    "&:hover": {
-      fontWeight: "bolder", // Make text even bolder on hover
-      backgroundColor: "rgb(85, 85, 85)", // Maintain background color on hover
-    },
-  }}
->
-  <ImportExportIcon />
-  Column Visibility
-</Button>
+            onClick={() => setModalOpen(true)}
+            sx={{
+              backgroundColor: "rgb(85, 85, 85)",
+              color: "white",
+              fontWeight: "bold",
+              marginRight: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              "&:hover": {
+                fontWeight: "bolder", // Make text even bolder on hover
+                backgroundColor: "rgb(85, 85, 85)", // Maintain background color on hover
+              },
+            }}
+          >
+            <ImportExportIcon />
+            Column Visibility
+          </Button>
 
           <Button
             variant="contained"
@@ -1586,28 +1586,28 @@ console.log("my geofences",response.data)
                 </TableBody>
               </Table>
             </TableContainer>
-           
-          
- 
-  
-  
-    <StyledTablePagination>
-  <TablePagination
-    rowsPerPageOptions={[{ label: "All", value: -1 }, 10, 25, 100, 1000]}
-    component="div"
-    count={sortedData.length}
-    rowsPerPage={rowsPerPage === sortedData.length ? -1 : rowsPerPage}
-    page={page}
-    onPageChange={(event, newPage) => {
-      console.log("Page changed:", newPage);
-      handleChangePage(event, newPage);
-    }}
-    onRowsPerPageChange={(event) => {
-      console.log("Rows per page changed:", event.target.value);
-      handleChangeRowsPerPage(event);
-    }}
-  />
-</StyledTablePagination>
+
+
+
+
+
+            <StyledTablePagination>
+              <TablePagination
+                rowsPerPageOptions={[{ label: "All", value: -1 }, 10, 25, 100, 1000]}
+                component="div"
+                count={sortedData.length}
+                rowsPerPage={rowsPerPage === sortedData.length ? -1 : rowsPerPage}
+                page={page}
+                onPageChange={(event, newPage) => {
+                  console.log("Page changed:", newPage);
+                  handleChangePage(event, newPage);
+                }}
+                onRowsPerPageChange={(event) => {
+                  console.log("Rows per page changed:", event.target.value);
+                  handleChangeRowsPerPage(event);
+                }}
+              />
+            </StyledTablePagination>
             {/* //</></div> */}
           </>
         )}
@@ -1615,17 +1615,17 @@ console.log("my geofences",response.data)
           <Box sx={style}>
             {/* <h2></h2> */}
             <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '20px',
-      }}
-    >
-      <h2 style={{ flexGrow: 1 }}>Column Visibility</h2>
-      <IconButton onClick={handleModalClose}>
-        <CloseIcon />
-      </IconButton>
-    </Box>
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px',
+              }}
+            >
+              <h2 style={{ flexGrow: 1 }}>Column Visibility</h2>
+              <IconButton onClick={handleModalClose}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
             {COLUMNS().map((col) => (
               <div key={col.accessor}>
                 <Switch
@@ -1635,12 +1635,12 @@ console.log("my geofences",response.data)
                 />
                 {col.Header}
               </div>
-              
+
             ))}
           </Box>
         </Modal>
         <Modal open={editModalOpen} onClose={handleModalClose}>
-         
+
           <Box sx={style}>
             {/* <h2>Add Row</h2> */}
             <Box
@@ -1674,40 +1674,40 @@ console.log("my geofences",response.data)
               }}
             />
 
-            
+
             <FormControl
-  sx={{
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: "10px",
-  }}
->
-  <FormLabel
-    id="demo-row-radio-buttons-group-label"
-    sx={{ marginRight: 4 }} // Add some space between label and radio group
-  >
-    Gender
-  </FormLabel>
-  <RadioGroup
-    row
-    aria-labelledby="demo-row-radio-buttons-group-label"
-    name="gender"
-    value={formData.gender || ""} // Bind to formData.gender
-    onChange={handleInputChange} // Update formData when selection changes
-  >
-    <FormControlLabel
-      value="female"
-      control={<Radio />}
-      label="Female"
-    />
-    <FormControlLabel
-      value="male"
-      control={<Radio />}
-      label="Male"
-    />
-  </RadioGroup>
-</FormControl>
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: "10px",
+              }}
+            >
+              <FormLabel
+                id="demo-row-radio-buttons-group-label"
+                sx={{ marginRight: 4 }} // Add some space between label and radio group
+              >
+                Gender
+              </FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="gender"
+                value={formData.gender || ""} // Bind to formData.gender
+                onChange={handleInputChange} // Update formData when selection changes
+              >
+                <FormControlLabel
+                  value="female"
+                  control={<Radio />}
+                  label="Female"
+                />
+                <FormControlLabel
+                  value="male"
+                  control={<Radio />}
+                  label="Male"
+                />
+              </RadioGroup>
+            </FormControl>
 
 
             <FormControl
@@ -1739,7 +1739,8 @@ console.log("my geofences",response.data)
                     <InputAdornment position="start">
                       <CakeIcon />
                     </InputAdornment>
-                  ),}}
+                  ),
+                }}
               />
             </FormControl>
 
@@ -1761,7 +1762,7 @@ console.log("my geofences",response.data)
               }}
             />
 
-          
+
             <FormControl fullWidth sx={{ marginBottom: "10px" }}>
               <Autocomplete
                 id="searchable-select"
@@ -1803,7 +1804,7 @@ console.log("my geofences",response.data)
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PinIcon/>  {/* Add Face6Icon in the input field */}
+                    <PinIcon />  {/* Add Face6Icon in the input field */}
                   </InputAdornment>
                 ),
               }}
@@ -1817,17 +1818,17 @@ console.log("my geofences",response.data)
               onChange={handleInputChange}
               sx={{ marginBottom: "10px" }}
               fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <HolidayVillageIcon />  {/* Add Face6Icon in the input field */}
-                    </InputAdornment>
-                  ),
-                }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <HolidayVillageIcon />  {/* Add Face6Icon in the input field */}
+                  </InputAdornment>
+                ),
+              }}
             />
             {role == 1 ? (
               <>
-             
+
                 <FormControl
                   variant="outlined"
                   sx={{ marginBottom: "10px" }}
@@ -1840,9 +1841,9 @@ console.log("my geofences",response.data)
                     value={
                       Array.isArray(schools)
                         ? schools.find(
-                            (school) =>
-                              school.schoolName === formData["schoolName"]
-                          )
+                          (school) =>
+                            school.schoolName === formData["schoolName"]
+                        )
                         : null
                     } // Safely find the selected school
                     onChange={(event, newValue) => {
@@ -1871,23 +1872,23 @@ console.log("my geofences",response.data)
                     )}
                   />
                 </FormControl>
-               
+
                 <FormControl
                   variant="outlined"
                   sx={{ marginBottom: "10px" }}
                   fullWidth
                 >
                   <Autocomplete
-                     key={`${formData.schoolName}-${formData.branchName}`} 
+                    key={`${formData.schoolName}-${formData.branchName}`}
                     id="searchable-branch-select"
                     options={Array.isArray(branches) ? branches : []} // Ensure branches is an array
                     getOptionLabel={(option) => option.branchName || ""} // Display branch name
                     value={
                       Array.isArray(branches)
                         ? branches.find(
-                            (branch) =>
-                              branch.branchName === formData["branchName"]
-                          )
+                          (branch) =>
+                            branch.branchName === formData["branchName"]
+                        )
                         : null
                     } // Safely find the selected branch
                     onChange={(event, newValue) => {
@@ -1917,8 +1918,8 @@ console.log("my geofences",response.data)
                   />
                 </FormControl>
               </>
-            ): role == 4 ? (
-             
+            ) : role == 4 ? (
+
               <FormControl
                 variant="outlined"
                 sx={{ marginBottom: "10px" }}
@@ -1931,9 +1932,9 @@ console.log("my geofences",response.data)
                   value={
                     Array.isArray(branches)
                       ? branches.find(
-                          (branch) =>
-                            branch.branchName === formData["branchName"]
-                        ) || null
+                        (branch) =>
+                          branch.branchName === formData["branchName"]
+                      ) || null
                       : null
                   } // Safeguard find method
                   onChange={(event, newValue) => {
@@ -1954,14 +1955,14 @@ console.log("my geofences",response.data)
                   )}
                 />
               </FormControl>
-            ):role == 2 ? (
+            ) : role == 2 ? (
               <FormControl
                 variant="outlined"
                 sx={{ marginBottom: "10px" }}
                 fullWidth
               >
                 <Autocomplete
-                  key={`${formData.schoolName}-${formData.branchName}`} 
+                  key={`${formData.schoolName}-${formData.branchName}`}
                   id="searchable-branch-select"
                   options={branches || []} // Ensure branches is at least an empty array
                   getOptionLabel={(option) => option.branchName || ""} // Display branch name
@@ -1997,8 +1998,8 @@ console.log("my geofences",response.data)
                 />
               </FormControl>
             ) : null}
-            
-           
+
+
             <FormControl
               variant="outlined"
               sx={{ marginBottom: "10px" }}
@@ -2039,14 +2040,14 @@ console.log("my geofences",response.data)
                 )}
               />
             </FormControl>
-          
+
             <FormControl fullWidth sx={{ marginBottom: "10px" }}>
               <Autocomplete
                 id="geofence-autocomplete"
                 options={filteredGeofences || []} // List of geofence objects
                 getOptionLabel={(option) => option.name || ""} // Display geofence name
                 value={
-                  (filteredGeofences||[]).find(
+                  (filteredGeofences || []).find(
                     (geofence) => geofence.name === formData["pickupPoint"]
                   ) || null
                 } // Find the selected geofence
@@ -2171,7 +2172,7 @@ console.log("my geofences",response.data)
   </div>
 )} */}
 
-            
+
             <Button
               variant="contained"
               color="primary"
@@ -2247,8 +2248,8 @@ console.log("my geofences",response.data)
                 />
               </RadioGroup>
             </FormControl>
-           
-           
+
+
 
             <FormControl
               sx={{
@@ -2266,7 +2267,7 @@ console.log("my geofences",response.data)
 
               <TextField
                 key={"childAge"}
-                label={ "Date of Birth"}
+                label={"Date of Birth"}
                 type="date"
                 placeholder="Date of Birth"
                 variant="outlined"
@@ -2280,7 +2281,8 @@ console.log("my geofences",response.data)
                     <InputAdornment position="start">
                       <CakeIcon />
                     </InputAdornment>
-                  ),}}
+                  ),
+                }}
               />
             </FormControl>
 
@@ -2294,23 +2296,23 @@ console.log("my geofences",response.data)
               sx={{ marginBottom: "10px" }}
               fullWidth
             /> */}
- <TextField
-        key={"childAge"}
-        label={"Student Age"}
-        variant="outlined"
-        name="childAge"
-        value={formData.childAge || ""}
-        sx={{ marginBottom: "10px" }}
-        fullWidth
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Face6Icon />  {/* Add Face6Icon in the input field */}
-            </InputAdornment>
-          ),
-        }}
-        // disabled // Disable the field since the age is calculated automatically
-      />
+            <TextField
+              key={"childAge"}
+              label={"Student Age"}
+              variant="outlined"
+              name="childAge"
+              value={formData.childAge || ""}
+              sx={{ marginBottom: "10px" }}
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Face6Icon />  {/* Add Face6Icon in the input field */}
+                  </InputAdornment>
+                ),
+              }}
+            // disabled // Disable the field since the age is calculated automatically
+            />
             {/* <FormControl fullWidth sx={{ marginBottom: "10px" }}>
               <InputLabel id="demo-simple-select-label">Class</InputLabel>
               <Select
@@ -2363,7 +2365,7 @@ console.log("my geofences",response.data)
                 )}
               />
             </FormControl>
-             
+
             <TextField
               key={"roleno"}
               label={"Roll No"}
@@ -2371,12 +2373,12 @@ console.log("my geofences",response.data)
               name="rollno"
               value={formData["rollno"] || ""}
               onChange={handleInputChange}
-              sx={{ marginBottom: "10px" , zIndex: 1500 }}
+              sx={{ marginBottom: "10px", zIndex: 1500 }}
               fullWidth
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PinIcon/>  {/* Add Face6Icon in the input field */}
+                    <PinIcon />  {/* Add Face6Icon in the input field */}
                   </InputAdornment>
                 ),
               }}
@@ -2400,7 +2402,7 @@ console.log("my geofences",response.data)
             />
             {role == 1 ? (
               <>
-             
+
                 <FormControl
                   variant="outlined"
                   sx={{ marginBottom: "10px" }}
@@ -2413,9 +2415,9 @@ console.log("my geofences",response.data)
                     value={
                       Array.isArray(schools)
                         ? schools.find(
-                            (school) =>
-                              school.schoolName === formData["schoolName"]
-                          )
+                          (school) =>
+                            school.schoolName === formData["schoolName"]
+                        )
                         : null
                     } // Safely find the selected school
                     onChange={(event, newValue) => {
@@ -2444,7 +2446,7 @@ console.log("my geofences",response.data)
                     )}
                   />
                 </FormControl>
-               
+
                 <FormControl
                   variant="outlined"
                   sx={{ marginBottom: "10px" }}
@@ -2457,9 +2459,9 @@ console.log("my geofences",response.data)
                     value={
                       Array.isArray(branches)
                         ? branches.find(
-                            (branch) =>
-                              branch.branchName === formData["branchName"]
-                          )
+                          (branch) =>
+                            branch.branchName === formData["branchName"]
+                        )
                         : null
                     } // Safely find the selected branch
                     onChange={(event, newValue) => {
@@ -2489,8 +2491,8 @@ console.log("my geofences",response.data)
                   />
                 </FormControl>
               </>
-            ): role == 4 ? (
-             
+            ) : role == 4 ? (
+
               <FormControl
                 variant="outlined"
                 sx={{ marginBottom: "10px" }}
@@ -2503,9 +2505,9 @@ console.log("my geofences",response.data)
                   value={
                     Array.isArray(branches)
                       ? branches.find(
-                          (branch) =>
-                            branch.branchName === formData["branchName"]
-                        ) || null
+                        (branch) =>
+                          branch.branchName === formData["branchName"]
+                      ) || null
                       : null
                   } // Safeguard find method
                   onChange={(event, newValue) => {
@@ -2534,8 +2536,8 @@ console.log("my geofences",response.data)
                   )}
                 />
               </FormControl>
-            ): role == 2 ? (
-             
+            ) : role == 2 ? (
+
               <FormControl
                 variant="outlined"
                 sx={{ marginBottom: "10px" }}
@@ -2548,9 +2550,9 @@ console.log("my geofences",response.data)
                   value={
                     Array.isArray(branches)
                       ? branches.find(
-                          (branch) =>
-                            branch.branchName === formData["branchName"]
-                        ) || null
+                        (branch) =>
+                          branch.branchName === formData["branchName"]
+                      ) || null
                       : null
                   } // Safeguard find method
                   onChange={(event, newValue) => {
@@ -2580,7 +2582,7 @@ console.log("my geofences",response.data)
                 />
               </FormControl>
             ) : null}
-          
+
             <FormControl
               variant="outlined"
               sx={{ marginBottom: "10px" }}
@@ -2621,7 +2623,7 @@ console.log("my geofences",response.data)
                 )}
               />
             </FormControl>
-          
+
             <FormControl fullWidth sx={{ marginBottom: "10px" }}>
               <Autocomplete
                 id="geofence-autocomplete"
@@ -2764,7 +2766,7 @@ console.log("my geofences",response.data)
               fullWidth
               
             /> */}
-            
+
             <Button
               variant="contained"
               color="primary"
@@ -2774,7 +2776,7 @@ console.log("my geofences",response.data)
             </Button>
           </Box>
         </Modal>
-        
+
 
         {/* <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
           <Box sx={style}>

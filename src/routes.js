@@ -47,6 +47,16 @@ const GettingStarted = React.lazy(
 )
 const Faq = React.lazy(() => import('./components/articles/faq/Faq.js'))
 
+
+// Parnet Eyes Route
+
+// Schools
+
+const StudentDetail = React.lazy(() => import('./views/School/StudentDetail/StudentDetail.jsx'))
+const Geofence = React.lazy(() => import('./views/School/Geofence/Geofence.jsx'))
+
+
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
 
@@ -92,5 +102,14 @@ const routes = [
   { path: '/answer-ticket', name: 'Answer Ticket', element: AnswerTicket },
   { path: '/HelpSupp/faq', name: 'FAQ', element: Faq },
   { path: '/raise-ticket', name: 'Raise Ticket', element: RaiseTicket },
+
+  // Parent Eyes Route
+
+  // Schools Route
+
+  { path: '/studentdetail', name: 'StudentDetail', element: StudentDetail },
+  { path: '/schoolgeofence', name: 'Geofence', element: Geofence }
+
+
 ]
 export default routes
