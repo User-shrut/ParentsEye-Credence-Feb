@@ -50,7 +50,7 @@ const style = {
   padding: "1rem",
 };
 
-export const Absent = () => {
+ const schoolabsent = () => {
   const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
   const role = localStorage.getItem("role");
   const [page, setPage] = useState(0);
@@ -1058,3 +1058,4 @@ export const Absent = () => {
     </>
   );
 };
+export default schoolabsent
