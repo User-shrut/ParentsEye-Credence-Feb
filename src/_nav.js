@@ -94,6 +94,283 @@ const _nav = (role, decodedToken) => {
           component: CNavTitle,
           name: 'All Menu',
         },
+
+        // Parent Eyess navigation
+        // School Parnet Eyes
+
+        {
+          component: CNavGroup,
+          name: 'School',
+
+          icon: (
+            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
+              <TbSchool color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
+            </div>
+          ),
+          items: [
+            {
+              component: CNavItem,
+              name: 'StudentDetail',
+              to: '/studentdetail',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <PiStudentBold style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Geofence',
+              to: '/schoolgeofence',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BsGeo style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Absent',
+              to: '/schoolabsent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FcLeave style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Approved Request',
+              to: '/schoolapprovedrequest',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <VscRequestChanges style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Denied Request',
+              to: '/schooldeniedrequest',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <GiCancel style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Leave',
+              to: '/schoolleave',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <AiOutlineFileDone style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Pick And Drop',
+              to: '/schoolpickanddrop',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbBusStop style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Present',
+              to: '/schoolpresent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <MdCoPresent style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Status',
+              to: '/schoolstatus',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbMessageReport style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+
+          ]
+        },
+
+        // Parnet Eye User Section
+
+        {
+          component: CNavGroup,
+          name: 'Users',
+
+          icon: (
+            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
+              <FaUserGraduate color="black" style={{ marginRight: '15px', fontSize: '25px' }} />
+            </div>
+          ),
+          items: [
+            {
+              component: CNavItem,
+              name: 'School Master',
+              to: '/schoolmaster',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaSchoolFlag style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Branch Master',
+              to: '/branchmaster',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LuGitBranchPlus style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Driver Approve',
+              to: '/schooldriver',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <GrUserPolice style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Student Approve',
+              to: '/parent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <RiParentLine style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Supervisor Approve',
+              to: '/supervisor',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LiaChalkboardTeacherSolid style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Add Devices',
+              to: '/adddevices',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbDevicesPlus style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Read Devices',
+              to: '/readdevices',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BiBookReader style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'User Access',
+              to: '/useraccess',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BiUniversalAccess style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'School Notification',
+              to: '/schoolnotification',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <IoMdNotificationsOutline style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            // {
+            //   component: CNavItem,
+            //   name: 'Assign Branches',
+            //   to: '/assignbranches',
+
+            //   icon: (
+            //     <div style={{ display: 'flex', alignItems: 'center' }}>
+            //       <RiGitBranchLine style={{ marginRight: '15px', fontSize: '25px' }} />
+            //     </div>
+            //   ),
+            // },
+
+            // {
+            //   component: CNavItem,
+            //   name: 'My Branch Devices',
+            //   to: '/mybranchdevices',
+
+            //   icon: (
+            //     <div style={{ display: 'flex', alignItems: 'center' }}>
+            //       <PiDevicesLight style={{ marginRight: '15px', fontSize: '25px' }} />
+            //     </div>
+            //   ),
+            // },
+
+
+          ]
+        },
+
+
+        // Credence Tracker code navigation
+
         {
           component: CNavGroup,
           name: 'Master',
@@ -388,278 +665,7 @@ const _nav = (role, decodedToken) => {
           ],
         },
 
-        // Parent Eyess navigation
-        // School Parnet Eyes
 
-        {
-          component: CNavGroup,
-          name: 'School',
-
-          icon: (
-            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
-              <TbSchool color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
-            </div>
-          ),
-          items: [
-            {
-              component: CNavItem,
-              name: 'StudentDetail',
-              to: '/studentdetail',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <PiStudentBold style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Geofence',
-              to: '/schoolgeofence',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <BsGeo style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Absent',
-              to: '/schoolabsent',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FcLeave style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Approved Request',
-              to: '/schoolapprovedrequest',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <VscRequestChanges style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Denied Request',
-              to: '/schooldeniedrequest',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <GiCancel style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Leave',
-              to: '/schoolleave',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <AiOutlineFileDone style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Pick And Drop',
-              to: '/schoolpickanddrop',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <TbBusStop style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Present',
-              to: '/schoolpresent',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <MdCoPresent style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Status',
-              to: '/schoolstatus',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <TbMessageReport style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-
-          ]
-        },
-
-        // Parnet Eye User Section
-
-        {
-          component: CNavGroup,
-          name: 'School Users',
-
-          icon: (
-            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
-              <FaUserGraduate color="black" style={{ marginRight: '15px', fontSize: '25px' }} />
-            </div>
-          ),
-          items: [
-            {
-              component: CNavItem,
-              name: 'School Master',
-              to: '/schoolmaster',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaSchoolFlag style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Branch Master',
-              to: '/branchmaster',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <LuGitBranchPlus style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Driver Approve',
-              to: '/schooldriver',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <GrUserPolice style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Student Approve',
-              to: '/parent',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <RiParentLine style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Supervisor Approve',
-              to: '/supervisor',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <LiaChalkboardTeacherSolid style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Add Devices',
-              to: '/adddevices',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <TbDevicesPlus style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Read Devices',
-              to: '/readdevices',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <BiBookReader style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'User Access',
-              to: '/useraccess',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <BiUniversalAccess style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'School Notification',
-              to: '/schoolnotification',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <IoMdNotificationsOutline style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            // {
-            //   component: CNavItem,
-            //   name: 'Assign Branches',
-            //   to: '/assignbranches',
-
-            //   icon: (
-            //     <div style={{ display: 'flex', alignItems: 'center' }}>
-            //       <RiGitBranchLine style={{ marginRight: '15px', fontSize: '25px' }} />
-            //     </div>
-            //   ),
-            // },
-
-            // {
-            //   component: CNavItem,
-            //   name: 'My Branch Devices',
-            //   to: '/mybranchdevices',
-
-            //   icon: (
-            //     <div style={{ display: 'flex', alignItems: 'center' }}>
-            //       <PiDevicesLight style={{ marginRight: '15px', fontSize: '25px' }} />
-            //     </div>
-            //   ),
-            // },
-
-
-          ]
-        }
 
 
       ]
