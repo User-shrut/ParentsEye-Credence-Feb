@@ -15,7 +15,7 @@ import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
-import logo from 'src/assets/brand/logo.png'
+import logo from 'src/assets/Parneteyelogo/parentslogo.png'
 import { sygnet } from 'src/assets/brand/sygnet'
 
 // sidebar nav config
@@ -114,7 +114,7 @@ const AppSidebar = () => {
         <CTooltip content="Close">
           <CSidebarToggler
             onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
-            // onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
+          // onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
           />
         </CTooltip>
 
