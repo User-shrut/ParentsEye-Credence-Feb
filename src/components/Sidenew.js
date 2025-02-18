@@ -15,7 +15,7 @@ function Sidenew() {
         <div>Master</div>
         <div>Reports</div>
         <div>Expense</div>
-        {/* <div>Supports</div> */}
+        <div>Supports</div>
       </div>
     )
   )
