@@ -54,7 +54,14 @@ const Faq = React.lazy(() => import('./components/articles/faq/Faq.js'))
 
 const StudentDetail = React.lazy(() => import('./views/School/StudentDetail/StudentDetail.jsx'))
 const Geofence = React.lazy(() => import('./views/School/Geofence/Geofence.jsx'))
-
+const Absent = React.lazy(() => import('./views/School/Absent/Absent.jsx'))
+const ApprovedRequest = React.lazy(() => import('./views/School/ApprovedRequest/ApprovedRequest.jsx'))
+const DeniedRequest = React.lazy(() => import('./views/School/DeniedRequest/DeniedRequest.jsx'))
+const Leave = React.lazy(() => import('./views/School/Leave/Leave.jsx'))
+const PickAndDrop = React.lazy(() => import('./views/School/PickAndDrop/PickupAndDrop.jsx'))
+const Present = React.lazy(() => import('./views/School/Present/Present.jsx'))
+const Status = React.lazy(() => import('./views/School/Status/Status.jsx'))
+const SchoolUser = React.lazy(() => import('./views/School/User/User.jsx'))
 
 
 const routes = [
@@ -108,7 +115,15 @@ const routes = [
   // Schools Route
 
   { path: '/studentdetail', name: 'StudentDetail', element: StudentDetail },
-  { path: '/schoolgeofence', name: 'Geofence', element: Geofence }
+  { path: '/schoolgeofence', name: 'Geofence', element: Geofence },
+  { path: '/schooluser', name: 'School User', element: SchoolUser },
+  { path: '/schoolstatus', name: 'Status', element: Status },
+  { path: '/schoolpresent', name: 'Present', element: Present },
+  { path: '/schoolpickanddrop', name: 'Pick And Drop', element: PickAndDrop },
+  { path: '/schoolleave', name: 'Leave', element: Leave },
+  { path: '/schooldeniedrequest', name: 'Denied Request', element: DeniedRequest },
+  { path: '/schoolapprovedrequest', name: 'Approved Request', element: ApprovedRequest },
+  { path: '/schoolabsent', name: 'Absent', element: Absent },
 
 
 ]

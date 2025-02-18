@@ -4,16 +4,16 @@ import React, { useEffect, useState } from 'react'
 import { IoLocationOutline } from 'react-icons/io5'
 import { BsFillSignStopFill, BsGeo, BsWindowFullscreen } from 'react-icons/bs'
 import { BsChatDots } from 'react-icons/bs'
-import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRoute, FaStopwatch, FaUserAlt } from 'react-icons/fa'
+import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRegUser, FaRoute, FaStopwatch, FaUserAlt } from 'react-icons/fa'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
-import { TbReport, TbSchool } from 'react-icons/tb'
+import { TbBusStop, TbMessageReport, TbReport, TbSchool } from 'react-icons/tb'
 import { BiLogOutCircle } from 'react-icons/bi'
 import { FaCarOn, FaUserGroup } from 'react-icons/fa6'
 import { GrHostMaintenance, GrUserWorker } from 'react-icons/gr'
 import { IoMdNotifications } from 'react-icons/io'
-import { MdEventNote, MdOutlineCategory, MdOutlineSpaceDashboard, MdSensors } from 'react-icons/md'
+import { MdCoPresent, MdEventNote, MdOutlineCategory, MdOutlineSpaceDashboard, MdSensors } from 'react-icons/md'
 import { TbCategory } from 'react-icons/tb'
-import { GiPathDistance } from 'react-icons/gi'
+import { GiCancel, GiPathDistance } from 'react-icons/gi'
 import { TbReportAnalytics } from 'react-icons/tb'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import { RiPinDistanceFill } from 'react-icons/ri'
@@ -21,6 +21,9 @@ import { PiMapPinAreaFill, PiStudentBold } from 'react-icons/pi'
 import { BiSupport } from 'react-icons/bi'
 import { TicketCheck } from 'lucide-react'
 import { icon } from 'leaflet'
+import { FcLeave } from "react-icons/fc";
+import { VscRequestChanges } from 'react-icons/vsc'
+import { AiOutlineFileDone } from 'react-icons/ai'
 
 const _nav = (role, decodedToken) => {
   let devices,
@@ -417,6 +420,102 @@ const _nav = (role, decodedToken) => {
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <BsGeo style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Absent',
+              to: '/schoolabsent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FcLeave style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Approved Request',
+              to: '/schoolapprovedrequest',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <VscRequestChanges style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Denied Request',
+              to: '/schooldeniedrequest',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <GiCancel style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Leave',
+              to: '/schoolleave',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <AiOutlineFileDone style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Pick And Drop',
+              to: '/schoolpickanddrop',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbBusStop style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Present',
+              to: '/schoolpresent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <MdCoPresent style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Status',
+              to: '/schoolstatus',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbMessageReport style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'School User',
+              to: '/schooluser',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaRegUser style={{ marginRight: '15px', fontSize: '25px' }} />
                 </div>
               ),
             },
