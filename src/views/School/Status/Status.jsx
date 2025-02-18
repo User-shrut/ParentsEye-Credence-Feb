@@ -96,7 +96,7 @@ const role=localStorage.getItem("role");
       // Fetch data based on role
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/status-of-children`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/status-of-children`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ const role=localStorage.getItem("role");
         }
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/status-of-children`,
+          `${import.meta.env.VITE_SCHOOL_API}/status-of-children`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -141,7 +141,7 @@ const role=localStorage.getItem("role");
         }
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/status-of-children`,
+          `${import.meta.env.VITE_BRANCH_API}/status-of-children`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -584,7 +584,7 @@ const role=localStorage.getItem("role");
       // Fetch data based on role
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/status/${id}`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/status/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -593,7 +593,7 @@ const role=localStorage.getItem("role");
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/status/${id}`,
+          `${import.meta.env.VITE_SCHOOL_API}/status/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -602,7 +602,7 @@ const role=localStorage.getItem("role");
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/status/${id}`,
+          `${import.meta.env.VITE_BRANCH_API}/status/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

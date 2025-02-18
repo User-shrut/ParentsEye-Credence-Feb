@@ -171,7 +171,7 @@ const schoolgeofence = () => {
 
     try {
       const accessToken = localStorage.getItem('token')
-      const response = await axios.post(`${process.env.REACT_APP_API}/geofence`, geofenceData, {
+      const response = await axios.post(`${import.meta.env.VITE_API}/geofence`, geofenceData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
@@ -196,20 +196,20 @@ const schoolgeofence = () => {
       const token = localStorage.getItem('token')
 
       if (role == 1) {
-        response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/read-devices`, {
+        response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       } else if (role == 2) {
-        response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/read-devices`, {
+        response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/read-devices`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       } else if (role == 3) {
-        response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/read-devices`, {
+        response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/read-devices`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       } else if (role == 4) {
         response = await axios.get(
-          `http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`,
+          `${import.meta.env.VITE_USERBRANCH}/getdevicebranchgroupuser`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -314,25 +314,25 @@ const schoolgeofence = () => {
 
       // Fetch data based on role (same as your existing code)
       if (role == 1) {
-        response = await axios.get(`${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`, {
+        response = await axios.get(`${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       } else if (role == 2) {
-        response = await axios.get(`${process.env.REACT_APP_SCHOOL_API}/geofences`, {
+        response = await axios.get(`${import.meta.env.VITE_SCHOOL_API}/geofences`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       } else if (role == 3) {
-        response = await axios.get(`${process.env.REACT_APP_BRANCH_API}/geofences`, {
+        response = await axios.get(`${import.meta.env.VITE_BRANCH_API}/geofences`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       } else if (role == 4) {
-        response = await axios.get(`${process.env.REACT_APP_USERBRANCH}/getgeofence`, {
+        response = await axios.get(`${import.meta.env.VITE_USERBRANCH}/getgeofence`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -636,10 +636,10 @@ const schoolgeofence = () => {
   //   const token = localStorage.getItem("token");
   //   const apiUrl =
   //     role == 1
-  //       ? `${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`
-  //       : role == 2 ? `${process.env.REACT_APP_SCHOOL_API}/geofences`
-  //       :role==3?`${process.env.REACT_APP_BRANCH_API}/geofences`
-  //       :`${process.env.REACT_APP_USERBRANCH}/updategeofence`
+  //       ? `${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`
+  //       : role == 2 ? `${import.meta.env.VITE_SCHOOL_API}/geofences`
+  //       :role==3?`${import.meta.env.VITE_BRANCH_API}/geofences`
+  //       :`${import.meta.env.VITE_USERBRANCH}/updategeofence`
 
   //   // Prepare the updated data
   //   const updatedData = {
@@ -690,12 +690,12 @@ const schoolgeofence = () => {
     const token = localStorage.getItem('token')
     const apiUrl =
       role == 1
-        ? `${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`
+        ? `${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`
         : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/geofences`
+          ? `${import.meta.env.VITE_SCHOOL_API}/geofences`
           : role == 3
-            ? `${process.env.REACT_APP_BRANCH_API}/geofences`
-            : `${process.env.REACT_APP_USERBRANCH}/updategeofence`
+            ? `${import.meta.env.VITE_BRANCH_API}/geofences`
+            : `${import.meta.env.VITE_USERBRANCH}/updategeofence`
 
     const updatedData = {
       ...formData,
@@ -776,12 +776,12 @@ const schoolgeofence = () => {
 
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/geofences`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/geofences`
           : role == 2
-            ? `${process.env.REACT_APP_SCHOOL_API}/geofences`
+            ? `${import.meta.env.VITE_SCHOOL_API}/geofences`
             : role == 3
-              ? `${process.env.REACT_APP_BRANCH_API}/geofences`
-              : `http://63.142.251.13:4000/branchgroupuser//deletegeofence`
+              ? `${import.meta.env.VITE_BRANCH_API}/geofences`
+              : `${import.meta.env.VITE_USERBRANCH}/deletegeofence`
 
       const token = localStorage.getItem('token')
       // Send delete requests for each selected ID

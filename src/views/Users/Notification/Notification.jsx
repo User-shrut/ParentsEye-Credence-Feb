@@ -173,7 +173,7 @@ const Notification = () => {
     // Send the form data to the server using axios
     try {
       const response = await axios.post(
-        'http://63.142.251.13:4000/createnotification',
+        `${import.meta.env.VITE_API}/createnotification`,
         updatedFormData,
         {
           headers: {
@@ -322,7 +322,7 @@ const Notification = () => {
         const token = localStorage.getItem('token')
         response = await axios.get(
           // `${import.meta.env.VITE_SUPER_ADMIN_API}/read-devices`,
-          `${process.env.REACT_APP_API}/getnotificationtypes`,
+          `${import.meta.env.VITE_API}/getnotificationtypes`,
 
           {
             headers: {
@@ -575,7 +575,7 @@ const Notification = () => {
     try {
       // Convert array to a comma-separated string
       const idsString = selectedIds.join(',')
-      const url = `http://63.142.251.13:4000/deletenotification?ids=${idsString}`
+      const url = `${import.meta.env.VITE_API}/deletenotification?ids=${idsString}`
 
       console.log('Constructed URL:', url)
 
@@ -626,9 +626,9 @@ const Notification = () => {
 
   const handleEditSubmit = async () => {
     // Define the API URL and authentication token
-    const apiUrl = `http://63.142.251.13:4000/updatenotification/${selectedRow._id}` // Replace with your actual API URL
-    const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjRhMDdmMGRkYmVjNmM3YmMzZDUzZiIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjMxMTU1MjJ9.4DgAJH_zmaoanOy4gHB87elbUMod8PunDL2qzpfPXj0' // Replace with your actual authentication token
+    const apiUrl = `${import.meta.env.VITE_API}/updatenotification/${selectedRow._id}` // Replace with your actual API URL
+    const token = localStorage.getItem('token')
+     
     console.log('URL', apiUrl)
     // Prepare the updated data
     const updatedData = {

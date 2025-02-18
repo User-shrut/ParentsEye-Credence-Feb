@@ -84,10 +84,10 @@ const style = {
   //     const token = localStorage.getItem("token");
   //     const apiUrl =
   //       role == 1
-  //         ? `${process.env.REACT_APP_SUPER_ADMIN_API}/absent-children`
+  //         ? `${import.meta.env.VITE_SUPER_ADMIN_API}/absent-children`
   //         : role == 2
-  //         ? `${process.env.REACT_APP_SCHOOL_API}/absent-children`
-  //         : `${process.env.REACT_APP_BRANCH_API}/absent-children`;
+  //         ? `${import.meta.env.VITE_SCHOOL_API}/absent-children`
+  //         : `${import.meta.env.VITE_BRANCH_API}/absent-children`;
 
   //     const response = await axios.get(apiUrl, {
   //       headers: {
@@ -155,10 +155,10 @@ const style = {
   //     const token = localStorage.getItem("token");
   //     const apiUrl =
   //       role == 1
-  //         ? `${process.env.REACT_APP_SUPER_ADMIN_API}/absent-children`
+  //         ? `${import.meta.env.VITE_SUPER_ADMIN_API}/absent-children`
   //         : role == 2
-  //         ? `${process.env.REACT_APP_SCHOOL_API}/absent-children`
-  //         : `${process.env.REACT_APP_BRANCH_API}/absent-children`; // for role == 3
+  //         ? `${import.meta.env.VITE_SCHOOL_API}/absent-children`
+  //         : `${import.meta.env.VITE_BRANCH_API}/absent-children`; // for role == 3
   
   //     const response = await axios.get(apiUrl, {
   //       headers: {
@@ -225,12 +225,12 @@ const style = {
       const token = localStorage.getItem("token");
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/absent-children`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/absent-children`
           : role == 2
-          ? `${process.env.REACT_APP_SCHOOL_API}/absent-children`
+          ? `${import.meta.env.VITE_SCHOOL_API}/absent-children`
           :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/absent-children`
-          :`http://63.142.251.13:4000/branchgroupuser/absentchildrenByBranchgroup`
+          ? `${import.meta.env.VITE_BRANCH_API}/absent-children`
+          :`${import.meta.env.VITE_USERBRANCH}/absentchildrenByBranchgroup`
   
       const response = await axios.get(apiUrl, {
         headers: {

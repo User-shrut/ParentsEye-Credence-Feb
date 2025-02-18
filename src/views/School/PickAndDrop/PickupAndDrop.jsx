@@ -114,7 +114,7 @@ console.log("abhi dekh",role)
       // Fetch data based on role
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/pickup-drop-status`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/pickup-drop-status`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@ console.log("abhi dekh",role)
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/pickup-drop-status`,
+          `${import.meta.env.VITE_SCHOOL_API}/pickup-drop-status`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ console.log("abhi dekh",role)
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/pickup-drop-status`,
+          `${import.meta.env.VITE_BRANCH_API}/pickup-drop-status`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -141,7 +141,7 @@ console.log("abhi dekh",role)
         );
       }else if (role == 4) {
         response = await axios.get(
-          `${process.env.REACT_APP_USERBRANCH}/pickupdropstatusbybranchgroupuser`,
+          `${import.meta.env.VITE_USERBRANCH}/pickupdropstatusbybranchgroupuser`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
