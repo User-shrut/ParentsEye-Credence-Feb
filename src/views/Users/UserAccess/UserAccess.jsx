@@ -27,7 +27,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
@@ -51,7 +51,7 @@ import { MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 //import { TextField } from '@mui/material';
 import { Autocomplete } from "@mui/material";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 
 const style = {
   position: "absolute",
@@ -69,8 +69,8 @@ const style = {
   padding: "1rem",
 };
 
-export const UserAccess = () => {
-  const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
+const UserAccess = () => {
+  // const { setTotalResponses } = useContext(TotalResponsesContext); // Get the context value
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -199,7 +199,7 @@ export const UserAccess = () => {
           reversedData.map((row) => ({ ...row, isSelected: false }))
         );
         setOriginalRows(allData.map((row) => ({ ...row, isSelected: false })));
-        setTotalResponses(reversedData.length);
+        // setTotalResponses(reversedData.length);
         // Log the date range and filtered data
         console.log(`Data fetched between ${startDate} and ${endDate}:`);
         console.log(filteredData);
@@ -2207,3 +2207,4 @@ Password </p>
     </>
   );
 };
+export default UserAccess
