@@ -549,7 +549,7 @@ const schooldeniedrequest = () => {
 
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         Denied Request List
       </h1>
       <div>

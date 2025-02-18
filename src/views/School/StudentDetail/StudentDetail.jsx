@@ -1225,7 +1225,7 @@ console.log("my geofences",response.data)
   }
   return (
     <>
-      <h1 style={{ textAlign: 'center', marginTop: '80px' }}>Student Detail </h1>
+      <h1 style={{ textAlign: 'center', marginTop: '20px' }}>Student Detail </h1>
       <div>
         <div
           style={{

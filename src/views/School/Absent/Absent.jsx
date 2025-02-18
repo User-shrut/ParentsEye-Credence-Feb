@@ -483,7 +483,7 @@ const style = {
  
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         Absent Student List
       </h1>
       <div>

@@ -455,7 +455,7 @@ return `${day}-${month}-${year}`;
   };
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>Leave Detail </h1>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>Leave Detail </h1>
       <div>
       <div
   style={{
