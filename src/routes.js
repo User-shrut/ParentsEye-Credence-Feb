@@ -65,13 +65,13 @@ const Status = React.lazy(() => import('./views/School/Status/Status.jsx'))
 // User parent eye
 
 const UserAccess = React.lazy(() => import('./views/Users/UserAccess/UserAccess.jsx'))
-const Supervisor = React.lazy(() => import('./views/Users/Supervisor/Supervisor.jsx'))
+const SupervisorApprove = React.lazy(() => import('./views/Users/Supervisor/Supervisor.jsx'))
 const SchoolMaster = React.lazy(() => import('./views/Users/SchoolMaster/SchoolMaster.jsx'))
 const ReadDevices = React.lazy(() => import('./views/Users/ReadDevices/ReadDevices.jsx'))
-const Parent = React.lazy(() => import('./views/Users/Parent/Parent.jsx'))
+const StudentApprove = React.lazy(() => import('./views/Users/Parent/Parent.jsx'))
 const SchoolNotification = React.lazy(() => import('./views/Users/Notification/Notification.jsx'))
 const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
-const SchoolDriver = React.lazy(() => import('./views/Users/Driver/Driver.jsx'))
+const DriverApprove = React.lazy(() => import('./views/Users/Driver/Driver.jsx'))
 const BranchMaster = React.lazy(() => import('./views/Users/BranchMaster/BranchMaster.jsx'))
 const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
 const AddDevice = React.lazy(() => import('./views/Users/AddDevices/AddDevices.jsx'))
@@ -143,13 +143,13 @@ const routes = [
   { path: '/adddevices', name: 'Add Devices', element: AddDevice },
   { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
   { path: '/branchmaster', name: 'Branch Master', element: BranchMaster },
-  { path: '/schooldriver', name: 'School Driver', element: SchoolDriver },
+  { path: '/schooldriver', name: 'Driver Approve', element: DriverApprove },
   { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
   { path: '/schoolnotification', name: 'School Notification', element: SchoolNotification },
-  { path: '/parent', name: 'Parent', element: Parent },
+  { path: '/parent', name: 'Student Approve', element: StudentApprove },
   { path: '/readdevices', name: 'Read Devices', element: ReadDevices },
   { path: '/schoolmaster', name: 'School Master', element: SchoolMaster },
-  { path: '/supervisor', name: 'Supervisor', element: Supervisor },
+  { path: '/supervisor', name: 'Supervisor Approve', element: SupervisorApprove },
   { path: '/useraccess', name: 'User Access', element: UserAccess },
 
 

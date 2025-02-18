@@ -527,24 +527,12 @@ const _nav = (role, decodedToken) => {
           items: [
             {
               component: CNavItem,
-              name: 'Add Devices',
-              to: '/adddevices',
+              name: 'School Master',
+              to: '/schoolmaster',
 
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <TbDevicesPlus style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Assign Branches',
-              to: '/assignbranches',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <RiGitBranchLine style={{ marginRight: '15px', fontSize: '25px' }} />
+                  <FaSchoolFlag style={{ marginRight: '15px', fontSize: '25px' }} />
                 </div>
               ),
             },
@@ -563,7 +551,7 @@ const _nav = (role, decodedToken) => {
 
             {
               component: CNavItem,
-              name: 'School Driver',
+              name: 'Driver Approve',
               to: '/schooldriver',
 
               icon: (
@@ -575,36 +563,36 @@ const _nav = (role, decodedToken) => {
 
             {
               component: CNavItem,
-              name: 'My Branch Devices',
-              to: '/mybranchdevices',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <PiDevicesLight style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'School Notification',
-              to: '/schoolnotification',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <IoMdNotificationsOutline style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Parent',
+              name: 'Student Approve',
               to: '/parent',
 
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <RiParentLine style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Supervisor Approve',
+              to: '/supervisor',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LiaChalkboardTeacherSolid style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Add Devices',
+              to: '/adddevices',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbDevicesPlus style={{ marginRight: '15px', fontSize: '25px' }} />
                 </div>
               ),
             },
@@ -623,30 +611,6 @@ const _nav = (role, decodedToken) => {
 
             {
               component: CNavItem,
-              name: 'School Master',
-              to: '/schoolmaster',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaSchoolFlag style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
-              name: 'Supervisor',
-              to: '/supervisor',
-
-              icon: (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <LiaChalkboardTeacherSolid style={{ marginRight: '15px', fontSize: '25px' }} />
-                </div>
-              ),
-            },
-
-            {
-              component: CNavItem,
               name: 'User Access',
               to: '/useraccess',
 
@@ -657,9 +621,45 @@ const _nav = (role, decodedToken) => {
               ),
             },
 
+            {
+              component: CNavItem,
+              name: 'School Notification',
+              to: '/schoolnotification',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <IoMdNotificationsOutline style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            // {
+            //   component: CNavItem,
+            //   name: 'Assign Branches',
+            //   to: '/assignbranches',
+
+            //   icon: (
+            //     <div style={{ display: 'flex', alignItems: 'center' }}>
+            //       <RiGitBranchLine style={{ marginRight: '15px', fontSize: '25px' }} />
+            //     </div>
+            //   ),
+            // },
+
+            // {
+            //   component: CNavItem,
+            //   name: 'My Branch Devices',
+            //   to: '/mybranchdevices',
+
+            //   icon: (
+            //     <div style={{ display: 'flex', alignItems: 'center' }}>
+            //       <PiDevicesLight style={{ marginRight: '15px', fontSize: '25px' }} />
+            //     </div>
+            //   ),
+            // },
+
+
           ]
         }
-
 
 
       ]
