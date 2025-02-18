@@ -625,7 +625,7 @@ const role=localStorage.getItem("role");
 
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>Status</h1>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>Status</h1>
       <div>
       <div
   style={{

@@ -820,7 +820,7 @@ const schoolgeofence = () => {
 
   return (
     <>
-      <h1 style={{ textAlign: 'center', marginTop: '80px' }}>Geofences</h1>
+      <h1 style={{ textAlign: 'center', marginTop: '20px' }}>Geofences</h1>
       <div>
         <div
           style={{

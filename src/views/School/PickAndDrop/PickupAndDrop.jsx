@@ -373,7 +373,7 @@ console.log("abhi dekh",role)
 
   return (
     <>
-      <h1 style={{ textAlign: "center", marginTop: "80px" }}>
+      <h1 style={{ textAlign: "center", marginTop: "20px" }}>
         Pickup And Drop List
       </h1>
       <div>
