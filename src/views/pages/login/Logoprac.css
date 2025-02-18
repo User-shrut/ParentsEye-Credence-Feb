@@ -1,0 +1,253 @@
+/* .login-fix{
+display: flex;
+flex-direction:row;
+}
+.yellow-back{
+    background-color: #def01a;
+    height: 100vh;
+    width: 40vw;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+
+}
+.logo-login img{
+    width:250px;
+    height: 85px;
+}
+.white-back{
+   
+    width: 55vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.login-heading{
+    text-align: center;
+    margin: 30px 0;
+    font-weight: bolder;
+}
+.nedd-sign{
+    display: flex;
+    justify-content: space-around;
+    padding-top: 25px;
+}
+.nedd-sign div a{
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+}
+.button-col button{
+    background-color: #def01a;
+width: 90px;
+height:40px;
+font-size: 20px;
+color: black;
+border: none;
+}
+.setinput input{
+height: 60px;
+}
+.login-form{
+    border: 1px solid black;
+    border-radius: 18px;
+     padding: 30px 26px;
+     background-color: white;
+     width:30vw;
+     height:'min-content';
+}
+@media(max-width:700px){
+    .yellow-back{
+        height: 40vh;
+        width: 100vw;
+        position: relative;
+    }
+    .login-fix{
+        flex-direction:column;
+        }
+        .login-form{
+           width:90vw;
+             height:70vh;
+             top: 32%;
+             position: absolute;
+        }
+        .white-back{
+           
+            width: 100vw;
+            height: 50vh;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+        }
+} */
+/* .login-form{
+  
+    /* background-color: #def01a; */
+
+
+    .login-fix{
+        display: flex;
+        flex-direction:row;
+        }
+        .yellow-back{
+            background-color: #def01a;
+            height: 100vh;
+            width: 40vw;
+            display: flex;
+            justify-content:center;
+            align-items:center;
+        
+        }
+        .logo-login img{
+            width:250px;
+            height: 85px;
+        }
+        .white-back{
+           
+            width: 55vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+        }
+        .login-heading{
+            text-align: center;
+            /* margin: 0; */
+            font-weight: bolder;
+        }
+        .nedd-sign{
+            display: flex;
+            justify-content: space-around;
+            padding-top: 25px;
+        }
+        .nedd-sign div a{
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+        }
+        .button-col button{
+            background-color: rgb(244, 210, 74);
+        width: 90px;
+        height:40px;
+        font-size: 20px;
+        color: black;
+        border: none;
+        padding: 0px 34px;
+        }
+        .setinput input{
+        height: 60px;
+        }
+        .login-form{
+            border: 1px solid black;
+            border-radius: 18px;
+             padding: 30px 26px;
+             background-color: white;
+             width:30vw;
+             height:'min-content';
+        }
+        @media(max-width:700px){
+            .yellow-back{
+                height: 40vh;
+                width: 100vw;
+                position: relative;
+            }
+            .login-fix{
+                flex-direction:column;
+                }
+                .login-form{
+                   width:90vw;
+                     height:70vh;
+                     top: 32%;
+                     position: absolute;
+                }
+                .white-back{
+                   
+                    width: 100vw;
+                    height: 50vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items:center;
+                }
+        }
+
+        .login-form {
+            padding: 20px 18px; /* Reduced padding inside the form */
+            background-color: white;
+            width: 25vw; /* Reduced width */
+            border: none;
+            border-radius: 12px; /* Smooth rounded corners */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Light shadow for elevation */
+            margin-top: 0; /* Remove any margin at the top */
+            position: relative; /* Ensure no extra space at the top */
+          }
+          
+          .white-back {
+            width: 55vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0; /* Remove any padding inside the container */
+          }
+          
+          .login-heading {
+            text-align: center;
+            /* margin: 20px 0;  */
+            font-weight: bolder;
+          }
+          
+          .setinput input {
+            height: 45px; /* Adjust input height */
+            border-radius: 8px; /* Smooth corners for input fields */
+            border: 1px solid #ddd; /* Light border */
+            padding: 0 12px; /* Reduced padding */
+            font-size: 14px; /* Smaller font size */
+          }
+          
+          .button-col button {
+            background-color: rgb(244, 210, 74);
+            width: 100%;
+            height: 40px; /* Reduced button height */
+            font-size: 16px; /* Smaller font size */
+            color: black;
+            border: none;
+            border-radius: 8px; /* Rounded button */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          }
+          
+          .nedd-sign div a {
+            color: #ff5722; 
+            font-size: 16px; /* Smaller link font size */
+            text-decoration: none;
+          }
+          
+          .nedd-sign div a:hover {
+            text-decoration: underline;
+          }
+          .white-back{
+            display: flex;
+            flex-direction: column;
+          }
+          @media(max-width: 700px) {
+            .login-form {
+              width: 90vw;
+              height: auto;
+              top: 0; /* Remove any positioning to avoid space at the top */
+              padding: 15px; /* Reduced padding */
+            }
+          
+            .setinput input {
+              width: 100%; /* Make inputs full width */
+              height: 40px; /* Smaller input height */
+              font-size: 14px; /* Smaller font size */
+            }
+          
+            .button-col button {
+              width: 100%; /* Make button full width */
+              height: 40px; /* Smaller button height */
+              font-size: 16px; /* Smaller button font size */
+            }
+          }
+          

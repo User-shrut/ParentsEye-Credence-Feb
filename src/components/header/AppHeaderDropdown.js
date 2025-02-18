@@ -41,8 +41,8 @@ const AppHeaderDropdown = () => {
   }
 
   const logoutFunc = () => {
-    Cookies.remove('authToken')
-    Cookies.remove('crdntl')
+    // Cookies.remove('authToken')
+    // Cookies.remove('crdntl')
     socket.disconnect()
     navigate('/login')
     window.location.reload()
