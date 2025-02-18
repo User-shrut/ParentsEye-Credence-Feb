@@ -90,7 +90,7 @@ const AppSidebar = () => {
       fontcolor="rgb(0,0,0)"
       colorScheme="light"
       position="fixed"
-      unfoldable={!unfoldable}
+      unfoldable={sidebarShow}
       visible={sidebarShow}
       onVisibleChange={(visible) => {
         dispatch({ type: 'set', sidebarShow: visible })
