@@ -64,19 +64,17 @@ const Status = React.lazy(() => import('./views/School/Status/Status.jsx'))
 
 // User parent eye
 
+const AddDevice = React.lazy(() => import('./views/Users/AddDevices/AddDevices.jsx'))
 const UserAccess = React.lazy(() => import('./views/Users/UserAccess/UserAccess.jsx'))
 const SupervisorApprove = React.lazy(() => import('./views/Users/Supervisor/Supervisor.jsx'))
 const SchoolMaster = React.lazy(() => import('./views/Users/SchoolMaster/SchoolMaster.jsx'))
 const ReadDevices = React.lazy(() => import('./views/Users/ReadDevices/ReadDevices.jsx'))
 const StudentApprove = React.lazy(() => import('./views/Users/Parent/Parent.jsx'))
 const SchoolNotification = React.lazy(() => import('./views/Users/Notification/Notification.jsx'))
-const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
 const DriverApprove = React.lazy(() => import('./views/Users/Driver/Driver.jsx'))
 const BranchMaster = React.lazy(() => import('./views/Users/BranchMaster/BranchMaster.jsx'))
-const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
-const AddDevice = React.lazy(() => import('./views/Users/AddDevices/AddDevices.jsx'))
-
-
+// const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
+// const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -141,17 +139,16 @@ const routes = [
   // User Parent eye Route
 
   { path: '/adddevices', name: 'Add Devices', element: AddDevice },
-  { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
   { path: '/branchmaster', name: 'Branch Master', element: BranchMaster },
   { path: '/schooldriver', name: 'Driver Approve', element: DriverApprove },
-  { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
   { path: '/schoolnotification', name: 'School Notification', element: SchoolNotification },
   { path: '/parent', name: 'Student Approve', element: StudentApprove },
   { path: '/readdevices', name: 'Read Devices', element: ReadDevices },
   { path: '/schoolmaster', name: 'School Master', element: SchoolMaster },
   { path: '/supervisor', name: 'Supervisor Approve', element: SupervisorApprove },
   { path: '/useraccess', name: 'User Access', element: UserAccess },
-
+  // { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
+  // { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
 
 
 ]
