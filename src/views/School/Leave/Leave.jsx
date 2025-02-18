@@ -27,10 +27,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 import { Token } from "@mui/icons-material";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 import Export from "./ExportLeave";
 
 import {
@@ -57,8 +57,8 @@ const style = {
   padding: "1rem",
 };
 
-export const Leave = () => {
-  const { settotalLeaveRequest } = useContext(TotalResponsesContext); // Get the context value
+const schoolleave = () => {
+  // const { settotalLeaveRequest } = useContext(TotalResponsesContext); // Get the context value
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -828,3 +828,4 @@ Approve      </TableCell>
     </>
   );
 };
+export default schoolleave

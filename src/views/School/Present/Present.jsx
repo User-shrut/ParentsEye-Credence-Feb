@@ -25,11 +25,11 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 import Export from "../../Export";
 
 //import { TextField } from '@mui/material';
@@ -49,9 +49,8 @@ const style = {
   flexDirection: "column",
   padding: "1rem",
 };
-
-export const Present = () => {
-  const { setTotalResponsesPresent } = useContext(TotalResponsesContext);
+const schoolpresent = () => {
+  // const { setTotalResponsesPresent } = useContext(TotalResponsesContext);
   const role = localStorage.getItem("role");
 
   const [page, setPage] = useState(0);
@@ -799,3 +798,4 @@ export const Present = () => {
     </>
   );
 };
+export default schoolpresent
