@@ -374,7 +374,7 @@ const AppHeader = () => {
         </CHeaderNav> */}
         <CHeaderNav className="ms-auto">
           <NotificationDropdown notifications={notifications} />
-          <div className="vr mx-3 bg-white"></div>
+          <div className="vr mx-3 bg-black"></div>
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>

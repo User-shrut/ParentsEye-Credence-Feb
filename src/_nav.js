@@ -82,7 +82,7 @@ const _nav = (role, decodedToken) => {
       icon: (
         <div style={{ display: 'flex', alignItems: 'center' }} title="Dashboard">
           <MdOutlineSpaceDashboard
-            color="#FFFFFF"
+            color="black"
             style={{ marginRight: '15px', fontSize: '30px' }}
           />
         </div>
@@ -101,7 +101,7 @@ const _nav = (role, decodedToken) => {
           icon: (
             <div style={{ display: 'flex', alignItems: 'center' }} title="Master">
               <FaAddressCard
-                color="#FFFFFF"
+                color="black"
                 style={{ marginRight: '15px', fontSize: '27px' }}
               />
             </div>
@@ -225,7 +225,7 @@ const _nav = (role, decodedToken) => {
 
           icon: (
             <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
-              <TbReport color="#FFFFFF" style={{ marginRight: '15px', fontSize: '30px' }} />
+              <TbReport color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
             </div>
           ),
           items: [
@@ -358,7 +358,7 @@ const _nav = (role, decodedToken) => {
 
           icon: (
             <div style={{ display: 'flex', alignItems: 'center' }} title="Expense Management">
-              <BiSupport color="#FFFFF" style={{ marginRight: '15px', fontSize: '30px' }} />
+              <BiSupport color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
             </div>
           ),
           items: [
@@ -397,7 +397,7 @@ const _nav = (role, decodedToken) => {
 
           icon: (
             <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
-              <TbSchool color="#FFFFFF" style={{ marginRight: '15px', fontSize: '30px' }} />
+              <TbSchool color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
             </div>
           ),
           items: [
@@ -521,7 +521,7 @@ const _nav = (role, decodedToken) => {
 
           icon: (
             <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
-              <FaUserGraduate color="#FFFFFF" style={{ marginRight: '15px', fontSize: '25px' }} />
+              <FaUserGraduate color="black" style={{ marginRight: '15px', fontSize: '25px' }} />
             </div>
           ),
           items: [
