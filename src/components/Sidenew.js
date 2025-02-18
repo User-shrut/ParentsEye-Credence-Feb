@@ -10,6 +10,8 @@ function Sidenew() {
     toggle.home && (
       <div style={{ display: 'flex', padding: '2px', gap: '5px' }}>
         <div>Home</div>
+        <div>School</div>
+        <div>Users</div>
         <div>Master</div>
         <div>Reports</div>
         <div>Expense</div>

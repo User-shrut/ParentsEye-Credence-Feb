@@ -56,12 +56,12 @@ import { io } from 'socket.io-client'
 import notificationSound from '../../src/Google_Event.mp3'
 import Cookies from 'js-cookie'
 import { jwtDecode } from 'jwt-decode'
-import logo from 'src/assets/brand/logo.png'
+import logo from 'src/assets/Parneteyelogo/parentslogo.png'
 import { setToggleSidebar } from '../features/navSlice.js'
 import { FaAddressCard, FaChartBar, FaCog, FaHome } from 'react-icons/fa'
 import { TbReportSearch } from 'react-icons/tb'
 import { MdOutlineSupportAgent } from 'react-icons/md'
-import { CircleUserRound } from 'lucide-react'
+import { CircleUserRound, School } from 'lucide-react'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -175,6 +175,8 @@ const AppHeader = () => {
     dispatch(
       setToggleSidebar({
         home: true,
+        school: false,
+        users: false,
         master: false,
         reports: false,
         expense: false,
@@ -185,11 +187,47 @@ const AppHeader = () => {
       dispatch({ type: 'set', sidebarShow: !sidebarShow })
     }
   }
+  const handleSchool = () => {
+    dispatch({ type: 'set', sidebarShow: true })
+    dispatch(
+      setToggleSidebar({
+        home: false,
+        school: true,
+        users: false,
+        master: false,
+        reports: false,
+        expense: false,
+        support: false,
+      }),
+    )
+    if (toggle.school) {
+      dispatch({ type: 'set', sidebarShow: !sidebarShow })
+    }
+  }
+  const handleUsers = () => {
+    dispatch({ type: 'set', sidebarShow: true })
+    dispatch(
+      setToggleSidebar({
+        home: false,
+        school: false,
+        users: true,
+        master: false,
+        reports: false,
+        expense: false,
+        support: false,
+      }),
+    )
+    if (toggle.users) {
+      dispatch({ type: 'set', sidebarShow: !sidebarShow })
+    }
+  }
   const handleMaster = () => {
     dispatch({ type: 'set', sidebarShow: true })
     dispatch(
       setToggleSidebar({
         home: false,
+        school: false,
+        users: false,
         master: true,
         reports: false,
         expense: false,
@@ -205,6 +243,8 @@ const AppHeader = () => {
     dispatch(
       setToggleSidebar({
         home: false,
+        school: false,
+        users: false,
         master: false,
         reports: true,
         expense: false,
@@ -216,20 +256,22 @@ const AppHeader = () => {
     }
   }
 
-  const handleExpense = () => {
+  const handleSupports = () => {
     if (role === 'superadmin') {
       // Ensure this variable is determined earlier in your code
       dispatch({ type: 'set', sidebarShow: true })
       dispatch(
         setToggleSidebar({
           home: false,
+          school: false,
+          users: false,
           master: false,
           reports: false,
-          expense: true,
-          support: false,
+          expense: false,
+          support: true,
         }),
       )
-      if (toggle.expense) {
+      if (toggle.support) {
         dispatch({ type: 'set', sidebarShow: !sidebarShow })
       }
     } else {
@@ -256,23 +298,35 @@ const AppHeader = () => {
   return (
     <CHeader position="sticky" className="p-0 darkBackground" ref={headerRef}>
       <CContainer className="border-bottom px-4 flex" fluid>
-        <CHeaderToggler
+        {/* <CHeaderToggler
           onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
           style={{ marginInlineStart: '-30px' }}
         >
           <CIcon icon={cilMenu} size="lg" />
-        </CHeaderToggler>
+        </CHeaderToggler> */}
         <CHeaderNav className="d-none d-md-flex">
-          {/* <CNavItem>
+          <CNavItem>
             <CNavLink id='header-dashboard' to="/dashboard" as={NavLink}>
               <img src={logo} alt="Logo" className="sidebar-brand-full" height={50} width={200} style={{ marginInlineStart: '-30px' }} />
             </CNavLink>
-          </CNavItem> */}
+          </CNavItem>
         </CHeaderNav>
         {/**Prev */}
         {/* <CHeaderNav className="ms-auto">
           <button className="nav-btn" onClick={() => handleHome()}>
             <FaHome className="nav-icon" /> Home
+          </button>
+        </CHeaderNav>
+
+        <CHeaderNav className="ms-auto">
+          <button className="nav-btn" onClick={() => handleHome()}>
+            <FaHome className="nav-icon" /> School
+          </button>
+        </CHeaderNav>
+
+        <CHeaderNav className="ms-auto">
+          <button className="nav-btn" onClick={() => handleHome()}>
+            <FaHome className="nav-icon" /> Users
           </button>
         </CHeaderNav>
 
@@ -299,23 +353,31 @@ const AppHeader = () => {
         {/**CURRENT */}
         <CTabs className="ms-auto">
           <CTabList variant="underline">
-            {/* <CTab onClick={handleHome} className="text-white" itemKey={1}>
+            <CTab onClick={handleHome} className="text-black" itemKey={1}>
               <FaHome className="me-2" /> Home
             </CTab>
-            <div className="vr mx-3 bg-white"></div>
-            <CTab onClick={handleMaster} className="text-white" itemKey={2}>
+            <div className="vr mx-3 bg-black"></div>
+            <CTab onClick={handleSchool} className="text-black" itemKey={2}>
+              <FaAddressCard className="me-2" /> School
+            </CTab>
+            <div className="vr mx-3 bg-black"></div>
+            <CTab onClick={handleUsers} className="text-black" itemKey={3}>
+              <FaAddressCard className="me-2" /> Users
+            </CTab>
+            <div className="vr mx-3 bg-black"></div>
+            <CTab onClick={handleMaster} className="text-black" itemKey={4}>
               <FaAddressCard className="me-2" /> Master
             </CTab>
-            <div className="vr mx-3 bg-white"></div>
-            <CTab onClick={handleReports} className="text-white" itemKey={3}>
+            <div className="vr mx-3 bg-black"></div>
+            <CTab onClick={handleReports} className="text-black" itemKey={5}>
               <FaChartBar className="me-2" /> Reports
-            </CTab> */}
-
-            {/* {role === 'superadmin' && (
-              <CTab onClick={handleExpense} className="text-white" itemKey={4}>
+            </CTab>
+            <div className="vr mx-3 bg-black"></div>
+            {role === 'superadmin' && (
+              <CTab onClick={handleSupports} className="text-black" itemKey={6}>
                 <TbReportSearch className="me-2" /> Supports
               </CTab>
-            )} */}
+            )}
           </CTabList>
         </CTabs>
         {/* <CHeaderNav className="ms-auto">

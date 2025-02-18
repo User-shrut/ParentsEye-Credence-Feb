@@ -90,7 +90,7 @@ const AppSidebar = () => {
       fontcolor="rgb(0,0,0)"
       colorScheme="light"
       position="fixed"
-      unfoldable={sidebarShow}
+      unfoldable={!unfoldable}
       visible={sidebarShow}
       onVisibleChange={(visible) => {
         dispatch({ type: 'set', sidebarShow: visible })
@@ -98,10 +98,10 @@ const AppSidebar = () => {
     >
       <CSidebarHeader className="borderless-bottom">
         <CSidebarBrand to="/dashboard">
-          <img src={logo} alt="Logo" className="sidebar-brand-full" height={50} width={200} />
+          {/* <img src={logo} alt="Logo" className="sidebar-brand-full" height={50} width={200} /> */}
 
           {/* <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
-          <img src={logo} alt="Logo" className="sidebar-brand-narrow" height={25} width={60} />
+          {/* <img src={logo} alt="Logo" className="sidebar-brand-narrow" height={25} width={60} /> */}
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
@@ -109,6 +109,7 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
+      {/* <hr></hr> */}
       {navigatingNav && <AppSidebarNav items={navigatingNav} />}
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CTooltip content="Close">

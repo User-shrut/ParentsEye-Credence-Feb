@@ -99,7 +99,7 @@ const _nav = (role, decodedToken) => {
         // School Parnet Eyes
 
         {
-          component: CNavGroup,
+          component: CNavItem,
           name: 'School',
 
           icon: (
@@ -223,7 +223,7 @@ const _nav = (role, decodedToken) => {
         // Parnet Eye User Section
 
         {
-          component: CNavGroup,
+          component: CNavItem,
           name: 'Users',
 
           icon: (
@@ -372,7 +372,7 @@ const _nav = (role, decodedToken) => {
         // Credence Tracker code navigation
 
         {
-          component: CNavGroup,
+          component: CNavItem,
           name: 'Master',
 
           icon: (
@@ -497,7 +497,7 @@ const _nav = (role, decodedToken) => {
           ],
         },
         {
-          component: CNavGroup,
+          component: CNavItem,
           name: 'Report',
 
           icon: (
@@ -630,7 +630,7 @@ const _nav = (role, decodedToken) => {
           ],
         },
         {
-          component: CNavGroup,
+          component: CNavItem,
           name: 'Supports',
 
           icon: (

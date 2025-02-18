@@ -32,7 +32,9 @@ const navSlice = createSlice({
   name: 'navbar',
   initialState: {
     home: false,
-    master: true,
+    school: true,
+    users: false,
+    master: false,
     reports: false,
     expense: false,
     support: false,
@@ -41,6 +43,8 @@ const navSlice = createSlice({
     // ?action?
     setToggleSidebar: (state, action) => {
       state.home = action.payload.home
+      state.school = action.payload.school
+      state.users = action.payload.users
       state.master = action.payload.master
       state.reports = action.payload.reports
       state.expense = action.payload.expense
