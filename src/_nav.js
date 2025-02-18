@@ -4,26 +4,27 @@ import React, { useEffect, useState } from 'react'
 import { IoLocationOutline } from 'react-icons/io5'
 import { BsFillSignStopFill, BsGeo, BsWindowFullscreen } from 'react-icons/bs'
 import { BsChatDots } from 'react-icons/bs'
-import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRegUser, FaRoute, FaStopwatch, FaUserAlt } from 'react-icons/fa'
-import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
-import { TbBusStop, TbMessageReport, TbReport, TbSchool } from 'react-icons/tb'
-import { BiLogOutCircle } from 'react-icons/bi'
-import { FaCarOn, FaUserGroup } from 'react-icons/fa6'
-import { GrHostMaintenance, GrUserWorker } from 'react-icons/gr'
-import { IoMdNotifications } from 'react-icons/io'
+import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRegUser, FaRoute, FaStopwatch, FaUserAlt, FaUserGraduate } from 'react-icons/fa'
+import { LiaChalkboardTeacherSolid, LiaFileInvoiceDollarSolid } from 'react-icons/lia'
+import { TbBusStop, TbDevicesPlus, TbMessageReport, TbReport, TbSchool } from 'react-icons/tb'
+import { BiBookReader, BiLogOutCircle, BiUniversalAccess } from 'react-icons/bi'
+import { FaCarOn, FaSchoolFlag, FaUserGroup } from 'react-icons/fa6'
+import { GrHostMaintenance, GrUserPolice, GrUserWorker } from 'react-icons/gr'
+import { IoMdNotifications, IoMdNotificationsOutline } from 'react-icons/io'
 import { MdCoPresent, MdEventNote, MdOutlineCategory, MdOutlineSpaceDashboard, MdSensors } from 'react-icons/md'
 import { TbCategory } from 'react-icons/tb'
 import { GiCancel, GiPathDistance } from 'react-icons/gi'
 import { TbReportAnalytics } from 'react-icons/tb'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
-import { RiPinDistanceFill } from 'react-icons/ri'
-import { PiMapPinAreaFill, PiStudentBold } from 'react-icons/pi'
+import { RiGitBranchLine, RiParentLine, RiPinDistanceFill } from 'react-icons/ri'
+import { PiDevicesLight, PiMapPinAreaFill, PiStudentBold } from 'react-icons/pi'
 import { BiSupport } from 'react-icons/bi'
 import { TicketCheck } from 'lucide-react'
 import { icon } from 'leaflet'
 import { FcLeave } from "react-icons/fc";
 import { VscRequestChanges } from 'react-icons/vsc'
 import { AiOutlineFileDone } from 'react-icons/ai'
+import { LuGitBranchPlus } from 'react-icons/lu'
 
 const _nav = (role, decodedToken) => {
   let devices,
@@ -508,14 +509,150 @@ const _nav = (role, decodedToken) => {
               ),
             },
 
+
+          ]
+        },
+
+        // Parnet Eye User Section
+
+        {
+          component: CNavGroup,
+          name: 'School Users',
+
+          icon: (
+            <div style={{ display: 'flex', alignItems: 'center' }} title="Reports">
+              <FaUserGraduate color="#FFFFFF" style={{ marginRight: '15px', fontSize: '25px' }} />
+            </div>
+          ),
+          items: [
             {
               component: CNavItem,
-              name: 'School User',
-              to: '/schooluser',
+              name: 'Add Devices',
+              to: '/adddevices',
 
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaRegUser style={{ marginRight: '15px', fontSize: '25px' }} />
+                  <TbDevicesPlus style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Assign Branches',
+              to: '/assignbranches',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <RiGitBranchLine style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Branch Master',
+              to: '/branchmaster',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LuGitBranchPlus style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'School Driver',
+              to: '/schooldriver',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <GrUserPolice style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'My Branch Devices',
+              to: '/mybranchdevices',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <PiDevicesLight style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'School Notification',
+              to: '/schoolnotification',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <IoMdNotificationsOutline style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Parent',
+              to: '/parent',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <RiParentLine style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Read Devices',
+              to: '/readdevices',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BiBookReader style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'School Master',
+              to: '/schoolmaster',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaSchoolFlag style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'Supervisor',
+              to: '/supervisor',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LiaChalkboardTeacherSolid style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+            {
+              component: CNavItem,
+              name: 'User Access',
+              to: '/useraccess',
+
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BiUniversalAccess style={{ marginRight: '15px', fontSize: '25px' }} />
                 </div>
               ),
             },

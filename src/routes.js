@@ -48,9 +48,9 @@ const GettingStarted = React.lazy(
 const Faq = React.lazy(() => import('./components/articles/faq/Faq.js'))
 
 
-// Parnet Eyes Route
+// Parent Eyes Route
 
-// Schools
+// Schools parent eye
 
 const StudentDetail = React.lazy(() => import('./views/School/StudentDetail/StudentDetail.jsx'))
 const Geofence = React.lazy(() => import('./views/School/Geofence/Geofence.jsx'))
@@ -61,7 +61,21 @@ const Leave = React.lazy(() => import('./views/School/Leave/Leave.jsx'))
 const PickAndDrop = React.lazy(() => import('./views/School/PickAndDrop/PickupAndDrop.jsx'))
 const Present = React.lazy(() => import('./views/School/Present/Present.jsx'))
 const Status = React.lazy(() => import('./views/School/Status/Status.jsx'))
-const SchoolUser = React.lazy(() => import('./views/School/User/User.jsx'))
+
+// User parent eye
+
+const UserAccess = React.lazy(() => import('./views/Users/UserAccess/UserAccess.jsx'))
+const Supervisor = React.lazy(() => import('./views/Users/Supervisor/Supervisor.jsx'))
+const SchoolMaster = React.lazy(() => import('./views/Users/SchoolMaster/SchoolMaster.jsx'))
+const ReadDevices = React.lazy(() => import('./views/Users/ReadDevices/ReadDevices.jsx'))
+const Parent = React.lazy(() => import('./views/Users/Parent/Parent.jsx'))
+const SchoolNotification = React.lazy(() => import('./views/Users/Notification/Notification.jsx'))
+const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
+const SchoolDriver = React.lazy(() => import('./views/Users/Driver/Driver.jsx'))
+const BranchMaster = React.lazy(() => import('./views/Users/BranchMaster/BranchMaster.jsx'))
+const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
+const AddDevice = React.lazy(() => import('./views/Users/AddDevices/AddDevices.jsx'))
+
 
 
 const routes = [
@@ -110,13 +124,12 @@ const routes = [
   { path: '/HelpSupp/faq', name: 'FAQ', element: Faq },
   { path: '/raise-ticket', name: 'Raise Ticket', element: RaiseTicket },
 
-  // Parent Eyes Route
+  // Parnet Eyes Route
 
-  // Schools Route
+  // Schools Parent eye Route
 
   { path: '/studentdetail', name: 'StudentDetail', element: StudentDetail },
   { path: '/schoolgeofence', name: 'Geofence', element: Geofence },
-  { path: '/schooluser', name: 'School User', element: SchoolUser },
   { path: '/schoolstatus', name: 'Status', element: Status },
   { path: '/schoolpresent', name: 'Present', element: Present },
   { path: '/schoolpickanddrop', name: 'Pick And Drop', element: PickAndDrop },
@@ -124,6 +137,21 @@ const routes = [
   { path: '/schooldeniedrequest', name: 'Denied Request', element: DeniedRequest },
   { path: '/schoolapprovedrequest', name: 'Approved Request', element: ApprovedRequest },
   { path: '/schoolabsent', name: 'Absent', element: Absent },
+
+  // User Parent eye Route
+
+  { path: '/adddevices', name: 'Add Devices', element: AddDevice },
+  { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
+  { path: '/branchmaster', name: 'Branch Master', element: BranchMaster },
+  { path: '/schooldriver', name: 'School Driver', element: SchoolDriver },
+  { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
+  { path: '/schoolnotification', name: 'School Notification', element: SchoolNotification },
+  { path: '/parent', name: 'Parent', element: Parent },
+  { path: '/readdevices', name: 'Read Devices', element: ReadDevices },
+  { path: '/schoolmaster', name: 'School Master', element: SchoolMaster },
+  { path: '/supervisor', name: 'Supervisor', element: Supervisor },
+  { path: '/useraccess', name: 'User Access', element: UserAccess },
+
 
 
 ]
