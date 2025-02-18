@@ -25,12 +25,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+import { TotalResponsesContext } from '../../../views/ParentContext/TotalResponsesContext'
 import CircularProgress from "@mui/material/CircularProgress";
 //import { TextField } from '@mui/material';
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Green check icon
 import CancelIcon from "@mui/icons-material/Cancel"; // Red cross icon
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from '../../../../src/PaginationCssFile/TablePaginationStyles'
 import Export from "../../Export";
 import {
   FormControlLabel,
@@ -56,8 +56,8 @@ const style = {
   padding: "1rem",
 };
 
-export const PickupAndDrop = () => {
-  const { setTotalResponses} = useContext(TotalResponsesContext); // Get the context value
+const schoolpickanddrop = () => {
+  // const { setTotalResponses} = useContext(TotalResponsesContext); // Get the context value
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -854,3 +854,4 @@ console.log("abhi dekh",role)
     </>
   );
 };
+export default schoolpickanddrop
