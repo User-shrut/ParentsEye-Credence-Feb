@@ -26,11 +26,11 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as XLSX from "xlsx";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { TotalResponsesContext } from "../../../../TotalResponsesContext";
+ import { TotalResponsesContext } from "../../../views/ParentContext/TotalResponsesContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import Export from "../../Export";
-import { StyledTablePagination } from "../../PaginationCssFile/TablePaginationStyles";
+import { StyledTablePagination } from "../../../../src/PaginationCssFile/TablePaginationStyles";
 
 
 import { FormControlLabel, FormLabel, IconButton, Radio, RadioGroup } from '@mui/material'
