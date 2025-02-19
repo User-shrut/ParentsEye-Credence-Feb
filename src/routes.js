@@ -76,6 +76,10 @@ const BranchMaster = React.lazy(() => import('./views/Users/BranchMaster/BranchM
 // const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
 // const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
 
+//  school chat box
+
+const chatbox = React.lazy(()=>import('./views/forms/help-support/chatbot/ChatBox.js'))
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
 
@@ -149,6 +153,11 @@ const routes = [
   { path: '/useraccess', name: 'User Access', element: UserAccess },
   // { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
   // { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
+
+
+  // school chat box
+
+  { path: '/chatbox', name: 'Chat Box', element: chatbox },
 
 
 ]
