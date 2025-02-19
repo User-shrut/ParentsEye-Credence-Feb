@@ -85,12 +85,11 @@ const AppSidebar = () => {
   return (
     <CSidebar
       className="border-end"
-      // style={{marginTop:"5%"}}
       style={{ backgroundColor: '#f4d24A' }}
       fontcolor="rgb(0,0,0)"
       colorScheme="light"
       position="fixed"
-      unfoldable={sidebarShow}
+      unfoldable={!sidebarShow}
       visible={sidebarShow}
       onVisibleChange={(visible) => {
         dispatch({ type: 'set', sidebarShow: visible })
@@ -109,6 +108,12 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
+      <CHeaderToggler
+        onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+        style={{ marginInlineStart: '170px' }}
+      >
+        <CIcon icon={cilDelete} size="lg" />
+      </CHeaderToggler>
       {/* <hr></hr> */}
       {navigatingNav && <AppSidebarNav items={navigatingNav} />}
       <CSidebarFooter className="border-top d-none d-lg-flex">
