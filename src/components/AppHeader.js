@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {
   CContainer,
   CDropdown,
@@ -64,6 +65,7 @@ import { MdOutlineSupportAgent } from 'react-icons/md'
 import { CircleUserRound, School } from 'lucide-react'
 
 const AppHeader = () => {
+  const navigate = useNavigate()
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
@@ -306,8 +308,15 @@ const AppHeader = () => {
         </CHeaderToggler> */}
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
-            <CNavLink id='header-dashboard' to="/dashboard" as={NavLink}>
-              <img src={logo} alt="Logo" className="sidebar-brand-full" height={50} width={200} style={{ marginInlineStart: '-30px' }} />
+            <CNavLink id="header-dashboard" to="/dashboard" as={NavLink}>
+              <img
+                src={logo}
+                alt="Logo"
+                className="sidebar-brand-full"
+                height={50}
+                width={200}
+                style={{ marginInlineStart: '-30px' }}
+              />
             </CNavLink>
           </CNavItem>
         </CHeaderNav>
@@ -353,7 +362,7 @@ const AppHeader = () => {
         {/**CURRENT */}
         <CTabs className="ms-auto">
           <CTabList variant="underline">
-            <CTab onClick={handleHome} className="text-black" itemKey={1}>
+            <CTab onClick={() => navigate('/dashboard')} className="text-black" itemKey={1}>
               <FaHome className="me-2" /> Home
             </CTab>
             <div className="vr mx-3 bg-black"></div>
