@@ -25,6 +25,7 @@ import { FcLeave, FcStatistics } from "react-icons/fc";
 import { VscRequestChanges } from 'react-icons/vsc'
 import { AiOutlineFileDone } from 'react-icons/ai'
 import { LuGitBranchPlus } from 'react-icons/lu'
+import { BiChat } from "react-icons/bi";
 
 const _nav = (role, decodedToken) => {
   let devices,
@@ -759,6 +760,16 @@ const _nav = (role, decodedToken) => {
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <TicketCheck style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Chat Box',
+              to: '/chatbox',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <BiChat style={{ marginRight: '15px', fontSize: '25px' }} />                
                 </div>
               ),
             },

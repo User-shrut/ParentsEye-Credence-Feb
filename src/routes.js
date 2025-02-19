@@ -88,6 +88,11 @@ const Statistics = React.lazy(() => import('./views/ReportsUpdated/Statistics/St
 const KilometerDistance = React.lazy(() => import('./views/ReportsUpdated/DistanceReport/DistanceReport.jsx'))
 const SchoolGeofenceReports = React.lazy(() => import('./views/ReportsUpdated/GeofenceReport/GeofenceReport.jsx'))
 
+//  school chat box
+
+const chatbox = React.lazy(() => import('./views/forms/help-support/chatbot/ChatBox.js'))
+
+
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -174,6 +179,11 @@ const routes = [
   { path: '/statistics', name: 'Statistics', element: Statistics },
   { path: '/schooldistance', name: 'Kilometer Distance', element: KilometerDistance },
   { path: '/schoolgeorep', name: 'School Geofence Reports', element: SchoolGeofenceReports },
+
+  // school chat box
+
+  { path: '/chatbox', name: 'Chat Box', element: chatbox },
+
 
 ]
 export default routes
