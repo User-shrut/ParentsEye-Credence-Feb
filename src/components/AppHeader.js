@@ -179,6 +179,7 @@ const AppHeader = () => {
         home: true,
         school: false,
         users: false,
+        schoolreports: false,
         master: false,
         reports: false,
         expense: false,
@@ -196,6 +197,7 @@ const AppHeader = () => {
         home: false,
         school: true,
         users: false,
+        schoolreports: false,
         master: false,
         reports: false,
         expense: false,
@@ -213,6 +215,7 @@ const AppHeader = () => {
         home: false,
         school: false,
         users: true,
+        schoolreports: false,
         master: false,
         reports: false,
         expense: false,
@@ -223,6 +226,24 @@ const AppHeader = () => {
       dispatch({ type: 'set', sidebarShow: !sidebarShow })
     }
   }
+  const handleSchoolReports = () => {
+    dispatch({ type: 'set', sidebarShow: true })
+    dispatch(
+      setToggleSidebar({
+        home: false,
+        school: false,
+        users: false,
+        schoolreports: true,
+        master: false,
+        reports: false,
+        expense: false,
+        support: false,
+      }),
+    )
+    if (toggle.schoolreports) {
+      dispatch({ type: 'set', sidebarShow: !sidebarShow })
+    }
+  }
   const handleMaster = () => {
     dispatch({ type: 'set', sidebarShow: true })
     dispatch(
@@ -230,6 +251,7 @@ const AppHeader = () => {
         home: false,
         school: false,
         users: false,
+        schoolreports: false,
         master: true,
         reports: false,
         expense: false,
@@ -247,6 +269,7 @@ const AppHeader = () => {
         home: false,
         school: false,
         users: false,
+        schoolreports: false,
         master: false,
         reports: true,
         expense: false,
@@ -267,6 +290,7 @@ const AppHeader = () => {
           home: false,
           school: false,
           users: false,
+          schoolreports: false,
           master: false,
           reports: false,
           expense: false,
@@ -374,16 +398,20 @@ const AppHeader = () => {
               <FaAddressCard className="me-2" /> Users
             </CTab>
             <div className="vr mx-3 bg-black"></div>
-            <CTab onClick={handleMaster} className="text-black" itemKey={4}>
+            <CTab onClick={handleSchoolReports} className="text-black" itemKey={4}>
+              <FaAddressCard className="me-2" /> School Reports
+            </CTab>
+            <div className="vr mx-3 bg-black"></div>
+            <CTab onClick={handleMaster} className="text-black" itemKey={5}>
               <FaAddressCard className="me-2" /> Master
             </CTab>
             <div className="vr mx-3 bg-black"></div>
-            <CTab onClick={handleReports} className="text-black" itemKey={5}>
+            <CTab onClick={handleReports} className="text-black" itemKey={6}>
               <FaChartBar className="me-2" /> Reports
             </CTab>
             <div className="vr mx-3 bg-black"></div>
             {role === 'superadmin' && (
-              <CTab onClick={handleSupports} className="text-black" itemKey={6}>
+              <CTab onClick={handleSupports} className="text-black" itemKey={7}>
                 <TbReportSearch className="me-2" /> Supports
               </CTab>
             )}

@@ -6,12 +6,12 @@ import { BsFillSignStopFill, BsGeo, BsWindowFullscreen } from 'react-icons/bs'
 import { BsChatDots } from 'react-icons/bs'
 import { FaAddressCard, FaCar, FaHistory, FaRegEdit, FaRegUser, FaRoute, FaStopwatch, FaUserAlt, FaUserGraduate } from 'react-icons/fa'
 import { LiaChalkboardTeacherSolid, LiaFileInvoiceDollarSolid } from 'react-icons/lia'
-import { TbBusStop, TbDevicesPlus, TbMessageReport, TbReport, TbSchool } from 'react-icons/tb'
-import { BiBookReader, BiLogOutCircle, BiUniversalAccess } from 'react-icons/bi'
-import { FaCarOn, FaSchoolFlag, FaUserGroup } from 'react-icons/fa6'
+import { TbBusStop, TbDevicesPlus, TbMessageReport, TbReport, TbRoute, TbSchool } from 'react-icons/tb'
+import { BiBookReader, BiDevices, BiLogOutCircle, BiUniversalAccess } from 'react-icons/bi'
+import { FaCarOn, FaSchoolFlag, FaSquarePollHorizontal, FaUserGroup } from 'react-icons/fa6'
 import { GrHostMaintenance, GrUserPolice, GrUserWorker } from 'react-icons/gr'
 import { IoMdNotifications, IoMdNotificationsOutline } from 'react-icons/io'
-import { MdCoPresent, MdEventNote, MdOutlineCategory, MdOutlineSpaceDashboard, MdSensors } from 'react-icons/md'
+import { MdAltRoute, MdCoPresent, MdEventNote, MdOutlineCategory, MdOutlineSpaceDashboard, MdSensors } from 'react-icons/md'
 import { TbCategory } from 'react-icons/tb'
 import { GiCancel, GiPathDistance } from 'react-icons/gi'
 import { TbReportAnalytics } from 'react-icons/tb'
@@ -21,10 +21,11 @@ import { PiDevicesLight, PiMapPinAreaFill, PiStudentBold } from 'react-icons/pi'
 import { BiSupport } from 'react-icons/bi'
 import { TicketCheck } from 'lucide-react'
 import { icon } from 'leaflet'
-import { FcLeave } from "react-icons/fc";
+import { FcLeave, FcStatistics } from "react-icons/fc";
 import { VscRequestChanges } from 'react-icons/vsc'
 import { AiOutlineFileDone } from 'react-icons/ai'
 import { LuGitBranchPlus } from 'react-icons/lu'
+import { BiChat } from "react-icons/bi";
 
 const _nav = (role, decodedToken) => {
   let devices,
@@ -368,6 +369,115 @@ const _nav = (role, decodedToken) => {
           ]
         },
 
+        // Schools Reports
+
+        {
+          component: CNavItem,
+          name: 'SchoolReports',
+
+          icon: (
+            <div style={{ display: 'flex', alignItems: 'center' }} title="School Reports">
+              <BiSupport color="black" style={{ marginRight: '15px', fontSize: '30px' }} />
+            </div>
+          ),
+          items: [
+            {
+              component: CNavItem,
+              name: 'Device Status',
+              to: '/combined',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BiDevices style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Route',
+              to: '/route',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <MdAltRoute style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Events',
+              to: '/event',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <MdAltRoute style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'School Trips',
+              to: '/schooltrips',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <TbRoute style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Stops Reports',
+              to: '/schoolstops',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BsFillSignStopFill style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Summary',
+              to: '/summary',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaSquarePollHorizontal style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Statistics',
+              to: '/statistics',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FcStatistics style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Kilometer Distance',
+              to: '/schooldistance',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <GiPathDistance style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'School Geofence Reports',
+              to: '/schoolgeorep',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <BsGeo style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+
+
+
+
+          ],
+        },
+
 
         // Credence Tracker code navigation
 
@@ -629,6 +739,7 @@ const _nav = (role, decodedToken) => {
             },
           ],
         },
+
         {
           component: CNavItem,
           name: 'Supports',
@@ -649,6 +760,16 @@ const _nav = (role, decodedToken) => {
               icon: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <TicketCheck style={{ marginRight: '15px', fontSize: '25px' }} />
+                </div>
+              ),
+            },
+            {
+              component: CNavItem,
+              name: 'Chat Box',
+              to: '/chatbox',
+              icon: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <BiChat style={{ marginRight: '15px', fontSize: '25px' }} />                
                 </div>
               ),
             },

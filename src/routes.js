@@ -76,6 +76,24 @@ const BranchMaster = React.lazy(() => import('./views/Users/BranchMaster/BranchM
 // const AssignBranches = React.lazy(() => import('./views/Users/AssignBranches/AssignBranches.jsx'))
 // const MyBranchDevices = React.lazy(() => import('./views/Users/MyBranchDevices/MyBranchDevices.jsx'))
 
+// Reports parent eye
+
+const DeviceStatus = React.lazy(() => import('./views/ReportsUpdated/Combined/Combined.jsx'))
+const Route = React.lazy(() => import('./views/ReportsUpdated/Route/Route.jsx'))
+const Events = React.lazy(() => import('./views/ReportsUpdated/Event/Event.jsx'))
+const SchoolTrips = React.lazy(() => import('./views/ReportsUpdated/Trips/Trips.jsx'))
+const StopsReports = React.lazy(() => import('./views/ReportsUpdated/Stops/Stops.jsx'))
+const Summary = React.lazy(() => import('./views/ReportsUpdated/Summary/Summary.jsx'))
+const Statistics = React.lazy(() => import('./views/ReportsUpdated/Statistics/Statistics.jsx'))
+const KilometerDistance = React.lazy(() => import('./views/ReportsUpdated/DistanceReport/DistanceReport.jsx'))
+const SchoolGeofenceReports = React.lazy(() => import('./views/ReportsUpdated/GeofenceReport/GeofenceReport.jsx'))
+
+//  school chat box
+
+const chatbox = React.lazy(() => import('./views/forms/help-support/chatbot/ChatBox.js'))
+
+
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
 
@@ -149,6 +167,22 @@ const routes = [
   { path: '/useraccess', name: 'User Access', element: UserAccess },
   // { path: '/assignbranches', name: 'Assign Branches', element: AssignBranches },
   // { path: '/mybranchdevices', name: 'My Branch Devices', element: MyBranchDevices },
+
+  // Reports parent eye
+
+  { path: '/combined', name: 'Device Status', element: DeviceStatus },
+  { path: '/route', name: 'Route', element: Route },
+  { path: '/event', name: 'Events', element: Events },
+  { path: '/schooltrips', name: 'School Trips', element: SchoolTrips },
+  { path: '/schoolstops', name: 'Stops Reports', element: StopsReports },
+  { path: '/summary', name: 'Summary', element: Summary },
+  { path: '/statistics', name: 'Statistics', element: Statistics },
+  { path: '/schooldistance', name: 'Kilometer Distance', element: KilometerDistance },
+  { path: '/schoolgeorep', name: 'School Geofence Reports', element: SchoolGeofenceReports },
+
+  // school chat box
+
+  { path: '/chatbox', name: 'Chat Box', element: chatbox },
 
 
 ]

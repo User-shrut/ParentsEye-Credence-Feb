@@ -12,6 +12,7 @@ function Sidenew() {
         <div>Home</div>
         <div>School</div>
         <div>Users</div>
+        <div>School Reports</div>
         <div>Master</div>
         <div>Reports</div>
         <div>Expense</div>
