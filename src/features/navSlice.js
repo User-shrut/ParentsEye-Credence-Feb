@@ -34,6 +34,7 @@ const navSlice = createSlice({
     home: false,
     school: true,
     users: false,
+    schoolreports: false,
     master: false,
     reports: false,
     expense: false,
@@ -45,6 +46,7 @@ const navSlice = createSlice({
       state.home = action.payload.home
       state.school = action.payload.school
       state.users = action.payload.users
+      state.schoolreports = action.payload.schoolreports
       state.master = action.payload.master
       state.reports = action.payload.reports
       state.expense = action.payload.expense

@@ -207,7 +207,7 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   // Selectors to determine which section to show
-  const { home, school, users, master, reports, expense, support } = useSelector((state) => state.navbar)
+  const { home, school, users, schoolreports, master, reports, expense, support } = useSelector((state) => state.navbar)
 
   // Filter items based on active section dashboard
   const filterItemsForSection = (section) => {
@@ -275,6 +275,14 @@ export const AppSidebarNav = ({ items }) => {
     return items
   }
 
+  const filterItemsForSection9 = (section) => {
+    console.log('Filtering for School Reports section:', section)
+    if (section === 'schoolreports') {
+      return items.filter((item) => item.name === 'SchoolReports')
+    }
+    return items
+  }
+
   // Render the sidebar navigation
   return (
     <>
@@ -297,6 +305,14 @@ export const AppSidebarNav = ({ items }) => {
       {users && (
         <CSidebarNav as={SimpleBar}>
           {filterItemsForSection7('users').map((item, index) =>
+            item.items ? navGroup(item, index) : navItem(item, index),
+          )}
+        </CSidebarNav>
+      )}
+
+      {schoolreports && (
+        <CSidebarNav as={SimpleBar}>
+          {filterItemsForSection9('schoolreports').map((item, index) =>
             item.items ? navGroup(item, index) : navItem(item, index),
           )}
         </CSidebarNav>
