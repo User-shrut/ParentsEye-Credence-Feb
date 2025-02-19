@@ -386,7 +386,7 @@ const supervisor = () => {
           ? `${import.meta.env.VITE_SCHOOL_API}/delete-supervisor`
           :role==3
           ? `${import.meta.env.VITE_BRANCH_API}/delete-supervisor`
-          :`http://63.142.251.13:4000/branchgroupuser/deleteSupervisorByBranchGroupUser`
+          :`${import.meta.env.VITE_USERBRANCH}/deleteSupervisorByBranchGroupUser`
 
       const token = localStorage.getItem("token");
       // Send delete requests for each selected ID
@@ -442,7 +442,7 @@ const supervisor = () => {
         // Now make the POST request with parsedData
         axios
           .post(
-            "http://63.142.251.13:4000/supervisor/importsupervisor",
+            `${import.meta.env.VITE_API}/supervisor/importsupervisor`,
             parsedData
           )
           .then((response) => {
@@ -1016,7 +1016,7 @@ const supervisor = () => {
         );
       }else if (role == 4) {
         response = await axios.post(
-          `http://63.142.251.13:4000/branchgroupuser/approvesupervisor/${_id}`,
+          `${import.meta.env.VITE_USERBRANCH}/approvesupervisor/${_id}`,
           { action: "approve" },
           {
             headers: {
@@ -1081,7 +1081,7 @@ const supervisor = () => {
         );
       }else if (role == 4) {
         response = await axios.post(
-          `http://63.142.251.13:4000/branchgroupuser/approvesupervisor/${_id}`,
+          `${import.meta.env.VITE_USERBRANCH}/approvesupervisor/${_id}`,
           { action: "reject" },
           {
             headers: {

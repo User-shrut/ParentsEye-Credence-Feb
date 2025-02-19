@@ -633,7 +633,7 @@ const Parent = () => {
           ? `${import.meta.env.VITE_SCHOOL_API}/update-parent`
           : role == 3
             ? `${import.meta.env.VITE_BRANCH_API}/update-parent`
-            : `${process.env.REACT_APP_USERBRANCH}/updateparentbybranchgroup`
+            : `${import.meta.env.VITE_USERBRANCH}/updateparentbybranchgroup`
     const token = localStorage.getItem('token')
     // Prepare the updated data
     const updatedData = {
@@ -727,7 +727,7 @@ const Parent = () => {
       console.log(newRow)
 
       // POST request to the server
-      const response = await fetch(`${process.env.REACT_APP_API}/Parent/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API}/Parent/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -934,7 +934,7 @@ const Parent = () => {
         try {
           const token = localStorage.getItem('token')
           const response = await axios.get(
-            `${process.env.REACT_APP_USERBRANCH}/getdevicebranchgroupuser`,
+            `${import.meta.env.VITE_USERBRANCH}/getdevicebranchgroupuser`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -964,7 +964,7 @@ const Parent = () => {
               ? `${import.meta.env.VITE_SCHOOL_API}/read-devices`
               : role == 3
                 ? `${import.meta.env.VITE_BRANCH_API}/read-devices`
-                : `${process.env.REACT_APP_USERBRANCH}/getdevicebranchgroupuser`
+                : `${import.meta.env.VITE_USERBRANCH}/getdevicebranchgroupuser`
         const response = await axios.get(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1048,7 +1048,7 @@ const Parent = () => {
             headers: { Authorization: `Bearer ${token}` },
           })
         } else if (role == 4) {
-          response = await axios.get(`${process.env.REACT_APP_USERBRANCH}/getgeofence`, {
+          response = await axios.get(`${import.meta.env.VITE_USERBRANCH}/getgeofence`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

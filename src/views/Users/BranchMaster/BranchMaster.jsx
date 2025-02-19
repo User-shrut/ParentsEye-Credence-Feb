@@ -550,11 +550,11 @@ const BranchMaster = () => {
   useEffect(() => {
     const fetchOtherData = async () => {
       try {
-        const username = 'school'
-        const password = '123456'
+        const username = import.meta.env.VITE_USERNAME
+        const password = import.meta.env.VITE_PASSWORD
         const token = btoa(`${username}:${password}`)
 
-        const response = await axios.get('https://rocketsalestracker.com/api/devices', {
+        const response = await axios.get(`${import.meta.env.VITE_ROCKETSALES_API}/devices`, {
           headers: {
             Authorization: `Basic ${token}`,
           },

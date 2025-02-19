@@ -115,7 +115,7 @@ const UserAccess = () => {
       if (role == 1) {
         const token = localStorage.getItem("token");
         response = await axios.get(
-          `http://63.142.251.13:4000/superadmin/branchgroup`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/branchgroup`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -368,7 +368,7 @@ const UserAccess = () => {
 
       const apiUrl =
         role == 1
-          ? `http://63.142.251.13:4000/superadmin/branchgroup`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/branchgroup`
           : role == 2
           ? `${import.meta.env.VITE_SCHOOL_API}/delete/child`
           : `${import.meta.env.VITE_BRANCH_API}/delete/child`;
@@ -446,7 +446,7 @@ const handleFileUpload = (event) => {
       console.log("Uploaded file data:", parsedData);
 
       // Now make the POST request with parsedData
-      axios.post('http://63.142.251.13:4000/parent/import', parsedData)
+      axios.post(`${import.meta.env.VITE_API}/parent/import`, parsedData)
         .then(response => {
           console.log('Data successfully posted:', response.data);
           alert('File imported and data posted successfully!');
@@ -668,7 +668,7 @@ const handleEditSubmit = async () => {
   const token = localStorage.getItem("token");
   const apiUrl =
     role == 1
-      ? `http://63.142.251.13:4000/superadmin/branchgroup`
+      ? `${import.meta.env.VITE_SUPER_ADMIN_API}/branchgroup`
       : role === 2
       ? `${import.meta.env.VITE_SCHOOL_API}/update-child`
       : `${import.meta.env.VITE_BRANCH_API}/update-child`;
@@ -747,7 +747,7 @@ const handleEditSubmit = async () => {
       console.log(newRow);
   
       const response = await fetch(
-        `http://63.142.251.13:4000/superadmin/branchgroup`,
+        `${import.meta.env.VITE_SUPER_ADMIN_API}/branchgroup`,
         {
           method: "POST",
           headers: {
