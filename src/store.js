@@ -8,7 +8,7 @@ import historyReducer from './features/historySlice.js'
 import deviceReducer from './features/deviceSlice.js'
 // Initial state and reducer for sidebar and theme
 const initialState = {
-  sidebarShow: true,
+  sidebarShow: false,
   // theme: 'light',
 }
 
