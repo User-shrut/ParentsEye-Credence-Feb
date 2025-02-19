@@ -91,7 +91,7 @@ const schooldeniedrequest = () => {
       // Fetch data based on the role
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/denied-requests`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/denied-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ const schooldeniedrequest = () => {
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/denied-requests`,
+          `${import.meta.env.VITE_SCHOOL_API}/denied-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ const schooldeniedrequest = () => {
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/denied-requests`, // Replace with correct API URL
+          `${import.meta.env.VITE_BRANCH_API}/denied-requests`, // Replace with correct API URL
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -118,7 +118,7 @@ const schooldeniedrequest = () => {
         );
       }else if (role == 4) {
         response = await axios.get(
-          `http://63.142.251.13:4000/branchgroupuser/deniedrequests`, // Replace with correct API URL
+          `${import.meta.env.VITE_USERBRANCH}/deniedrequests`, // Replace with correct API URL
           {
             headers: {
               Authorization: `Bearer ${token}`,

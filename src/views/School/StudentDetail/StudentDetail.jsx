@@ -930,7 +930,7 @@ useEffect(() => {
       } else if (role == 4) {
         try {
           const token=localStorage.getItem("token");
-          const response=await axios.get(`http://63.142.251.13:4000/branchgroupuser/getdevicebranchgroupuser`,{
+          const response=await axios.get(`${import.meta.env.VITE_USERBRANCH}/getdevicebranchgroupuser`,{
             headers:{
               Authorization:`Bearer ${token}`
             }

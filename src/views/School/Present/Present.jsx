@@ -84,10 +84,10 @@ const schoolpresent = () => {
   //     const token = localStorage.getItem("token");
   //     const apiUrl =
   //       role == 1
-  //         ? `${process.env.REACT_APP_SUPER_ADMIN_API}/present-children`
+  //         ? `${import.meta.env.VITE_SUPER_ADMIN_API}/present-children`
   //         : role == 2
-  //         ? `${process.env.REACT_APP_SCHOOL_API}/present-children`
-  //         : `${process.env.REACT_APP_BRANCH_API}/present-children`;
+  //         ? `${import.meta.env.VITE_SCHOOL_API}/present-children`
+  //         : `${import.meta.env.VITE_BRANCH_API}/present-children`;
   //     const response = await axios.get(apiUrl, {
   //       headers: {
   //         Authorization: `Bearer ${token}`,
@@ -150,12 +150,12 @@ const schoolpresent = () => {
     const token = localStorage.getItem("token");
     const apiUrl =
       role == 1
-        ? `${process.env.REACT_APP_SUPER_ADMIN_API}/present-children`
+        ? `${import.meta.env.VITE_SUPER_ADMIN_API}/present-children`
         : role == 2
-        ? `${process.env.REACT_APP_SCHOOL_API}/present-children`
+        ? `${import.meta.env.VITE_SCHOOL_API}/present-children`
         :role==3
-        ? `${process.env.REACT_APP_BRANCH_API}/present-children`
-        :`${process.env.REACT_APP_USERBRANCH}/presentchildrenByBranchgroup`;
+        ? `${import.meta.env.VITE_BRANCH_API}/present-children`
+        :`${import.meta.env.VITE_USERBRANCH}/presentchildrenByBranchgroup`;
         
     const response = await axios.get(apiUrl, {
       headers: {

@@ -96,7 +96,7 @@ const schoolleave = () => {
   
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/pending-requests`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/pending-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const schoolleave = () => {
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/pending-requests`,
+          `${import.meta.env.VITE_SCHOOL_API}/pending-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ const schoolleave = () => {
         );
       } else if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/pending-requests`,
+          `${import.meta.env.VITE_BRANCH_API}/pending-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@ const schoolleave = () => {
         );
       }else if (role == 4) {
         response = await axios.get(
-          `http://63.142.251.13:4000/branchgroupuser/pendingrequests`,
+          `${import.meta.env.VITE_USERBRANCH}/pendingrequests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -397,12 +397,12 @@ return `${day}-${month}-${year}`;
       const token = localStorage.getItem("token");
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/review-request/${requestId}`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/review-request/${requestId}`
           :role==2
-          ? `${process.env.REACT_APP_SCHOOL_API}/review-request/${requestId}`
+          ? `${import.meta.env.VITE_SCHOOL_API}/review-request/${requestId}`
          :role==3
-          ? `${process.env.REACT_APP_BRANCH_API}/review-request/${requestId}`
-          :`${process.env.REACT_APP_USERBRANCH}/changestatusofleaverequest/${requestId}`
+          ? `${import.meta.env.VITE_BRANCH_API}/review-request/${requestId}`
+          :`${import.meta.env.VITE_USERBRANCH}/changestatusofleaverequest/${requestId}`
       const response = await axios.post(
         apiUrl,
         {
@@ -428,12 +428,12 @@ return `${day}-${month}-${year}`;
       const token = localStorage.getItem("token");
       const apiUrl =
         role == 1
-          ? `${process.env.REACT_APP_SUPER_ADMIN_API}/review-request/${requestId}`
+          ? `${import.meta.env.VITE_SUPER_ADMIN_API}/review-request/${requestId}`
           :role==2
-          ? `${process.env.REACT_APP_SCHOOL_API}/review-request/${requestId}`
+          ? `${import.meta.env.VITE_SCHOOL_API}/review-request/${requestId}`
           : role==3
-          ?`${process.env.REACT_APP_BRANCH_API}/review-request/${requestId}`
-          :`${process.env.REACT_APP_USERBRANCH}/changestatusofleaverequest/${requestId}`
+          ?`${import.meta.env.VITE_BRANCH_API}/review-request/${requestId}`
+          :`${import.meta.env.VITE_USERBRANCH}/changestatusofleaverequest/${requestId}`
       const response = await axios.post(
         apiUrl,
         {

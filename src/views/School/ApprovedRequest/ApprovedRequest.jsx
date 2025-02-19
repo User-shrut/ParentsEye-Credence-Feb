@@ -88,7 +88,7 @@ const schoolapprovedrequest = () => {
   //     let response;
   //     if (role == 1) {
   //       response = await axios.get(
-  //         `${process.env.REACT_APP_SUPER_ADMIN_API}/approved-requests`,
+  //         `${import.meta.env.VITE_SUPER_ADMIN_API}/approved-requests`,
   //         {
   //           headers: {
   //             Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const schoolapprovedrequest = () => {
   //       );
   //     } else if (role == 2) {
   //       response = await axios.get(
-  //         `${process.env.REACT_APP_SCHOOL_API}/approved-requests`,
+  //         `${import.meta.env.VITE_SCHOOL_API}/approved-requests`,
   //         {
   //           headers: {
   //             Authorization: `Bearer ${token}`,
@@ -106,7 +106,7 @@ const schoolapprovedrequest = () => {
   //       );
   //     } else {
   //       response = await axios.get(
-  //         `${process.env.REACT_APP_BRANCH_API}/approved-requests`,
+  //         `${import.meta.env.VITE_BRANCH_API}/approved-requests`,
   //         {
   //           headers: {
   //             Authorization: `Bearer ${token}`,
@@ -182,7 +182,7 @@ const schoolapprovedrequest = () => {
   
       if (role == 1) {
         response = await axios.get(
-          `${process.env.REACT_APP_SUPER_ADMIN_API}/approved-requests`,
+          `${import.meta.env.VITE_SUPER_ADMIN_API}/approved-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -191,7 +191,7 @@ const schoolapprovedrequest = () => {
         );
       } else if (role == 2) {
         response = await axios.get(
-          `${process.env.REACT_APP_SCHOOL_API}/approved-requests`,
+          `${import.meta.env.VITE_SCHOOL_API}/approved-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -200,7 +200,7 @@ const schoolapprovedrequest = () => {
         );
       } else  if (role == 3) {
         response = await axios.get(
-          `${process.env.REACT_APP_BRANCH_API}/approved-requests`,
+          `${import.meta.env.VITE_BRANCH_API}/approved-requests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -209,7 +209,7 @@ const schoolapprovedrequest = () => {
         );
       }else  if (role == 4) {
         response = await axios.get(
-          `http://63.142.251.13:4000/branchgroupuser/approverequests`,
+          `${import.meta.env.VITE_USERBRANCH}/approverequests`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
